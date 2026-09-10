@@ -18,6 +18,9 @@ let wrongWords = [];
 let started = null;
 let topicSlug = null;
 let mode = 'topic';
+let muc = null;
+let bo = null;
+const SET_SIZE = 12;
 let locked = false;
 
 const $ = function (id) { return document.getElementById(id); };
@@ -30,10 +33,18 @@ const $ = function (id) { return document.getElementById(id); };
 
   const q = new URLSearchParams(location.search);
   topicSlug = q.get('chu-de');
+  muc = q.get('muc');
+  bo  = q.get('bo');
   mode = q.get('mode') === 'review' ? 'review' : 'topic';
 
   started = new Date();
   await buildQueue();
+
+  if (topicSlug) {
+    document.querySelectorAll('a[href="vocab.html"]').forEach(function (a) {
+      a.href = 'topic.html?chu-de=' + encodeURIComponent(topicSlug);
+    });
+  }
 
   if (!queue.length) {
     $('view-study').classList.add('hidden');
@@ -61,11 +72,26 @@ async function buildQueue() {
   $('topic-name').textContent = topicName;
 
   let qy = db.from('vocabulary')
-    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, topic_id');
+    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, topic_id');
   if (topicId) qy = qy.eq('topic_id', topicId);
 
-  const { data: words } = await qy;
+  qy = qy.order('level').order('order_index').order('id');
+
+  let { data: words } = await qy;
   if (!words || !words.length) return;
+
+  const allWords = words.slice();   // dùng làm phương án nhiễu
+
+  if (muc) {
+    const lv = parseInt(muc, 10);
+    words = words.filter(function (w) { return (w.level || 1) === lv; });
+  }
+  if (bo) {
+    const i = parseInt(bo, 10) - 1;
+    words = words.slice(i * SET_SIZE, (i + 1) * SET_SIZE);
+    $('topic-name').textContent = topicName + ' · Bộ ' + bo;
+  }
+  if (!words.length) return;
 
   const { data: prog } = await db
     .from('vocab_progress')
@@ -96,10 +122,11 @@ async function buildQueue() {
   }
   if (!picked.length) picked = words.slice();
 
-  queue = shuffle(picked).slice(0, SIZE);
+  const limit = bo ? Math.min(words.length, SET_SIZE) : SIZE;
+  queue = shuffle(picked).slice(0, limit);
 
   for (const w of queue) {
-    const others = shuffle(words.filter(function (x) {
+    const others = shuffle(allWords.filter(function (x) {
       return x.id !== w.id && x.meaning_vi !== w.meaning_vi;
     })).slice(0, 3);
     w.choices = shuffle([w].concat(others));
@@ -231,6 +258,7 @@ function showWrong() {
         '<p class="rw">' + esc(w.word) + '</p>' +
         '<p class="rp">' + esc([w.pos, w.phonetic].filter(Boolean).join('  ')) + '</p>' +
         '<p class="rm">' + esc(w.meaning_vi) + '</p>' +
+        (w.synonyms ? '<p class="rp">Đồng nghĩa: ' + esc(w.synonyms) + '</p>' : '') +
         (w.example_en ? '<p class="re">' + highlight(w.example_en, w.word) + '</p>' : '') +
         (w.example_vi ? '<p class="rp" style="margin-top:5px">' + esc(w.example_vi) + '</p>' : '') +
       '</div>';
