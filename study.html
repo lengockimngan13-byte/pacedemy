@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiểm tra từ vựng — Pacedemy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <a class="btn-quiet" href="vocab.html">Thoát bài kiểm tra</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="study" id="view-study">
+    <div class="study-top">
+      <span id="topic-name">Đang tải…</span>
+      <span id="counter"></span>
+    </div>
+    <div class="study-bar"><span id="progress" style="width:0"></span></div>
+
+    <div class="word-box">
+      <p class="word" id="word">—</p>
+      <div class="word-meta">
+        <span class="pos" id="pos"></span>
+        <span id="phonetic"></span>
+      </div>
+    </div>
+
+    <div class="opts" id="opts"></div>
+  </section>
+
+  <section class="done hidden" id="view-done">
+    <h1 id="done-title">Xong bài kiểm tra</h1>
+    <p class="big" id="done-score">—</p>
+    <p class="sub" id="done-sub"></p>
+    <div id="wrong-box"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold hidden" id="btn-learn-wrong">Học thẻ các từ sai</button>
+      <button class="btn btn-line" id="btn-again">Làm lại</button>
+      <a class="btn btn-line" href="vocab.html">Chọn chủ đề khác</a>
+    </div>
+  </section>
+
+  <section class="done hidden" id="view-empty">
+    <h1>Chủ đề này chưa có từ</h1>
+    <p class="sub">Bạn quay lại chọn chủ đề khác nhé.</p>
+    <div class="done-actions">
+      <a class="btn btn-ink" href="vocab.html">Về danh sách chủ đề</a>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/study.js"></script>
+</body>
+</html>
