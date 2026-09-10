@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Học thẻ — Pacedemy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <a class="btn-quiet" href="vocab.html">Thoát</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="deck" id="view-deck">
+    <div class="deck-top">
+      <span id="topic-name">Đang tải…</span>
+      <label class="toggle">
+        <input type="checkbox" id="auto-audio" checked>
+        Tự đọc phát âm
+      </label>
+    </div>
+    <div class="study-bar"><span id="progress" style="width:0"></span></div>
+
+    <div class="card-stage">
+      <div class="card" id="card">
+        <div class="card-face card-front">
+          <p class="w" id="f-word">—</p>
+          <p class="ph" id="f-phonetic"></p>
+          <p class="hint">Bấm vào thẻ hoặc phím Space để xem nghĩa</p>
+        </div>
+        <div class="card-face card-back">
+          <p class="m" id="b-meaning">—</p>
+          <p class="ex" id="b-ex"></p>
+          <p class="exvi" id="b-exvi"></p>
+          <p class="hint" id="b-count"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="deck-controls">
+      <button class="nav-btn" id="btn-prev" title="Thẻ trước" aria-label="Thẻ trước">←</button>
+      <button class="btn btn-mark" id="btn-mark">Đánh dấu chưa nhớ</button>
+      <button class="nav-btn" id="btn-next" title="Thẻ sau" aria-label="Thẻ sau">→</button>
+    </div>
+
+    <p class="keys">
+      <kbd>←</kbd> <kbd>→</kbd> chuyển thẻ &nbsp;·&nbsp;
+      <kbd>Space</kbd> lật thẻ &nbsp;·&nbsp;
+      <kbd>M</kbd> đánh dấu chưa nhớ &nbsp;·&nbsp;
+      <kbd>P</kbd> nghe lại
+    </p>
+  </section>
+
+  <section class="done hidden" id="view-done">
+    <h1 id="done-title">Đã xem hết bộ thẻ</h1>
+    <p class="sub" id="done-sub"></p>
+    <div id="marked-box"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold hidden" id="btn-redo">Học lại từ đã đánh dấu</button>
+      <a class="btn btn-ink" id="btn-test" href="#">Làm bài kiểm tra</a>
+      <a class="btn btn-line" href="vocab.html">Chọn chủ đề khác</a>
+    </div>
+  </section>
+
+  <section class="done hidden" id="view-empty">
+    <h1>Chủ đề này chưa có từ</h1>
+    <p class="sub">Bạn quay lại chọn chủ đề khác nhé.</p>
+    <div class="done-actions">
+      <a class="btn btn-ink" href="vocab.html">Về danh sách chủ đề</a>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/flashcard.js"></script>
+</body>
+</html>

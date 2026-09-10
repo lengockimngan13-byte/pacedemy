@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trang học — Pacedemy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">
+      Pac<span class="brand-e">e</span>demy
+    </a>
+    <div class="app-user">
+      <span class="streak" id="streak">0 ngày liên tiếp</span>
+      <button class="btn-quiet" id="btn-logout">Đăng xuất</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="greet">
+    <h1 id="greet-name">Đang tải…</h1>
+    <p id="greet-line"></p>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <span class="stat-num" id="s-xp">—</span>
+      <span class="stat-lab">Điểm tích luỹ</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="s-words">—</span>
+      <span class="stat-lab">Từ đã thuộc</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="s-questions">—</span>
+      <span class="stat-lab">Câu đã luyện</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="s-score">—</span>
+      <span class="stat-lab">Điểm thi thử gần nhất</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Hôm nay học gì</h2></div>
+    <div class="modules">
+
+      <a class="module" href="vocab.html">
+        <h3>Từ vựng theo chủ đề</h3>
+        <p>12 chủ đề thường gặp trong đề thi. Học từ mới và ôn lại những từ tới hạn.</p>
+        <span class="module-meta" id="m-vocab">Bắt đầu học →</span>
+      </a>
+
+      <span class="module soon">
+        <h3>Luyện nghe — Part 1 đến 4</h3>
+        <p>Mô tả tranh, hỏi đáp, hội thoại ngắn và bài nói chuyện.</p>
+        <span class="module-meta">Sắp mở</span>
+      </span>
+
+      <span class="module soon">
+        <h3>Luyện đọc — Part 5 đến 7</h3>
+        <p>Ngữ pháp câu, điền đoạn văn và bài đọc hiểu.</p>
+        <span class="module-meta">Sắp mở</span>
+      </span>
+
+      <span class="module soon">
+        <h3>Thi thử có bấm giờ</h3>
+        <p>Full test 200 câu trong 120 phút, quy đổi ra thang điểm TOEIC.</p>
+        <span class="module-meta">Sắp mở</span>
+      </span>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Bảng xếp hạng tuần</h2>
+      <span class="stat-lab">7 ngày gần nhất</span>
+    </div>
+    <div id="board-wrap">
+      <p class="empty">Đang tải bảng xếp hạng…</p>
+    </div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
