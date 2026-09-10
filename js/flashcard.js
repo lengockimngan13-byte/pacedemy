@@ -8,6 +8,9 @@ let at = 0;
 let flipped = false;
 let marked = {};
 let topicSlug = null;
+let muc = null;
+let bo = null;
+const SET_SIZE = 12;
 
 const $ = function (id) { return document.getElementById(id); };
 const AUDIO_KEY = 'pacedemy_tu_doc';
@@ -23,6 +26,8 @@ const AUDIO_KEY = 'pacedemy_tu_doc';
 
   const q = new URLSearchParams(location.search);
   topicSlug = q.get('chu-de');
+  muc = q.get('muc');
+  bo  = q.get('bo');
   const only = q.get('danh-dau');
 
   loadVoices();
@@ -34,7 +39,11 @@ const AUDIO_KEY = 'pacedemy_tu_doc';
     return;
   }
 
-  $('btn-test').href = 'study.html?chu-de=' + encodeURIComponent(topicSlug || '');
+  $('btn-test').href = 'study.html?chu-de=' + encodeURIComponent(topicSlug || '') +
+                       (muc ? '&muc=' + muc : '') + (bo ? '&bo=' + bo : '');
+  document.querySelectorAll('a[href="vocab.html"]').forEach(function (a) {
+    a.href = 'topic.html?chu-de=' + encodeURIComponent(topicSlug || '');
+  });
   render();
 })();
 
@@ -50,8 +59,9 @@ async function loadDeck(onlyIds) {
   $('topic-name').textContent = t.name_vi;
 
   const { data: words } = await db.from('vocabulary')
-    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations')
+    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level')
     .eq('topic_id', t.id)
+    .order('level')
     .order('order_index')
     .order('id');
 
@@ -60,9 +70,23 @@ async function loadDeck(onlyIds) {
   if (onlyIds) {
     const keep = onlyIds.split(',').map(Number);
     deck = words.filter(function (w) { return keep.indexOf(w.id) !== -1; });
-  } else {
-    deck = words;
+    return;
   }
+
+  let list = words;
+
+  if (muc) {
+    const lv = parseInt(muc, 10);
+    list = list.filter(function (w) { return (w.level || 1) === lv; });
+  }
+
+  if (bo) {
+    const i = parseInt(bo, 10) - 1;
+    list = list.slice(i * SET_SIZE, (i + 1) * SET_SIZE);
+    $('topic-name').textContent = $('topic-name').textContent + ' · Bộ ' + bo;
+  }
+
+  deck = list;
 }
 
 // ---------- Hiển thị ----------

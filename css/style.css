@@ -1101,3 +1101,78 @@ a { color: inherit; }
   .audio-btn { justify-content: center; }
   .deck-controls .btn { font-size: 0.9rem; }
 }
+
+/* ============================================================
+   CHIA MỨC VÀ BỘ TỪ
+   ============================================================ */
+
+.level-block { margin-bottom: 40px; }
+
+.level-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--line);
+  margin-bottom: 18px;
+}
+
+.level-head h2 {
+  margin: 0;
+  font-family: var(--disp);
+  font-size: 1.22rem;
+  font-weight: 600;
+}
+
+.level-band {
+  padding: 3px 11px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.band-1 { background: #E6F2F0; color: #1B5F58; }
+.band-2 { background: var(--gold-dim); color: #6B4A05; }
+.band-3 { background: #EDE6F2; color: #4A2F63; }
+
+.level-note { font-size: 0.86rem; color: #6C837E; margin-left: auto; }
+
+.set-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.set {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  padding: 17px 18px 18px;
+}
+
+.set-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.set-name { font-family: var(--disp); font-size: 1.02rem; font-weight: 600; }
+.set-n { font-size: 0.84rem; color: #6C837E; }
+
+.set.done { border-color: var(--teal); background: #F4FAF9; }
+
+.set-check {
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  font-size: 0.7rem;
+  line-height: 17px;
+  text-align: center;
+}
+
+@media (max-width: 900px) { .set-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .set-grid { grid-template-columns: 1fr; } }
