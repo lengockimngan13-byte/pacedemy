@@ -77,6 +77,7 @@
 
           <div class="blk" id="blk-syn">
             <p class="blk-h">Từ đồng nghĩa</p>
+            <p class="tap-hint">Bấm vào từ để nghe</p>
             <div class="chips" id="b-syn"></div>
           </div>
 
@@ -87,8 +88,15 @@
 
           <div class="blk" id="blk-ex">
             <p class="blk-h">Ví dụ</p>
-            <p class="ex" id="b-ex"></p>
-            <p class="exvi" id="b-exvi"></p>
+            <div class="ex-row">
+              <div class="ex-text">
+                <p class="ex" id="b-ex"></p>
+                <p class="exvi" id="b-exvi"></p>
+              </div>
+              <button class="say-btn" id="btn-say-ex" title="Nghe cả câu" aria-label="Nghe cả câu">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+              </button>
+            </div>
           </div>
 
           <span class="flip-hint" id="b-count"></span>

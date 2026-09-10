@@ -1176,3 +1176,57 @@ a { color: inherit; }
 
 @media (max-width: 900px) { .set-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .set-grid { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   MẶT SAU THẺ — BẤM ĐỂ NGHE
+   ============================================================ */
+
+.chip {
+  border: 1px solid transparent;
+  font-family: var(--ui);
+  cursor: pointer;
+  transition: background-color .14s ease, border-color .14s ease;
+}
+.chip:hover { background: var(--gold-dim); border-color: var(--gold); }
+.chip.speaking { background: var(--gold); border-color: var(--gold); }
+
+.colloc li {
+  cursor: pointer;
+  padding: 3px 0 3px 15px;
+  border-radius: 3px;
+  transition: background-color .14s ease;
+}
+.colloc li:hover { background: var(--mist); }
+.colloc li::before { top: 12px; }
+
+.col-en { display: block; font-size: 0.95rem; line-height: 1.45; }
+.col-vi { display: block; font-size: 0.86rem; color: #6C837E; line-height: 1.4; }
+.colloc li.speaking .col-en { color: #8A6100; font-weight: 600; }
+
+.ex-row { display: flex; align-items: flex-start; gap: 10px; }
+.ex-row .ex-text { flex: 1; }
+
+.say-btn {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-top: 1px;
+  border: 1.5px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--teal);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .14s ease, border-color .14s ease;
+}
+.say-btn svg { width: 15px; height: 15px; }
+.say-btn:hover { background: var(--mist); border-color: var(--teal); }
+.say-btn.speaking { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+
+.tap-hint {
+  font-size: 0.76rem;
+  color: #93A8A3;
+  margin: 0 0 7px;
+}

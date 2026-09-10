@@ -110,17 +110,27 @@ function render(speakIt) {
   $('b-count').textContent = 'Thẻ ' + (at + 1) + ' / ' + deck.length;
 
   fillList('blk-syn', 'b-syn', w.synonyms, ',', function (x) {
-    return '<span class="chip">' + esc(x) + '</span>';
+    return '<button class="chip" data-say="' + esc(x) + '">' + esc(x) + '</button>';
   });
 
   fillList('blk-col', 'b-col', w.collocations, ';', function (x) {
-    return '<li>' + esc(x) + '</li>';
+    // Định dạng: "cụm tiếng Anh — nghĩa tiếng Việt"
+    const bits = x.split(/\s+[—–-]\s+/);
+    const en = bits[0].trim();
+    const vi = bits.length > 1 ? bits.slice(1).join(' - ').trim() : '';
+    return '<li data-say="' + esc(en) + '">' +
+             '<span class="col-en">' + esc(en) + '</span>' +
+             (vi ? '<span class="col-vi">' + esc(vi) + '</span>' : '') +
+           '</li>';
   });
+
+  bindSayTargets();
 
   if (w.example_en) {
     $('blk-ex').style.display = '';
     $('b-ex').innerHTML = highlight(w.example_en, w.word);
     $('b-exvi').textContent = w.example_vi || '';
+    $('btn-say-ex').dataset.say = w.example_en;
   } else {
     $('blk-ex').style.display = 'none';
   }
@@ -216,6 +226,42 @@ async function toggleMark() {
   syncBookmarks();
 }
 
+// ---------- Bấm vào chữ để nghe ----------
+
+function bindSayTargets() {
+  document.querySelectorAll('.card-back [data-say]').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.stopPropagation();
+      sayHere(el, el.dataset.say);
+    });
+  });
+}
+
+// Đọc và tô sáng đúng phần tử vừa bấm
+function sayHere(el, text) {
+  if (!text) return;
+  if (!('speechSynthesis' in window)) return;
+
+  try {
+    window.speechSynthesis.cancel();
+    document.querySelectorAll('.speaking').forEach(function (x) {
+      x.classList.remove('speaking');
+    });
+
+    const u = new SpeechSynthesisUtterance(text);
+    const v = pickVoice('US');
+    if (v) u.voice = v;
+    u.lang = 'en-US';
+    u.rate = text.split(' ').length > 4 ? 0.85 : 0.8;
+
+    el.classList.add('speaking');
+    u.onend = function () { el.classList.remove('speaking'); };
+    u.onerror = function () { el.classList.remove('speaking'); };
+
+    window.speechSynthesis.speak(u);
+  } catch (e) { /* trình duyệt không hỗ trợ thì bỏ qua */ }
+}
+
 // ---------- Giọng đọc Mỹ và Anh ----------
 
 let voices = [];
@@ -259,6 +305,11 @@ function speak(text, kind) {
     window.speechSynthesis.speak(u);
   } catch (e) { /* trình duyệt không hỗ trợ thì bỏ qua */ }
 }
+
+$('btn-say-ex').addEventListener('click', function (e) {
+  e.stopPropagation();
+  sayHere(this, this.dataset.say);
+});
 
 document.querySelectorAll('.audio-btn').forEach(function (b) {
   b.addEventListener('click', function (e) {
