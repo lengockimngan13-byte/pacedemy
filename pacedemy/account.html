@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tài khoản — Pacedemy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <button class="btn-quiet" id="btn-logout">Đăng xuất</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <a class="crumb" href="app.html">← Về trang học</a>
+
+  <div class="acct">
+
+    <section class="greet">
+      <h1>Tài khoản của bạn</h1>
+      <p>Thông tin ở đây chỉ bạn và giáo viên nhìn thấy.</p>
+    </section>
+
+    <div id="note" class="note hidden"></div>
+
+    <!-- Hồ sơ -->
+    <section class="panel">
+      <h2>Hồ sơ</h2>
+      <p class="lead">Tên và ảnh của bạn sẽ hiện trên bảng xếp hạng.</p>
+
+      <div class="avatar-row">
+        <img class="avatar hidden" id="ava-img" alt="Ảnh đại diện">
+        <div class="avatar-fallback" id="ava-ini">?</div>
+        <div class="avatar-act">
+          <button class="btn btn-line" id="btn-pick">Đổi ảnh đại diện</button>
+          <button class="btn-quiet hidden" id="btn-rm-ava">Gỡ ảnh</button>
+          <span class="field-hint">JPG hoặc PNG, tối đa 2MB</span>
+        </div>
+        <input type="file" id="file-ava" accept="image/jpeg,image/png,image/webp" class="hidden">
+      </div>
+
+      <div class="field">
+        <label for="p-name">Họ và tên</label>
+        <input type="text" id="p-name" autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label for="p-target">Mục tiêu điểm TOEIC</label>
+        <select id="p-target">
+          <option value="450">450</option>
+          <option value="550">550</option>
+          <option value="650">650</option>
+          <option value="750">750</option>
+          <option value="850">850 trở lên</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="p-goal">Mục tiêu của bạn</label>
+        <textarea id="p-goal" maxlength="500"
+          placeholder="Ví dụ: Mình cần 700 điểm trước tháng 6 để nộp hồ sơ xin việc. Mỗi ngày học 20 phút buổi tối."></textarea>
+        <p class="field-hint">Viết ra mục tiêu giúp bạn kiên trì hơn. Tối đa 500 ký tự.</p>
+      </div>
+
+      <button class="btn btn-ink" id="btn-save">Lưu thay đổi</button>
+    </section>
+
+    <!-- Mật khẩu -->
+    <section class="panel">
+      <h2>Đổi mật khẩu</h2>
+      <p class="lead">Sau khi đổi, bạn vẫn đăng nhập bình thường trên máy này.</p>
+
+      <div class="field">
+        <label for="p-pass1">Mật khẩu mới</label>
+        <input type="password" id="p-pass1" autocomplete="new-password" placeholder="Ít nhất 6 ký tự">
+      </div>
+
+      <div class="field">
+        <label for="p-pass2">Nhập lại mật khẩu mới</label>
+        <input type="password" id="p-pass2" autocomplete="new-password">
+      </div>
+
+      <button class="btn btn-ink" id="btn-pass">Đổi mật khẩu</button>
+    </section>
+
+    <!-- Xóa tài khoản -->
+    <section class="panel danger">
+      <h2>Xóa tài khoản</h2>
+      <p class="lead">
+        Toàn bộ tiến độ học, điểm tích lũy và lịch sử làm bài sẽ bị xóa vĩnh viễn.
+        Không khôi phục lại được.
+      </p>
+
+      <div class="field">
+        <label for="p-confirm">Gõ chữ <b>XOA TAI KHOAN</b> để xác nhận</label>
+        <input type="text" id="p-confirm" placeholder="XOA TAI KHOAN">
+      </div>
+
+      <button class="btn btn-line" id="btn-del" style="border-color:#C9887A;color:#B4432E">
+        Xóa tài khoản của tôi
+      </button>
+    </section>
+
+  </div>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/account.js"></script>
+</body>
+</html>

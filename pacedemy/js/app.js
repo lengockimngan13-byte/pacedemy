@@ -27,7 +27,7 @@ function firstName(full) {
 async function loadProfile() {
   const { data, error } = await db
     .from('profiles')
-    .select('full_name, total_xp, streak_days, target_score, current_score')
+    .select('full_name, total_xp, streak_days, target_score, current_score, role')
     .eq('id', me.id)
     .single();
 
@@ -41,6 +41,8 @@ async function loadProfile() {
 
   const days = data.streak_days || 0;
   el('streak').textContent = days > 0 ? days + ' ngày liên tiếp' : 'Bắt đầu chuỗi ngày học';
+
+  if (data.role === 'teacher') el('link-teacher').classList.remove('hidden');
 
   el('greet-line').textContent = data.target_score
     ? 'Mục tiêu của bạn: ' + data.target_score + ' điểm TOEIC.'
