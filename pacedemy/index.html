@@ -85,7 +85,7 @@
     </div>
   </section>
 
-  <section class="who-sec">
+  <section class="who-sec" id="who-sec" style="display:none">
     <div class="wrap who-in">
       <img class="who-photo" src="images/ngan.jpg" alt="Giáo viên Pacedemy" onerror="this.style.display='none'">
       <div>
@@ -98,6 +98,12 @@
   </section>
 </main>
 
+<script src="js/teacher-info.js"></script>
+<script>
+  if (typeof TEACHER !== 'undefined' && TEACHER.show) {
+    document.getElementById('who-sec').style.display = '';
+  }
+</script>
 <script src="js/cycle.js"></script>
 </body>
 </html>

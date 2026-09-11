@@ -9,10 +9,35 @@ const $ = function (id) { return document.getElementById(id); };
 (async function () {
   me = await requireLogin();
   if (!me) return;
+
+  const { data } = await db.from('profiles').select('role').eq('id', me.id).single();
+  const amTeacher = data && data.role === 'teacher';
+
+  if (!TEACHER.show && !amTeacher) {
+    $('page').innerHTML =
+      '<div class="done"><h1>Trang đang cập nhật</h1>' +
+      '<p class="sub">Phần giới thiệu sẽ sớm có. Bạn quay lại sau nhé.</p>' +
+      '<div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div></div>';
+    return;
+  }
+
+  if (amTeacher && !TEACHER.show) {
+    $('page').innerHTML =
+      '<div class="note note-good" style="margin-bottom:22px">' +
+      'Chế độ xem thử. Học viên chưa thấy trang này. ' +
+      'Mở js/teacher-info.js và đổi show thành true khi muốn công bố.</div>';
+    const box = document.createElement('div');
+    $('page').appendChild(box);
+    drawInto(box);
+    return;
+  }
+
   draw();
 })();
 
-function draw() {
+function draw() { drawInto($('page')); }
+
+function drawInto(target) {
   const t = TEACHER;
   let h = '';
 
@@ -91,7 +116,7 @@ function draw() {
 
   h += '</section>';
 
-  $('page').innerHTML = h;
+  target.innerHTML = h;
 
   if (c.form) $('btn-send').addEventListener('click', send);
 }

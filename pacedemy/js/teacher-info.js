@@ -8,6 +8,11 @@
 
 const TEACHER = {
 
+  // Đổi thành true khi nội dung đã sẵn sàng cho học viên xem.
+  // Đang false: học viên không thấy gì, riêng tài khoản giáo viên
+  // vẫn mở được about.html để xem thử.
+  show: false,
+
   // ---------- Phần đầu trang ----------
   name:  'Lê Ngọc Kim Ngân',
   role:  'Giáo viên TOEIC Listening & Reading',

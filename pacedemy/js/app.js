@@ -44,6 +44,13 @@ async function loadProfile() {
 
   if (data.role === 'teacher') el('link-teacher').classList.remove('hidden');
 
+  // Thẻ giới thiệu giáo viên: học viên chỉ thấy khi đã bật công tắc,
+  // giáo viên luôn thấy để xem thử trước khi công bố.
+  const card = el('teacher-card');
+  if (card && (data.role === 'teacher' || (typeof TEACHER !== 'undefined' && TEACHER.show))) {
+    card.style.display = '';
+  }
+
   el('greet-line').textContent = data.target_score
     ? 'Mục tiêu của bạn: ' + data.target_score + ' điểm TOEIC.'
     : 'Chúc bạn một buổi học hiệu quả.';
