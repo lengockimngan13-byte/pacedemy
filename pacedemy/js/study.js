@@ -4,8 +4,8 @@
 // ============================================================
 
 const SIZE = 10;
-const XP_RIGHT = 10;
-const XP_WRONG = 2;
+const XP_RIGHT = 1;   // 1 câu đúng = 1 điểm
+const XP_WRONG = 0;
 
 const GAP_MINUTES = { 1: 10, 2: 1440, 3: 4320, 4: 10080, 5: 30240 };
 
@@ -192,7 +192,7 @@ function answer(i) {
 async function saveProgress(w, ok) {
   const box = ok ? Math.min(5, (w.box || 1) + 1) : 1;
   const next = new Date(Date.now() + GAP_MINUTES[box] * 60000).toISOString();
-  const status = box >= 5 ? 'mastered' : (box >= 2 ? 'reviewing' : 'learning');
+  const status = box >= 4 ? 'mastered' : (box >= 2 ? 'reviewing' : 'learning');
 
   const { data: old } = await db
     .from('vocab_progress')
@@ -222,13 +222,12 @@ async function finish() {
   if (right === queue.length) {
     $('done-title').textContent = 'Đúng hết. Rất tốt.';
     $('done-sub').textContent =
-      'Bạn nhận được ' + xp + ' điểm. Các từ này sẽ quay lại sau vài ngày để kiểm tra trí nhớ.';
+      'Bạn trả lời đúng ' + right + ' câu. Các từ này sẽ quay lại sau vài ngày để kiểm tra trí nhớ.';
   } else {
     $('done-title').textContent = right >= queue.length * 0.7
       ? 'Làm tốt lắm.' : 'Xong bài kiểm tra.';
     $('done-sub').textContent =
-      'Bạn nhận được ' + xp + ' điểm. Dưới đây là ' + wrongWords.length +
-      ' từ chưa thuộc, bạn xem lại một lượt nhé.';
+      'Dưới đây là ' + wrongWords.length + ' từ chưa thuộc, bạn xem lại một lượt nhé.';
     showWrong();
   }
 

@@ -118,7 +118,7 @@ async function loadBoard() {
             '<span>' + escapeHtml(r.full_name || 'Học viên') + '</span></div></td>' +
         '<td class="hide-sm">' + days + (days === 1 ? ' ngày' : ' ngày') + '</td>' +
         '<td class="hide-sm">' + r.sessions + ' lượt</td>' +
-        '<td>' + r.weekly_xp + ' điểm</td>' +
+        '<td>' + r.weekly_xp + ' câu</td>' +
       '</tr>';
   }
 
@@ -128,7 +128,7 @@ async function loadBoard() {
         '<th>Hạng</th><th>Học viên</th>' +
         '<th class="hide-sm">Ngày học</th>' +
         '<th class="hide-sm">Lượt làm bài</th>' +
-        '<th>Điểm tuần</th>' +
+        '<th>Câu đúng tuần</th>' +
       '</tr></thead>' +
       '<tbody>' + rows + '</tbody>' +
     '</table>';

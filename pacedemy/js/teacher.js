@@ -67,8 +67,12 @@ async function loadClass() {
     .select('user_id, correct_count, total_questions')
     .gte('submitted_at', since);
 
-  const sessBy = {};
-  for (const a of (recent || [])) sessBy[a.user_id] = (sessBy[a.user_id] || 0) + 1;
+  const sessBy = {}, rightBy = {}, askedBy = {};
+  for (const a of (recent || [])) {
+    sessBy[a.user_id]  = (sessBy[a.user_id]  || 0) + 1;
+    rightBy[a.user_id] = (rightBy[a.user_id] || 0) + (a.correct_count || 0);
+    askedBy[a.user_id] = (askedBy[a.user_id] || 0) + (a.total_questions || 0);
+  }
 
   // Số liệu tổng của lớp
   let totalWords = 0;
@@ -82,10 +86,10 @@ async function loadClass() {
   $('class-sub').textContent =
     students.length + ' học viên · ' + Object.keys(sessBy).length + ' em có học trong tuần';
 
-  drawTable(wordsBy, sessBy);
+  drawTable(wordsBy, sessBy, rightBy, askedBy);
 }
 
-function drawTable(wordsBy, sessBy) {
+function drawTable(wordsBy, sessBy, rightBy, askedBy) {
   let rows = '';
 
   for (const s of students) {
@@ -111,9 +115,9 @@ function drawTable(wordsBy, sessBy) {
           '</div>' +
         '</td>' +
         '<td>' + words + ' từ</td>' +
-        '<td class="hide-sm">' + sess + ' buổi</td>' +
-        '<td class="hide-sm">' + (s.total_xp || 0) + '</td>' +
-        '<td class="hide-sm">' + (s.streak_days || 0) + ' ngày</td>' +
+        '<td class="hide-sm">' + sess + ' lượt</td>' +
+        '<td class="hide-sm">' + (rightBy[s.id] || 0) + '/' + (askedBy[s.id] || 0) + '</td>' +
+        '<td class="hide-sm">' + accuracy(rightBy[s.id], askedBy[s.id]) + '</td>' +
         '<td class="' + cls + '">' + when + '</td>' +
       '</tr>';
   }
@@ -121,13 +125,22 @@ function drawTable(wordsBy, sessBy) {
   $('table-box').innerHTML =
     '<table class="tt"><thead><tr>' +
       '<th>Học viên</th><th>Đã thuộc</th>' +
-      '<th class="hide-sm">Tuần này</th><th class="hide-sm">Điểm</th>' +
-      '<th class="hide-sm">Chuỗi ngày</th><th>Học gần nhất</th>' +
+      '<th class="hide-sm">Lượt tuần này</th>' +
+      '<th class="hide-sm">Câu đúng</th>' +
+      '<th class="hide-sm">Chính xác</th>' +
+      '<th>Học gần nhất</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>';
 
   document.querySelectorAll('.tt tbody tr').forEach(function (tr) {
     tr.addEventListener('click', function () { openOne(tr.dataset.id); });
   });
+}
+
+function accuracy(right, asked) {
+  if (!asked) return '—';
+  const pct = Math.round((right || 0) / asked * 100);
+  const cls = pct >= 80 ? 'tag-warm' : (pct < 50 ? 'tag-cold' : '');
+  return '<span class="' + cls + '">' + pct + '%</span>';
 }
 
 function avatar(s) {
@@ -158,8 +171,8 @@ async function openOne(id) {
 
   $('s-name').textContent = s.full_name || 'Học viên';
   $('s-meta').textContent =
-    'Mục tiêu ' + (s.target_score || '—') + ' điểm · ' +
-    (s.total_xp || 0) + ' điểm tích luỹ · chuỗi ' + (s.streak_days || 0) + ' ngày';
+    'Mục tiêu ' + (s.target_score || '—') + ' điểm TOEIC · ' +
+    (s.total_xp || 0) + ' câu trả lời đúng · chuỗi ' + (s.streak_days || 0) + ' ngày';
 
   $('one-box').innerHTML = '<p class="empty">Đang tải chi tiết…</p>';
 
@@ -245,7 +258,7 @@ function progressByTopic(words, prog) {
            '<h3>Tiến độ theo chủ đề</h3>' +
            '<p class="lead" style="margin:-6px 0 12px;font-size:0.84rem;color:#6C837E">' +
              'Thanh nhạt là số từ đã gặp, thanh đậm là số từ đã thuộc. ' +
-             'Một từ chỉ tính là thuộc sau 4 lần trả lời đúng cách nhau nhiều ngày.' +
+             'Một từ tính là thuộc sau 3 lần trả lời đúng, trải qua khoảng 4 ngày.' +
            '</p>' +
            rows +
          '</div>';

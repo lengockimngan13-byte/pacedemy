@@ -4,8 +4,8 @@
 // ============================================================
 
 const SIZE = 10;
-const XP_RIGHT = 12;
-const XP_WRONG = 3;
+const XP_RIGHT = 1;   // 1 câu đúng = 1 điểm
+const XP_WRONG = 0;
 
 let me = null;
 let part = 5;
@@ -45,7 +45,7 @@ const $ = function (id) { return document.getElementById(id); };
 async function loadQuestions() {
   const { data, error } = await db
     .from('questions')
-    .select('id, question_text, options, correct_answer, explanation, topic_tag, difficulty')
+    .select('id, question_text, options, correct_answer, explanation, topic_tag, difficulty, translation_vi, key_point')
     .eq('part', part)
     .eq('is_active', true);
 
@@ -94,6 +94,11 @@ function blankify(text) {
   return esc(text || '').replace(/_{2,}/g, '<span class="blank"></span>');
 }
 
+// Điền đáp án đúng vào chỗ trống và tô đậm
+function fillBlank(text, word) {
+  return esc(text || '').replace(/_{2,}/g, '<b class="filled">' + esc(word || '') + '</b>');
+}
+
 // ---------- Chấm câu ----------
 
 async function answer(k) {
@@ -114,9 +119,22 @@ async function answer(k) {
     : 'Chưa đúng — đáp án là ' + q.correct_answer + '.';
   $('verdict').className = 'verdict ' + (ok ? 'ok' : 'no');
 
-  $('why').innerHTML =
-    (q.topic_tag ? '<span class="q-tag">' + esc(q.topic_tag) + '</span><br>' : '') +
-    esc(q.explanation || 'Chưa có giải thích cho câu này.');
+  const opts = q.options || {};
+  let box = '';
+
+  if (q.key_point) {
+    box += '<p class="key-point">' + esc(q.key_point) + '</p>';
+  }
+
+  box += '<p class="full-sentence">' + fillBlank(q.question_text, opts[q.correct_answer]) + '</p>';
+
+  if (q.translation_vi) {
+    box += '<p class="trans">' + esc(q.translation_vi) + '</p>';
+  }
+
+  box += '<p class="why-text">' + esc(q.explanation || '') + '</p>';
+
+  $('why').innerHTML = box;
 
   $('after').classList.remove('hidden');
   $('btn-next').textContent = (at + 1 >= queue.length) ? 'Xem kết quả' : 'Câu tiếp theo';
@@ -170,8 +188,8 @@ async function finish() {
   $('done-title').textContent =
     pct === 1 ? 'Đúng hết. Rất tốt.' : (pct >= 0.7 ? 'Làm tốt lắm.' : 'Xong bài luyện.');
 
-  $('done-sub').textContent = 'Bạn nhận được ' + xp + ' điểm.' +
-    (wrongs.length ? ' Dưới đây là những câu cần xem lại.' : '');
+  $('done-sub').textContent =
+    (wrongs.length ? 'Dưới đây là những câu cần xem lại.' : 'Không sai câu nào.');
 
   if (wrongs.length) showWrongs();
 
@@ -191,17 +209,17 @@ async function finish() {
 }
 
 function showWrongs() {
-  let html = '<p class="review-head">Câu cần xem lại</p>';
+  let html = '<p class="review-head">Ghi nhớ nhanh</p>';
 
   for (const w of wrongs) {
     const q = w.q;
     const opts = q.options || {};
     html +=
       '<div class="wrong-q">' +
-        '<p class="wq">' + blankify(q.question_text) + '</p>' +
-        '<p class="wa">Bạn chọn ' + esc(w.chose) + ' · Đáp án đúng: <b>' +
-          esc(q.correct_answer) + '. ' + esc(opts[q.correct_answer] || '') + '</b></p>' +
-        '<p class="ww">' + esc(q.explanation || '') + '</p>' +
+        (q.key_point ? '<p class="key-point">' + esc(q.key_point) + '</p>' : '') +
+        '<p class="wq">' + fillBlank(q.question_text, opts[q.correct_answer]) + '</p>' +
+        (q.translation_vi ? '<p class="trans">' + esc(q.translation_vi) + '</p>' : '') +
+        '<p class="chose">Bạn đã chọn: ' + esc(opts[w.chose] || w.chose) + '</p>' +
       '</div>';
   }
 

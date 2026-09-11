@@ -1634,3 +1634,33 @@ a { color: inherit; }
 .wrong-q .wa { font-size: 0.92rem; margin: 0 0 6px; }
 .wrong-q .wa b { color: var(--teal); }
 .wrong-q .ww { font-size: 0.9rem; color: #4A635E; margin: 0; }
+
+/* Giải thích và ghi nhớ Part 5 */
+.key-point {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 5px 12px;
+  background: var(--gold-dim);
+  border-radius: 100px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #6B4A05;
+}
+
+.full-sentence {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  margin: 0 0 5px;
+}
+.full-sentence .filled,
+.wrong-q .filled {
+  color: var(--teal);
+  font-weight: 700;
+  border-bottom: 2px solid var(--gold);
+}
+
+.trans { font-size: 0.92rem; color: #4A635E; margin: 0 0 10px; line-height: 1.5; }
+.why-text { font-size: 0.93rem; line-height: 1.6; margin: 0; color: var(--ink); }
+
+.wrong-q .wq { font-size: 1rem; line-height: 1.6; margin: 0 0 4px; }
+.wrong-q .chose { font-size: 0.86rem; color: var(--danger); margin: 6px 0 0; }
