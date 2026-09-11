@@ -9,6 +9,7 @@ const XP_WRONG = 0;
 
 let me = null;
 let part = 5;
+let dang = null;
 let queue = [];
 let at = 0;
 let right = 0;
@@ -27,6 +28,13 @@ const $ = function (id) { return document.getElementById(id); };
 
   const q = new URLSearchParams(location.search);
   part = parseInt(q.get('part') || '5', 10);
+  dang = q.get('dang');
+
+  if (dang) $('part-name').textContent = 'Part 5 — ' + dang;
+  document.querySelectorAll('a[href="app.html"]').forEach(function (a) {
+    if (a.classList.contains('brand')) return;
+    a.href = 'part5.html';
+  });
 
   started = new Date();
   await loadQuestions();
@@ -43,11 +51,15 @@ const $ = function (id) { return document.getElementById(id); };
 // ---------- Lấy câu hỏi ----------
 
 async function loadQuestions() {
-  const { data, error } = await db
+  let qy = db
     .from('questions')
     .select('id, question_text, options, correct_answer, explanation, topic_tag, difficulty, translation_vi, key_point')
     .eq('part', part)
     .eq('is_active', true);
+
+  if (dang) qy = qy.eq('topic_tag', dang);
+
+  const { data, error } = await qy;
 
   if (error || !data || !data.length) return;
 
