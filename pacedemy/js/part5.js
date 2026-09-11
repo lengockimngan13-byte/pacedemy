@@ -20,63 +20,44 @@ async function showStreak() {
 }
 
 async function build() {
-  const { data: qs, error } = await db
+  // Danh mục dạng bài, kể cả dạng chưa có câu nào
+  const { data: tags } = await db
+    .from('question_tags')
+    .select('skill_group, tag, note, order_index')
+    .eq('part', 5)
+    .order('order_index');
+
+  const { data: qs } = await db
     .from('questions')
-    .select('id, skill_group, topic_tag')
+    .select('id, topic_tag')
     .eq('part', 5)
     .eq('is_active', true);
 
-  if (error || !qs || !qs.length) {
-    $('groups').innerHTML = '<p class="empty">Chưa có câu hỏi nào cho Part 5.</p>';
+  if (!tags || !tags.length) {
+    $('groups').innerHTML = '<p class="empty">Chưa có danh mục dạng bài.</p>';
     return;
   }
 
-  // Số câu đã làm của học viên, gom theo dạng
-  const { data: atts } = await db
-    .from('attempts').select('id').eq('user_id', me.id).eq('part', 5);
+  const countBy = {};
+  for (const q of (qs || [])) countBy[q.topic_tag] = (countBy[q.topic_tag] || 0) + 1;
 
-  const ids = (atts || []).map(function (a) { return a.id; });
-  let doneBy = {};
+  // Kết quả học viên theo từng dạng
+  const doneBy = await myResults(qs || []);
 
-  if (ids.length) {
-    const { data: ans } = await db
-      .from('attempt_answers')
-      .select('question_id, is_correct')
-      .in('attempt_id', ids.slice(0, 200));
-
-    const tagOf = {};
-    for (const q of qs) tagOf[q.id] = q.topic_tag;
-
-    for (const a of (ans || [])) {
-      const t = tagOf[a.question_id];
-      if (!t) continue;
-      doneBy[t] = doneBy[t] || { seen: 0, right: 0 };
-      doneBy[t].seen++;
-      if (a.is_correct) doneBy[t].right++;
-    }
+  // Gom theo nhóm lớn, giữ nguyên thứ tự trong danh mục
+  const groups = [];
+  const seen = {};
+  for (const t of tags) {
+    if (!seen[t.skill_group]) { seen[t.skill_group] = []; groups.push(t.skill_group); }
+    seen[t.skill_group].push(t);
   }
-
-  // Gom theo nhóm lớn rồi tới dạng
-  const tree = {};
-  for (const q of qs) {
-    const g = q.skill_group || 'Khác';
-    const t = q.topic_tag || 'Chưa phân loại';
-    tree[g] = tree[g] || {};
-    tree[g][t] = (tree[g][t] || 0) + 1;
-  }
-
-  const order = ['Ngữ pháp', 'Từ vựng'];
-  const groups = Object.keys(tree).sort(function (a, b) {
-    const ia = order.indexOf(a), ib = order.indexOf(b);
-    return (ia === -1 ? 9 : ia) - (ib === -1 ? 9 : ib);
-  });
 
   let html = '';
 
   for (const g of groups) {
-    const tags = Object.keys(tree[g]).sort();
+    const list = seen[g];
     let totalG = 0;
-    for (const t of tags) totalG += tree[g][t];
+    for (const t of list) totalG += (countBy[t.tag] || 0);
 
     html +=
       '<section class="level-block">' +
@@ -87,23 +68,36 @@ async function build() {
         '</div>' +
         '<div class="set-grid">';
 
-    for (const t of tags) {
-      const n = tree[g][t];
-      const d = doneBy[t];
+    for (const t of list) {
+      const n = countBy[t.tag] || 0;
+
+      if (!n) {
+        html +=
+          '<div class="set" style="opacity:.5">' +
+            '<div class="set-top">' +
+              '<span class="set-name">' + esc(t.tag) + '</span>' +
+              '<span class="set-n">đang soạn</span>' +
+            '</div>' +
+            '<span class="count">' + esc(t.note || '') + '</span>' +
+          '</div>';
+        continue;
+      }
+
+      const d = doneBy[t.tag];
       const line = d
         ? d.right + '/' + d.seen + ' câu đúng · ' + Math.round(d.right / d.seen * 100) + '%'
-        : 'Chưa luyện dạng này';
+        : (t.note || 'Chưa luyện dạng này');
 
       html +=
         '<div class="set">' +
           '<div class="set-top">' +
-            '<span class="set-name">' + esc(t) + '</span>' +
+            '<span class="set-name">' + esc(t.tag) + '</span>' +
             '<span class="set-n">' + n + ' câu</span>' +
           '</div>' +
           '<span class="count">' + esc(line) + '</span>' +
           '<div class="topic-actions">' +
             '<a class="btn-sm test" style="flex:1" href="practice.html?part=5&dang=' +
-              encodeURIComponent(t) + '">Luyện dạng này</a>' +
+              encodeURIComponent(t.tag) + '">Luyện dạng này</a>' +
           '</div>' +
         '</div>';
     }
@@ -112,6 +106,36 @@ async function build() {
   }
 
   $('groups').innerHTML = html;
+}
+
+// Số câu đúng của học viên, gom theo dạng bài
+async function myResults(qs) {
+  const out = {};
+
+  const { data: atts } = await db
+    .from('attempts').select('id').eq('user_id', me.id).eq('part', 5)
+    .order('id', { ascending: false }).limit(60);
+
+  const ids = (atts || []).map(function (a) { return a.id; });
+  if (!ids.length) return out;
+
+  const { data: ans } = await db
+    .from('attempt_answers')
+    .select('question_id, is_correct')
+    .in('attempt_id', ids);
+
+  const tagOf = {};
+  for (const q of qs) tagOf[q.id] = q.topic_tag;
+
+  for (const a of (ans || [])) {
+    const t = tagOf[a.question_id];
+    if (!t) continue;
+    out[t] = out[t] || { seen: 0, right: 0 };
+    out[t].seen++;
+    if (a.is_correct) out[t].right++;
+  }
+
+  return out;
 }
 
 function esc(s) {
