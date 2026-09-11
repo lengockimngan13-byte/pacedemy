@@ -27,7 +27,48 @@ const $ = function (id) { return document.getElementById(id); };
 
   $('view-list').classList.remove('hidden');
   loadClass();
+  loadMessages();
 })();
+
+// ---------- Lời nhắn từ học viên ----------
+
+async function loadMessages() {
+  const { data } = await db
+    .from('contact_messages')
+    .select('id, message, created_at, is_read, user_id')
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  if (!data || !data.length) return;
+
+  const unread = data.filter(function (m) { return !m.is_read; }).length;
+
+  let rows = '';
+  for (const m of data.slice(0, 5)) {
+    const who = students.find(function (x) { return x.id === m.user_id; });
+    const d = new Date(m.created_at);
+    rows += '<div class="kv" style="align-items:flex-start">' +
+              '<span style="flex:1">' +
+                '<b>' + esc(who ? who.full_name : 'Học viên') + '</b> · ' +
+                d.getDate() + '/' + (d.getMonth() + 1) + '<br>' +
+                '<span style="font-weight:400">' + esc(m.message) + '</span>' +
+              '</span>' +
+            '</div>';
+  }
+
+  $('msg-box').innerHTML =
+    '<div class="tbox" style="border-color:var(--gold)">' +
+      '<h3>Lời nhắn từ học viên' + (unread ? ' · ' + unread + ' chưa đọc' : '') + '</h3>' +
+      rows +
+      '<button class="btn-quiet" id="btn-read" style="margin-top:10px">Đánh dấu đã đọc hết</button>' +
+    '</div>';
+
+  const b = $('btn-read');
+  if (b) b.addEventListener('click', async function () {
+    await db.from('contact_messages').update({ is_read: true }).eq('is_read', false);
+    $('msg-box').innerHTML = '';
+  });
+}
 
 // ---------- Danh sách lớp ----------
 

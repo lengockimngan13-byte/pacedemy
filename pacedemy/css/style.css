@@ -1664,3 +1664,179 @@ a { color: inherit; }
 
 .wrong-q .wq { font-size: 1rem; line-height: 1.6; margin: 0 0 4px; }
 .wrong-q .chose { font-size: 0.86rem; color: var(--danger); margin: 6px 0 0; }
+
+/* ============================================================
+   THANH ĐIỀU HƯỚNG CHÍNH
+   ============================================================ */
+
+.mainnav { border-bottom: 1px solid var(--line); background: var(--paper); }
+
+.mainnav-in { display: flex; gap: 4px; }
+
+.navlink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 16px;
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: #4A635E;
+  text-decoration: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1px;
+  transition: color .14s ease, border-color .14s ease;
+}
+
+.navlink svg { width: 18px; height: 18px; flex: none; opacity: .75; }
+
+.navlink:hover { color: var(--ink); }
+
+.navlink.on {
+  color: var(--ink);
+  font-weight: 600;
+  border-bottom-color: var(--gold);
+}
+.navlink.on svg { opacity: 1; color: var(--teal); }
+
+@media (max-width: 700px) {
+  .mainnav {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 40;
+    border-bottom: none;
+    border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -1px 12px rgba(12, 36, 34, .06);
+  }
+
+  .mainnav-in { padding: 0; gap: 0; }
+
+  .navlink {
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    padding: 9px 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border-bottom: none;
+    margin-bottom: 0;
+    border-top: 2.5px solid transparent;
+    margin-top: -1px;
+  }
+
+  .navlink svg { width: 21px; height: 21px; }
+  .navlink.on { border-top-color: var(--gold); font-weight: 600; }
+
+  body.has-nav { padding-bottom: 68px; }
+
+  /* Trang đang học thì ẩn thanh dưới cho khỏi bấm nhầm */
+  body.focus-mode .mainnav { display: none; }
+  body.focus-mode.has-nav { padding-bottom: 0; }
+}
+
+/* Tab chuyển bảng xếp hạng */
+.tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+
+.tab {
+  font-family: var(--ui);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 9px 18px;
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  background: var(--paper);
+  color: #4A635E;
+  cursor: pointer;
+}
+.tab:hover { background: var(--mist); }
+.tab.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+.board .rank { font-size: 1.05rem; }
+
+/* ============================================================
+   TRANG GIỚI THIỆU GIÁO VIÊN
+   ============================================================ */
+
+.tt-head { display: flex; gap: 26px; align-items: center; padding: 30px 0 8px; flex-wrap: wrap; }
+
+.tt-photo {
+  width: 132px; height: 132px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  background: var(--ink);
+}
+
+.tt-head h1 {
+  margin: 0 0 4px;
+  font-family: var(--disp);
+  font-size: 1.9rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.tt-head .role { margin: 0; color: #4A635E; font-size: 1rem; }
+
+.facts { display: flex; gap: 1px; background: var(--line); border: 1px solid var(--line); margin: 28px 0 34px; }
+.fact { flex: 1; background: var(--paper); padding: 18px 16px; text-align: center; }
+.fact b { display: block; font-family: var(--disp); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+.fact span { font-size: 0.82rem; color: #6C837E; line-height: 1.4; display: block; margin-top: 3px; }
+
+.tt-sec { padding: 26px 0; border-top: 1px solid var(--line); }
+.tt-sec h2 { margin: 0 0 16px; font-family: var(--disp); font-size: 1.16rem; font-weight: 600; }
+.tt-sec p { line-height: 1.75; margin: 0 0 14px; }
+
+.how { margin-bottom: 20px; }
+.how h3 { margin: 0 0 5px; font-size: 1rem; font-weight: 600; color: var(--teal); }
+.how p { margin: 0; font-size: 0.95rem; color: #3C544F; line-height: 1.65; }
+
+.creds { margin: 0; padding: 0; list-style: none; }
+.creds li { padding-left: 22px; position: relative; margin-bottom: 9px; line-height: 1.6; }
+.creds li::before {
+  content: ''; position: absolute; left: 0; top: 9px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--gold);
+}
+
+.res { border: 1.5px solid var(--line); border-radius: var(--r); padding: 20px 22px; margin-bottom: 12px; }
+.res .jump { font-family: var(--disp); font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
+.res .jump b { color: var(--teal); }
+.res .who { font-size: 0.86rem; color: #6C837E; margin: 0 0 10px; display: block; }
+.res .quote { margin: 0; font-size: 0.97rem; line-height: 1.65; padding-left: 14px; border-left: 3px solid var(--gold); }
+
+.reach { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.reach a {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 20px; border: 1.5px solid var(--line); border-radius: 100px;
+  text-decoration: none; color: var(--ink); font-size: 0.93rem; font-weight: 600;
+}
+.reach a:hover { background: var(--mist); border-color: var(--teal); }
+
+/* Khối giới thiệu ngắn ở trang chủ */
+.who-sec { background: var(--paper); padding: 60px 0 68px; }
+.who-in { display: flex; align-items: center; gap: 40px; flex-wrap: wrap; }
+
+.who-photo {
+  width: 168px; height: 168px; border-radius: 50%;
+  object-fit: cover; flex: none; background: var(--mist);
+}
+
+.who-tag {
+  display: inline-block; font-size: 0.8rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--teal);
+  margin-bottom: 10px;
+}
+
+.who-in h2 {
+  margin: 0 0 12px;
+  font-family: var(--disp); font-size: 1.8rem; font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.who-in p { margin: 0 0 22px; max-width: 34rem; line-height: 1.72; color: #3C544F; }
+
+@media (max-width: 700px) {
+  .who-sec { padding: 44px 0 50px; }
+  .who-in { gap: 26px; }
+  .who-photo { width: 120px; height: 120px; }
+  .tt-photo { width: 104px; height: 104px; }
+  .facts { flex-direction: column; }
+}

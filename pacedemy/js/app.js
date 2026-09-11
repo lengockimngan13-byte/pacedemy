@@ -96,7 +96,7 @@ async function loadBoard() {
     .from('leaderboard_weekly')
     .select('id, full_name, avatar_url, weekly_xp, sessions, active_days, rank')
     .order('rank', { ascending: true })
-    .limit(10);
+    .limit(5);
 
   if (error) {
     wrap.innerHTML = '<p class="empty">Chưa tải được bảng xếp hạng. Bạn thử tải lại trang nhé.</p>';

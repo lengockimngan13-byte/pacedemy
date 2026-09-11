@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Part 5 — Pacedemy</title>
+<title>Về giáo viên — Pacedemy</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -19,36 +19,22 @@
   <div class="wrap">
     <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
     <div class="app-user">
-      <span class="streak" id="streak">—</span>
       <a class="btn-quiet" href="app.html">Về trang học</a>
     </div>
   </div>
 </header>
 
 <main class="wrap">
-  <a class="crumb" href="app.html">← Về trang học</a>
-
-  <section class="greet">
-    <h1>Part 5 — Hoàn thành câu</h1>
-    <p>Chọn một dạng để luyện tập trung, hoặc luyện trộn tất cả như thi thật.</p>
-  </section>
-
-  <div class="due-card">
-    <div>
-      <h2>Luyện trộn tất cả dạng</h2>
-      <p>10 câu ngẫu nhiên từ mọi dạng, giống cách đề thi xáo trộn.</p>
-    </div>
-    <a class="btn btn-gold" href="practice.html?part=5">Bắt đầu</a>
+  <div class="acc" style="max-width:720px">
+    <div id="page"><p class="empty">Đang tải…</p></div>
   </div>
-
-  <div id="groups"><p class="empty">Đang tải các dạng bài…</p></div>
-
   <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script src="js/nav.js"></script>
-<script src="js/part5.js"></script>
+<script src="js/teacher-info.js"></script>
+<script src="js/about.js"></script>
 </body>
 </html>

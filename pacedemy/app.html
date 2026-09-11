@@ -23,7 +23,6 @@
     <div class="app-user">
       <span class="streak" id="streak">0 ngày liên tiếp</span>
       <a class="btn-quiet hidden" id="link-teacher" href="teacher.html">Teacher Studio</a>
-      <a class="btn-quiet" href="account.html">Tài khoản</a>
       <button class="btn-quiet" id="btn-logout">Đăng xuất</button>
     </div>
   </div>
@@ -95,11 +94,22 @@
   <section>
     <div class="section-head">
       <h2>Bảng xếp hạng tuần</h2>
-      <span class="stat-lab">7 ngày gần nhất</span>
+      <a class="btn-quiet" href="leaderboard.html">Xem đầy đủ →</a>
     </div>
     <div id="board-wrap">
       <p class="empty">Đang tải bảng xếp hạng…</p>
     </div>
+  </section>
+
+  <section style="margin-bottom:20px">
+    <a class="module" href="about.html" style="display:flex;align-items:center;gap:18px">
+      <img src="images/ngan.jpg" alt="" onerror="this.style.display='none'"
+           style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none">
+      <span>
+        <h3 style="margin:0 0 3px">Về giáo viên của bạn</h3>
+        <p style="margin:0">Mười năm dạy TOEIC, giáo trình tự biên soạn. Xem cách mình dạy và cách liên hệ.</p>
+      </span>
+    </a>
   </section>
 
   <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
@@ -107,6 +117,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/nav.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
