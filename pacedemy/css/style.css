@@ -1570,3 +1570,67 @@ a { color: inherit; }
 @media (max-width: 700px) {
   .tt .hide-sm { display: none; }
 }
+
+/* Bảng xếp hạng có ảnh đại diện */
+.board .who { display: flex; align-items: center; gap: 10px; }
+.board td { vertical-align: middle; }
+
+/* Thanh tiến độ hai lớp trong Teacher Studio */
+.mini-bar.two { position: relative; }
+.mini-bar.two span { position: absolute; top: 0; left: 0; height: 100%; }
+.mini-bar.two .seen { background: var(--teal-dim); }
+.mini-bar.two .mast { background: var(--teal); }
+
+/* ============================================================
+   LUYỆN PART 5
+   ============================================================ */
+
+.q-sentence {
+  font-size: 1.22rem;
+  line-height: 1.75;
+  margin: 0 0 28px;
+  padding: 24px 26px;
+  background: var(--mist);
+  border-radius: 6px;
+  border-left: 3px solid var(--teal);
+}
+
+.q-sentence .blank {
+  display: inline-block;
+  min-width: 74px;
+  border-bottom: 2px solid var(--gold);
+  margin: 0 3px;
+}
+
+.opt .letter {
+  display: inline-block;
+  width: 24px;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.opt.right .letter { color: #1B5F58; }
+.opt.wrong .letter { color: var(--danger); }
+
+.q-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--mist);
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--teal);
+  margin-bottom: 12px;
+}
+
+.wrong-q {
+  text-align: left;
+  padding: 16px 18px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  margin-bottom: 10px;
+}
+.wrong-q .wq { font-size: 0.98rem; line-height: 1.6; margin: 0 0 8px; }
+.wrong-q .wa { font-size: 0.92rem; margin: 0 0 6px; }
+.wrong-q .wa b { color: var(--teal); }
+.wrong-q .ww { font-size: 0.9rem; color: #4A635E; margin: 0; }

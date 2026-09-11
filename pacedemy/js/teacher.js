@@ -198,33 +198,57 @@ async function openOne(id) {
 }
 
 function progressByTopic(words, prog) {
-  const done = {};
-  for (const p of (prog || [])) if (p.status === 'mastered') done[p.vocabulary_id] = true;
+  const state = {};
+  for (const p of (prog || [])) state[p.vocabulary_id] = p.status;
 
-  const total = {}, ok = {};
+  const total = {}, seen = {}, mastered = {};
   for (const w of (words || [])) {
     total[w.topic_id] = (total[w.topic_id] || 0) + 1;
-    if (done[w.id]) ok[w.topic_id] = (ok[w.topic_id] || 0) + 1;
+    const st = state[w.id];
+    if (!st) continue;
+    seen[w.topic_id] = (seen[w.topic_id] || 0) + 1;
+    if (st === 'mastered') mastered[w.topic_id] = (mastered[w.topic_id] || 0) + 1;
   }
 
   let rows = '';
   for (const t of topics) {
     const tt = total[t.id] || 0;
     if (!tt) continue;
-    const oo = ok[t.id] || 0;
-    const pct = Math.round(oo / tt * 100);
+    const ss = seen[t.id] || 0;
+    const mm = mastered[t.id] || 0;
+    if (ss === 0) continue;   // chưa đụng tới thì không liệt kê
+
+    const pctSeen = Math.round(ss / tt * 100);
+    const pctMast = Math.round(mm / tt * 100);
+
     rows +=
       '<div class="kv">' +
         '<span>' + esc(t.name_vi) + '</span>' +
         '<span style="display:flex;align-items:center;gap:10px">' +
-          '<span class="mini-bar"><span style="width:' + pct + '%"></span></span>' +
-          oo + '/' + tt +
+          '<span class="mini-bar two">' +
+            '<span class="seen" style="width:' + pctSeen + '%"></span>' +
+            '<span class="mast" style="width:' + pctMast + '%"></span>' +
+          '</span>' +
+          '<span style="min-width:96px;text-align:right">' +
+            ss + ' đã học · <b>' + mm + ' thuộc</b>' +
+          '</span>' +
         '</span>' +
       '</div>';
   }
 
-  return '<div class="tbox"><h3>Tiến độ theo chủ đề</h3>' +
-         (rows || '<p class="empty" style="padding:0">Chưa học chủ đề nào.</p>') + '</div>';
+  if (!rows) {
+    return '<div class="tbox"><h3>Tiến độ theo chủ đề</h3>' +
+           '<p class="empty" style="padding:0">Học viên chưa mở chủ đề nào.</p></div>';
+  }
+
+  return '<div class="tbox">' +
+           '<h3>Tiến độ theo chủ đề</h3>' +
+           '<p class="lead" style="margin:-6px 0 12px;font-size:0.84rem;color:#6C837E">' +
+             'Thanh nhạt là số từ đã gặp, thanh đậm là số từ đã thuộc. ' +
+             'Một từ chỉ tính là thuộc sau 4 lần trả lời đúng cách nhau nhiều ngày.' +
+           '</p>' +
+           rows +
+         '</div>';
 }
 
 function weakWords(words, prog) {

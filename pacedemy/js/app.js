@@ -94,7 +94,7 @@ async function loadBoard() {
 
   const { data, error } = await db
     .from('leaderboard_weekly')
-    .select('id, full_name, weekly_xp, sessions, rank')
+    .select('id, full_name, avatar_url, weekly_xp, sessions, active_days, rank')
     .order('rank', { ascending: true })
     .limit(10);
 
@@ -110,11 +110,14 @@ async function loadBoard() {
 
   let rows = '';
   for (const r of data) {
+    const days = r.active_days || 0;
     rows +=
       '<tr class="' + (r.id === me.id ? 'me' : '') + '">' +
         '<td class="rank">' + r.rank + '</td>' +
-        '<td>' + escapeHtml(r.full_name || 'Học viên') + '</td>' +
-        '<td class="hide-sm">' + r.sessions + ' buổi</td>' +
+        '<td><div class="who">' + boardAvatar(r) +
+            '<span>' + escapeHtml(r.full_name || 'Học viên') + '</span></div></td>' +
+        '<td class="hide-sm">' + days + (days === 1 ? ' ngày' : ' ngày') + '</td>' +
+        '<td class="hide-sm">' + r.sessions + ' lượt</td>' +
         '<td>' + r.weekly_xp + ' điểm</td>' +
       '</tr>';
   }
@@ -123,10 +126,20 @@ async function loadBoard() {
     '<table class="board">' +
       '<thead><tr>' +
         '<th>Hạng</th><th>Học viên</th>' +
-        '<th class="hide-sm">Số buổi</th><th>Điểm tuần</th>' +
+        '<th class="hide-sm">Ngày học</th>' +
+        '<th class="hide-sm">Lượt làm bài</th>' +
+        '<th>Điểm tuần</th>' +
       '</tr></thead>' +
       '<tbody>' + rows + '</tbody>' +
     '</table>';
+}
+
+function boardAvatar(r) {
+  if (r.avatar_url) {
+    return '<span class="dot-ava"><img src="' + escapeHtml(r.avatar_url) + '" alt=""></span>';
+  }
+  const n = (r.full_name || 'U').trim().split(/\s+/);
+  return '<span class="dot-ava">' + escapeHtml(n[n.length - 1].charAt(0).toUpperCase()) + '</span>';
 }
 
 function escapeHtml(s) {
