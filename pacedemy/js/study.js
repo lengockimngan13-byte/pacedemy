@@ -227,7 +227,7 @@ async function finish() {
     $('done-title').textContent = right >= queue.length * 0.7
       ? 'Làm tốt lắm.' : 'Xong bài kiểm tra.';
     $('done-sub').textContent =
-      'Dưới đây là ' + wrongWords.length + ' từ chưa thuộc, bạn xem lại một lượt nhé.';
+      'Bạn trả lời sai ' + wrongWords.length + ' từ, xem lại một lượt nhé.';
     showWrong();
   }
 
@@ -256,7 +256,9 @@ function showWrong() {
   for (const w of wrongWords) {
     html +=
       '<div class="review-item">' +
-        '<p class="rw">' + esc(w.word) + '</p>' +
+        '<p class="rw">' + esc(w.word) +
+          '<button class="wl-say" data-rsay="' + esc(w.word) + '" title="Nghe">&#128266;</button>' +
+        '</p>' +
         '<p class="rp">' + esc([w.pos, w.phonetic].filter(Boolean).join('  ')) + '</p>' +
         '<p class="rm">' + esc(w.meaning_vi) + '</p>' +
         (w.synonyms ? '<p class="rp">Đồng nghĩa: ' + esc(w.synonyms) + '</p>' : '') +
@@ -266,6 +268,10 @@ function showWrong() {
   }
   html += '</div>';
   $('wrong-box').innerHTML = html;
+
+  $('wrong-box').querySelectorAll('button[data-rsay]').forEach(function (b) {
+    b.addEventListener('click', function () { doc(b.dataset.rsay); });
+  });
 
   if (topicSlug) {
     const b = $('btn-learn-wrong');
@@ -342,13 +348,16 @@ async function showNotMastered() {
 
   if (!left.length) {
     box.innerHTML =
-      '<p class="review-head">Bạn đã thuộc hết ' + list.length + ' từ của bộ này.</p>';
+      '<p class="review-head">Cả ' + list.length + ' từ của bộ này đều đã thuộc hẳn.</p>';
     return;
   }
 
   let html =
-    '<p class="review-head">Còn ' + left.length + '/' + list.length +
-    ' từ trong bộ này bạn chưa thuộc</p><ul class="wordlist">';
+    '<p class="review-head">Tiến độ cả bộ · ' + (list.length - left.length) + '/' +
+    list.length + ' từ đã thuộc hẳn</p>' +
+    '<p class="review-note">Một từ chỉ tính là thuộc hẳn khi bạn trả lời đúng nhiều lần ' +
+    'qua nhiều ngày. Trả lời đúng hôm nay là từ đó tiến thêm một bậc.</p>' +
+    '<ul class="wordlist">';
 
   for (const w of left) {
     const tag = st[w.id] === 'reviewing' ? 'đang ôn'
@@ -372,12 +381,18 @@ async function showNotMastered() {
   box.innerHTML = html;
 
   box.querySelectorAll('button[data-leftsay]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(b.dataset.leftsay);
-      u.lang = 'en-US'; u.rate = 0.92;
-      window.speechSynthesis.speak(u);
-    });
+    b.addEventListener('click', function () { doc(b.dataset.leftsay); });
   });
+}
+
+
+// ---------- Đọc to bằng giọng của trình duyệt ----------
+
+function doc(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = 0.92;
+  window.speechSynthesis.speak(u);
 }

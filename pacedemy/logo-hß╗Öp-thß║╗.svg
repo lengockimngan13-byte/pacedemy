@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hộp ngoài -->
+  <rect x="40" y="60" width="120" height="90" rx="8" fill="none" stroke="#0C2422" stroke-width="3"/>
+  
+  <!-- Nắp hộp hơi mở -->
+  <path d="M 45 60 L 55 45 L 155 45 L 165 60" fill="#0C2422" stroke="none" opacity="0.3"/>
+  
+  <!-- Lá thẻ 1 (dưới cùng, màu nhạt nhất) -->
+  <rect x="55" y="95" width="90" height="45" rx="4" fill="#0C2422" opacity="0.2" transform="rotate(-5 100 115)"/>
+  
+  <!-- Lá thẻ 2 (giữa) -->
+  <rect x="55" y="90" width="90" height="45" rx="4" fill="#0C2422" opacity="0.4" transform="rotate(-2 100 112)"/>
+  
+  <!-- Lá thẻ 3 (trên cùng, tối nhất) -->
+  <rect x="55" y="85" width="90" height="45" rx="4" fill="#0C2422" transform="rotate(1 100 107)"/>
+  
+  <!-- Điểm nhấn: một vạch ngang giữa lá thẻ trên cùng (tượng trưng cho nội dung từ vựng) -->
+  <line x1="65" y1="105" x2="135" y2="105" stroke="#E8E9E4" stroke-width="2" opacity="0.5"/>
+  <circle cx="70" cy="92" r="2" fill="#E8E9E4" opacity="0.6"/>
+  <circle cx="78" cy="92" r="2" fill="#E8E9E4" opacity="0.6"/>
+  <circle cx="86" cy="92" r="2" fill="#E8E9E4" opacity="0.6"/>
+</svg>

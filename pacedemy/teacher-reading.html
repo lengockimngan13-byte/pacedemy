@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nhập đề — Pacedemy</title>
+<title>Nhập đề Part 6 và 7 — Pacedemy</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <meta name="theme-color" content="#0C2422">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,11 +17,9 @@
   <div class="wrap">
     <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
     <div class="app-user">
-      <span class="teacher-only">Teacher Studio</span>
-      <a class="btn-quiet" href="teacher-reading.html">Nhập đề Part 6-7</a>
-      <a class="btn-quiet" href="teacher-listen.html">Nhập bài nghe</a>
-      <a class="btn-quiet" href="teacher-class.html">Lớp học</a>
       <a class="btn-quiet" href="teacher-vocab.html">Nhập từ vựng</a>
+      <a class="btn-quiet" href="teacher-import.html">Nhập đề Part 5</a>
+      <a class="btn-quiet" href="teacher-listen.html">Nhập bài nghe</a>
       <a class="btn-quiet" href="teacher.html">Về lớp học</a>
     </div>
   </div>
@@ -38,24 +35,24 @@
 
   <section class="hidden" id="view-main">
     <div class="greet">
-      <h1>Nhập đề vào ngân hàng câu hỏi</h1>
-      <p>Dán nội dung đã soạn sẵn vào đây. Xem trước, sửa chỗ nào chưa ưng, rồi lưu.</p>
+      <h1>Nhập đề Part 6 và Part 7</h1>
+      <p>Mỗi đoạn đọc kèm các câu hỏi của nó. Part 6 thường 4 câu, Part 7 từ 2 đến 5 câu mỗi đoạn.</p>
     </div>
 
     <div class="tbox">
-      <h3>Cách dùng</h3>
-      <p style="margin:0 0 10px;font-size:0.94rem;line-height:1.65">
-        Gửi file PDF hoặc Word cho Claude trong khung chat, kèm câu nhắc ở nút bên dưới.
-        Claude trả về một khối dữ liệu, Ngân copy rồi dán vào ô này.
-      </p>
-      <button class="btn btn-line" id="btn-prompt">Copy câu nhắc cho Claude</button>
-      <span id="prompt-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+      <h3>Bước 1 · Lấy câu nhắc cho ChatGPT</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-line" id="btn-p6">Câu nhắc Part 6</button>
+        <button class="btn btn-line" id="btn-p7">Câu nhắc Part 7</button>
+        <button class="btn btn-line" id="btn-sample">Xem ví dụ mẫu</button>
+      </div>
+      <span id="prompt-ok" style="display:block;margin-top:10px;font-size:0.88rem;color:var(--teal)"></span>
     </div>
 
     <div class="field">
-      <label for="raw">Dữ liệu câu hỏi</label>
-      <textarea id="raw" style="min-height:220px;font-family:ui-monospace,monospace;font-size:0.88rem"
-        placeholder='Dán khối JSON Claude trả về, hoặc mỗi câu một dòng ngăn bằng dấu |'></textarea>
+      <label for="raw">Bước 2 · Dữ liệu đề</label>
+      <textarea id="raw" style="min-height:280px;font-family:ui-monospace,monospace;font-size:0.86rem;width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r)"
+        placeholder="Dán khối dữ liệu ChatGPT trả về vào đây"></textarea>
     </div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
@@ -65,6 +62,9 @@
 
     <div id="note" class="note hidden"></div>
     <div id="preview"></div>
+
+    <div class="section-head" style="margin-top:34px"><h2>Đoạn đọc đã có</h2></div>
+    <div id="have"><p class="empty">Đang tải…</p></div>
   </section>
 
   <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
@@ -72,6 +72,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
-<script src="js/teacher-import.js"></script>
+<script src="js/teacher-reading.js"></script>
 </body>
 </html>

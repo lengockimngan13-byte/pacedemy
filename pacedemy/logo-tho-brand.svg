@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Con thỏ -->
+  <g transform="translate(20, 10)">
+    <!-- Tai trái -->
+    <ellipse cx="30" cy="15" rx="7" ry="25" fill="#0C2422" transform="rotate(-25 30 15)"/>
+    
+    <!-- Tai phải -->
+    <ellipse cx="50" cy="15" rx="7" ry="25" fill="#0C2422" transform="rotate(25 50 15)"/>
+    
+    <!-- Đầu -->
+    <circle cx="40" cy="40" r="22" fill="#0C2422"/>
+    
+    <!-- Thân -->
+    <ellipse cx="40" cy="68" rx="17" ry="15" fill="#0C2422"/>
+    
+    <!-- Cánh tay trái -->
+    <path d="M 28 50 Q 18 55 20 68" stroke="#0C2422" stroke-width="5" fill="none" stroke-linecap="round"/>
+    
+    <!-- Cánh tay phải -->
+    <path d="M 52 50 Q 62 55 60 68" stroke="#0C2422" stroke-width="5" fill="none" stroke-linecap="round"/>
+    
+    <!-- Chân trái -->
+    <ellipse cx="33" cy="80" rx="5" ry="8" fill="#0C2422"/>
+    
+    <!-- Chân phải -->
+    <ellipse cx="47" cy="80" rx="5" ry="8" fill="#0C2422"/>
+    
+    <!-- Lá thẻ nhỏ trong tay (điểm nhấn) -->
+    <rect x="58" y="60" width="12" height="9" rx="1" fill="#F0A830" transform="rotate(35 64 64)"/>
+  </g>
+
+  <!-- Chữ "Pacedemy" -->
+  <text x="120" y="68" font-family="Lexend, sans-serif" font-size="56" font-weight="700" fill="#0C2422">Pac<tspan fill="#F0A830">e</tspan>demy</text>
+</svg>

@@ -227,6 +227,7 @@ async function loadRoster() {
           '<span class="stat-lab">' + (words[s.id] || 0) + ' từ thuộc</span>' +
           '<span class="stat-lab">' + (sess[s.id] || 0) + ' buổi/tuần</span>' +
           '<span class="stat-lab">đúng ' + acc + '</span>' +
+          '<a class="btn-sm test" href="teacher-student.html?id=' + s.id + '">Xem hồ sơ</a>' +
           '<button class="btn-sm" data-out="' + s.id + '">Rời lớp</button>' +
         '</div>' +
 

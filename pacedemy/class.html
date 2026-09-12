@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lớp của tôi — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <span class="streak" id="streak">—</span>
+      <a class="btn-quiet" href="app.html">Về trang học</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="greet">
+    <h1 id="c-name">Lớp của tôi</h1>
+    <p id="c-sub">Đang tải…</p>
+  </section>
+
+  <div id="pick" style="margin-bottom:20px"></div>
+
+  <!-- Tiến độ của tôi -->
+  <section class="stats">
+    <div class="stat"><span class="stat-num" id="m-rank">—</span><span class="stat-lab">Hạng trong lớp</span></div>
+    <div class="stat"><span class="stat-num" id="m-xp">—</span><span class="stat-lab">Câu trả lời đúng</span></div>
+    <div class="stat"><span class="stat-num" id="m-words">—</span><span class="stat-lab">Từ đã thuộc</span></div>
+    <div class="stat"><span class="stat-num" id="m-acc">—</span><span class="stat-lab">Độ chính xác 30 ngày</span></div>
+  </section>
+
+  <!-- Bài cô giao -->
+  <section>
+    <div class="section-head"><h2>Bài cô giao</h2></div>
+    <div id="as-box"><p class="empty">Đang tải…</p></div>
+  </section>
+
+  <!-- Xếp hạng trong lớp -->
+  <section>
+    <div class="section-head">
+      <h2>Xếp hạng trong lớp</h2>
+      <a class="btn-quiet" href="leaderboard.html">Xem bảng chung</a>
+    </div>
+    <div id="rank-box"><p class="empty">Đang tải…</p></div>
+  </section>
+
+  <!-- Nhật ký học tập -->
+  <section>
+    <div class="section-head">
+      <h2>Nhật ký học tập</h2>
+      <span class="stat-lab">14 ngày gần nhất</span>
+    </div>
+    <div id="log-box"><p class="empty">Đang tải…</p></div>
+  </section>
+
+  <!-- Rời lớp -->
+  <section>
+    <div class="tbox">
+      <h3>Rời lớp</h3>
+      <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+        Rời lớp thì bạn không nhận bài tập và lời nhắn của cô nữa, và các phần học
+        sẽ đóng lại cho tới khi bạn vào một lớp khác. Tiến độ và số từ đã thuộc vẫn được giữ nguyên.
+      </p>
+      <button class="btn btn-line" id="btn-leave">Rời lớp này</button>
+      <span id="leave-msg" style="margin-left:12px;font-size:0.88rem;color:var(--danger)"></span>
+    </div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/assign.js"></script>
+<script src="js/class.js"></script>
+</body>
+</html>

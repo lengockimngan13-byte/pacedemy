@@ -51,4 +51,39 @@
   else document.body.insertAdjacentHTML('afterbegin', html);
 
   document.body.classList.add('has-nav');
+
+  // Học viên đã được duyệt vào lớp thì mục Xếp hạng đổi thành Lớp học.
+  // Bảng xếp hạng chung vẫn xem được từ bên trong trang lớp.
+  (async function () {
+    try {
+      if (typeof db === 'undefined') return;
+
+      const { data: { user } } = await db.auth.getUser();
+      if (!user) return;
+
+      const { data: mem } = await db
+        .from('class_members').select('class_id')
+        .eq('student_id', user.id).eq('status', 'active').limit(1);
+
+      if (!mem || !mem.length) return;
+
+      const link = document.querySelector('.navlink[href="leaderboard.html"]');
+      if (!link) return;
+
+      link.setAttribute('href', 'class.html');
+      link.querySelector('span').textContent = 'Lớp học';
+      link.querySelector('svg').innerHTML =
+        '<path d="M12 3 2 8l10 5 8-4v6h2V8zM6 12.5V17c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5l-6 3z"/>';
+
+      const here = (location.pathname.split('/').pop() || '').toLowerCase();
+      if (here === 'class.html') {
+        document.querySelectorAll('.navlink.on').forEach(function (a) {
+          a.classList.remove('on');
+          a.removeAttribute('aria-current');
+        });
+        link.classList.add('on');
+        link.setAttribute('aria-current', 'page');
+      }
+    } catch (e) { /* lỗi mạng thì để nguyên thanh menu */ }
+  })();
 })();

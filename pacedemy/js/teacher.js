@@ -210,7 +210,9 @@ async function openOne(id) {
   $('view-one').classList.remove('hidden');
   window.scrollTo(0, 0);
 
-  $('s-name').textContent = s.full_name || 'Học viên';
+  $('s-name').innerHTML = esc(s.full_name || 'Học viên') +
+    ' <a class="btn-sm test" style="vertical-align:middle;margin-left:10px" ' +
+    'href="teacher-student.html?id=' + s.id + '">Xem hồ sơ đầy đủ</a>';
   $('s-meta').textContent =
     'Mục tiêu ' + (s.target_score || '—') + ' điểm TOEIC · ' +
     (s.total_xp || 0) + ' câu trả lời đúng · chuỗi ' + (s.streak_days || 0) + ' ngày';
