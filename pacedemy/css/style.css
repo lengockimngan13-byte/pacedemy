@@ -1724,8 +1724,12 @@ a { color: inherit; }
     margin-top: -1px;
   }
 
-  .navlink svg { width: 21px; height: 21px; }
+  .navlink svg { width: 20px; height: 20px; }
   .navlink.on { border-top-color: var(--gold); font-weight: 600; }
+
+  /* Sáu mục nên chữ phải gọn lại cho vừa một hàng */
+  .navlink span { white-space: nowrap; letter-spacing: -0.01em; }
+  .navlink { font-size: 0.66rem; padding: 8px 1px 7px; }
 
   body.has-nav { padding-bottom: 68px; }
 
@@ -1839,4 +1843,124 @@ a { color: inherit; }
   .who-photo { width: 120px; height: 120px; }
   .tt-photo { width: 104px; height: 104px; }
   .facts { flex-direction: column; }
+}
+
+/* ============================================================
+   LUYỆN NGHE — trình phát, ảnh Part 1, lời thoại
+   ============================================================ */
+
+.player {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--mist);
+  padding: 16px 18px 14px;
+  margin-bottom: 22px;
+}
+
+.player-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.player-top b { font-family: var(--disp); font-size: 1.02rem; }
+.player-top span { font-size: 0.85rem; color: var(--teal); }
+
+.play-bar {
+  height: 8px;
+  border-radius: 100px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  overflow: hidden;
+}
+.play-bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--teal);
+  transition: width .1s linear;
+}
+
+.player-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.play-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 11px 20px;
+  border: none;
+  border-radius: var(--r);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+}
+.play-main svg { width: 18px; height: 18px; }
+.play-main:hover { background: var(--ink-soft); }
+
+.play-side {
+  font-family: var(--ui);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 11px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.play-side:hover { border-color: var(--teal); }
+.play-side.on { background: var(--gold); border-color: var(--gold); font-weight: 600; }
+
+.play-hint {
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+  color: #6C837E;
+}
+
+.pic {
+  margin-bottom: 20px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--mist);
+}
+.pic img { display: block; width: 100%; height: auto; }
+
+.opt-letter { display: flex; align-items: flex-start; gap: 4px; }
+.opt-letter .say { flex: 1; min-height: 1.6em; }
+
+.script {
+  margin-top: 22px;
+  border-left: 3px solid var(--gold);
+  background: var(--mist);
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: 16px 18px;
+}
+.script h3 {
+  font-family: var(--disp);
+  font-size: 0.95rem;
+  margin: 0 0 10px;
+}
+.script .line-en { margin: 0 0 8px; white-space: pre-wrap; line-height: 1.75; }
+.script .line-vi { margin: 0; white-space: pre-wrap; color: #4A635E; line-height: 1.75; }
+
+@media (max-width: 620px) {
+  .player { padding: 14px 14px 12px; }
+  .player-btns { gap: 8px; }
+  .play-main, .play-side { flex: 1; justify-content: center; text-align: center; }
+}
+
+@media (max-width: 380px) {
+  .navlink { font-size: 0.6rem; }
+  .navlink svg { width: 19px; height: 19px; }
 }

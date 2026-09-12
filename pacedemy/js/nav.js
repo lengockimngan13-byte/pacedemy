@@ -10,7 +10,9 @@
       icon: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>' },
     { href: 'vocab.html',       label: 'Từ vựng',
       icon: '<path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zm16 0h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7z"/>' },
-    { href: 'part5.html',       label: 'Luyện đề',
+    { href: 'listen.html',      label: 'Luyện nghe',
+      icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' },
+    { href: 'part5.html',       label: 'Luyện đọc',
       icon: '<path d="M5 3h11l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 9h8v2H8zm0 4h6v2H8z"/>' },
     { href: 'leaderboard.html', label: 'Xếp hạng',
       icon: '<path d="M4 20h4v-7H4zm6 0h4V4h-4zm6 0h4V9h-4z"/>' },
@@ -25,7 +27,8 @@
     'topic.html': 'vocab.html',
     'flashcard.html': 'vocab.html',
     'study.html': 'vocab.html',
-    'practice.html': 'part5.html'
+    'practice.html': 'part5.html',
+    'listen-practice.html': 'listen.html'
   };
   const active = parent[here] || here;
 
