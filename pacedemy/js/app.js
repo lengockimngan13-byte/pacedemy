@@ -173,6 +173,7 @@ el('btn-logout').addEventListener('click', async function () {
   loadBoard();
   loadFeedback();
   loadClass();
+  loadMyAssignments();
 })();
 
 
@@ -285,4 +286,64 @@ async function loadClass() {
     el('join-msg').textContent = 'Đã vào lớp ' + c.name + '.';
     setTimeout(loadClass, 1200);
   });
+}
+
+
+// ============================================================
+// Bài cô giao
+// ============================================================
+
+async function loadMyAssignments() {
+  const box = el('as-box');
+  if (!box) return;
+
+  const { data: mem } = await db
+    .from('class_members').select('class_id').eq('student_id', me.id);
+
+  const classIds = (mem || []).map(function (m) { return m.class_id; });
+  if (!classIds.length) { box.innerHTML = ''; return; }
+
+  const list = await fetchAssignments(classIds);
+  if (!list.length) { box.innerHTML = ''; return; }
+
+  let html = '';
+
+  for (const a of list) {
+    const done = await countProgress(a, [me.id]);
+    const mine = done[me.id] || {};
+    const pct = assignPercent(a, mine);
+
+    html +=
+      '<div class="tbox" style="border-color:' + (pct >= 100 ? 'var(--teal)' : 'var(--gold)') + '">' +
+        '<h3>' + escapeHtml(a.title) + '</h3>' +
+        '<p style="margin:0 0 12px;font-size:0.9rem;color:var(--teal)">' +
+          escapeHtml(dueText(a.due_date)) +
+          (pct >= 100 ? ' · Bạn đã làm xong bài này' : ' · Hoàn thành ' + pct + '%') +
+        '</p>';
+
+    for (const it of a.items) {
+      const d = Math.min(mine[it.id] || 0, it.amount);
+      const w = Math.round(d / it.amount * 100);
+      const unit = it.kind === 'vocab' ? ' từ' : ' câu';
+
+      html +=
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+          '<span style="flex:1;min-width:140px;font-size:0.93rem">' +
+            escapeHtml(it.label) + '</span>' +
+          '<span class="play-bar" style="flex:1;max-width:180px;cursor:default">' +
+            '<span style="width:' + w + '%"></span></span>' +
+          '<span class="stat-lab" style="min-width:64px;text-align:right">' +
+            d + '/' + it.amount + unit + '</span>' +
+        '</div>';
+    }
+
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">';
+    const kinds = new Set(a.items.map(function (i) { return i.kind; }));
+    if (kinds.has('vocab'))  html += '<a class="btn-sm test" href="vocab.html">Học từ vựng</a>';
+    if (kinds.has('part5'))  html += '<a class="btn-sm test" href="part5.html">Luyện Part 5</a>';
+    if (kinds.has('listen')) html += '<a class="btn-sm test" href="listen.html">Luyện nghe</a>';
+    html += '</div></div>';
+  }
+
+  box.innerHTML = html;
 }

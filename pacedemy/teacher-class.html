@@ -87,6 +87,43 @@
       <span id="all-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
     </div>
 
+    <div class="tbox">
+      <h3>Giao bài cho lớp</h3>
+
+      <div class="field">
+        <label for="as-title">Tên bài tập</label>
+        <input id="as-title" type="text" placeholder="Ví dụ: Bài tuần 12 đến 18/10">
+      </div>
+
+      <div class="field">
+        <label for="as-due">Hạn hoàn thành</label>
+        <input id="as-due" type="date">
+      </div>
+
+      <p style="margin:0 0 10px;font-size:0.94rem;font-weight:600">Đầu việc</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <select id="it-kind" style="padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)">
+          <option value="vocab">Từ vựng</option>
+          <option value="part5">Part 5</option>
+          <option value="listen">Luyện nghe</option>
+        </select>
+        <select id="it-target" style="flex:1;min-width:180px;padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)"></select>
+        <input id="it-amount" type="number" min="1" value="20"
+          style="width:90px;padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)">
+        <button class="btn-sm test" id="btn-add-item">Thêm việc</button>
+      </div>
+
+      <div id="it-list"></div>
+
+      <button class="btn btn-gold" id="btn-save-as">Giao bài</button>
+      <span id="as-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+    </div>
+
+    <div class="section-head" style="margin-top:32px">
+      <h2>Bài đã giao</h2>
+    </div>
+    <div id="assigns"><p class="empty">Đang tải…</p></div>
+
     <div class="section-head" style="margin-top:32px">
       <h2>Học viên trong lớp</h2>
       <span class="stat-lab" id="c-count"></span>
@@ -104,6 +141,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/assign.js"></script>
 <script src="js/teacher-class.js"></script>
 </body>
 </html>

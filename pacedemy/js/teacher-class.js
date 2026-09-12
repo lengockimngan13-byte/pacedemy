@@ -136,6 +136,7 @@ async function openClass() {
 
   await loadRoster();
   loadOutside();
+  initAssign();
 }
 
 async function loadRoster() {
@@ -318,4 +319,200 @@ function esc(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ============================================================
+// Giao bài cho lớp
+// ============================================================
+
+let draftItems = [];
+let targetOpts = { vocab: [], part5: [], listen: [] };
+
+async function initAssign() {
+  const { data: ts } = await db.from('topics').select('id, name_vi').order('order_index');
+  targetOpts.vocab = (ts || []).map(function (t) {
+    return { v: String(t.id), t: t.name_vi };
+  });
+
+  const { data: tags } = await db.from('question_tags').select('tag').eq('part', 5);
+  targetOpts.part5 = [{ v: '', t: 'Tất cả các dạng' }].concat(
+    (tags || []).map(function (x) { return { v: x.tag, t: x.tag }; }));
+
+  targetOpts.listen = [
+    { v: '',  t: 'Tất cả Part 1 đến 4' },
+    { v: '1', t: 'Part 1 — Mô tả tranh' },
+    { v: '2', t: 'Part 2 — Hỏi đáp' },
+    { v: '3', t: 'Part 3 — Hội thoại ngắn' },
+    { v: '4', t: 'Part 4 — Bài nói ngắn' }
+  ];
+
+  fillTargets();
+  drawDraft();
+  $('it-kind').addEventListener('change', fillTargets);
+  $('btn-add-item').addEventListener('click', addItem);
+  $('btn-save-as').addEventListener('click', saveAssign);
+
+  listAssigns();
+}
+
+function fillTargets() {
+  const kind = $('it-kind').value;
+  const list = targetOpts[kind] || [];
+  $('it-target').innerHTML = list.map(function (o) {
+    return '<option value="' + esc(o.v) + '">' + esc(o.t) + '</option>';
+  }).join('');
+}
+
+function kindName(k) {
+  return k === 'vocab' ? 'Từ vựng' : (k === 'part5' ? 'Part 5' : 'Luyện nghe');
+}
+
+function addItem() {
+  const kind = $('it-kind').value;
+  const sel = $('it-target');
+  const amount = parseInt($('it-amount').value || '10', 10);
+
+  if (amount < 1) return;
+
+  draftItems.push({
+    kind: kind,
+    target: sel.value || null,
+    label: kindName(kind) + ' · ' + sel.options[sel.selectedIndex].text,
+    amount: amount
+  });
+
+  drawDraft();
+}
+
+function drawDraft() {
+  if (!draftItems.length) {
+    $('it-list').innerHTML =
+      '<p class="empty" style="text-align:left">Chưa có việc nào. Thêm ít nhất một việc rồi mới giao được.</p>';
+    return;
+  }
+
+  let html = '';
+  draftItems.forEach(function (it, i) {
+    html +=
+      '<div class="wrong-q" style="display:flex;align-items:center;gap:12px;padding:10px 14px">' +
+        '<span style="flex:1">' + esc(it.label) + '</span>' +
+        '<span class="stat-lab">' + it.amount + (it.kind === 'vocab' ? ' từ' : ' câu') + '</span>' +
+        '<button class="btn-sm" data-rm="' + i + '">Bỏ</button>' +
+      '</div>';
+  });
+
+  $('it-list').innerHTML = html;
+
+  $('it-list').querySelectorAll('button[data-rm]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      draftItems.splice(parseInt(b.dataset.rm, 10), 1);
+      drawDraft();
+    });
+  });
+}
+
+async function saveAssign() {
+  const title = $('as-title').value.trim();
+  if (!title) { $('as-ok').textContent = 'Bạn đặt tên bài tập đã nhé.'; return; }
+  if (!draftItems.length) { $('as-ok').textContent = 'Thêm ít nhất một đầu việc.'; return; }
+
+  this.disabled = true;
+
+  const { data: a, error } = await db.from('assignments').insert({
+    class_id: classId,
+    title: title,
+    due_date: $('as-due').value || null
+  }).select('id').single();
+
+  if (error || !a) {
+    this.disabled = false;
+    $('as-ok').textContent = 'Không giao được: ' + (error ? error.message : 'lỗi không rõ');
+    return;
+  }
+
+  const rows = draftItems.map(function (it) {
+    return {
+      assignment_id: a.id, kind: it.kind, target: it.target,
+      label: it.label, amount: it.amount
+    };
+  });
+
+  const { error: e2 } = await db.from('assignment_items').insert(rows);
+
+  this.disabled = false;
+
+  if (e2) {
+    await db.from('assignments').delete().eq('id', a.id);
+    $('as-ok').textContent = 'Không lưu được đầu việc: ' + e2.message;
+    return;
+  }
+
+  $('as-title').value = '';
+  $('as-due').value = '';
+  draftItems = [];
+  drawDraft();
+  $('as-ok').textContent = 'Đã giao bài cho lớp.';
+  setTimeout(function () { $('as-ok').textContent = ''; }, 3000);
+  listAssigns();
+}
+
+// ---------- Bài đã giao và ai đã xong ----------
+
+async function listAssigns() {
+  const list = await fetchAssignments([classId]);
+
+  if (!list.length) {
+    $('assigns').innerHTML = '<p class="empty">Chưa giao bài nào cho lớp này.</p>';
+    return;
+  }
+
+  const ids = roster.map(function (s) { return s.id; });
+  let html = '';
+
+  for (const a of list) {
+    const done = await countProgress(a, ids);
+
+    const rows = roster.map(function (s) {
+      return { s: s, pct: assignPercent(a, done[s.id] || {}) };
+    }).sort(function (x, y) { return y.pct - x.pct; });
+
+    const finished = rows.filter(function (r) { return r.pct >= 100; }).length;
+
+    html +=
+      '<div class="wrong-q">' +
+        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+          '<span style="flex:1;min-width:180px;font-weight:600">' + esc(a.title) + '</span>' +
+          '<span class="q-tag" style="margin:0">' + esc(dueText(a.due_date)) + '</span>' +
+          '<span class="stat-lab">' + finished + '/' + rows.length + ' em xong</span>' +
+          '<button class="btn-sm" data-del-as="' + a.id + '">Đóng bài</button>' +
+        '</div>' +
+
+        '<p class="ww" style="margin:8px 0 0;color:#6C837E">' +
+          a.items.map(function (i) {
+            return esc(i.label) + ' (' + i.amount + ')';
+          }).join(' · ') + '</p>';
+
+    for (const r of rows) {
+      html +=
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">' +
+          '<span style="flex:1;min-width:130px;font-size:0.92rem">' +
+            esc(r.s.full_name || 'Học viên') + '</span>' +
+          '<span class="play-bar" style="flex:2;max-width:220px;cursor:default">' +
+            '<span style="width:' + r.pct + '%"></span></span>' +
+          '<span class="stat-lab" style="min-width:44px;text-align:right">' + r.pct + '%</span>' +
+        '</div>';
+    }
+
+    html += '</div>';
+  }
+
+  $('assigns').innerHTML = html;
+
+  $('assigns').querySelectorAll('button[data-del-as]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      if (!confirm('Đóng bài tập này? Học viên sẽ không thấy nữa.')) return;
+      await db.from('assignments').update({ is_active: false }).eq('id', b.dataset.delAs);
+      listAssigns();
+    });
+  });
 }

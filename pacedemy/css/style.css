@@ -1964,3 +1964,91 @@ a { color: inherit; }
   .navlink { font-size: 0.6rem; }
   .navlink svg { width: 19px; height: 19px; }
 }
+
+/* ============================================================
+   DANH SÁCH TỪ TRONG MỘT BỘ, VÀ Ô SỬA THẺ CỦA GIÁO VIÊN
+   ============================================================ */
+
+.set-words {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.wordlist { list-style: none; margin: 0; padding: 0; }
+
+.wordlist li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--mist);
+}
+.wordlist li:last-child { border-bottom: none; }
+.wordlist li.editing { background: var(--mist); border-radius: var(--r); padding: 10px; }
+
+.wl-main { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.wl-word { font-weight: 600; }
+.wl-ipa  { font-size: 0.85rem; color: var(--teal); }
+.wl-pos  {
+  font-size: 0.74rem;
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: var(--mist);
+  color: var(--teal);
+}
+.wl-mean { grid-column: 1; font-size: 0.92rem; color: #4A635E; }
+
+.wl-act {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wl-say, .wl-edit {
+  font-family: var(--ui);
+  font-size: 0.82rem;
+  padding: 5px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+  cursor: pointer;
+  line-height: 1.2;
+}
+.wl-say:hover, .wl-edit:hover { border-color: var(--teal); }
+
+.wl-form {
+  grid-column: 1 / -1;
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+.wl-form label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.wl-form input, .wl-form textarea, .wl-form select {
+  font-family: var(--ui);
+  font-size: 0.92rem;
+  font-weight: 400;
+  padding: 8px 11px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+  width: 100%;
+}
+.wl-form textarea { resize: vertical; line-height: 1.55; }
+
+.wl-form-act {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.wl-msg { font-size: 0.85rem; color: var(--danger); }
