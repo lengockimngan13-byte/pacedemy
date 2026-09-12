@@ -6,6 +6,12 @@ let me = null;
 
 function el(id) { return document.getElementById(id); }
 
+// Gán chữ an toàn: ô không tồn tại thì bỏ qua, không làm đứng cả trang
+function put(id, text) {
+  const n = el(id);
+  if (n) n.textContent = text;
+}
+
 // Câu chào theo giờ trong ngày
 function greeting() {
   const h = new Date().getHours();
@@ -77,7 +83,7 @@ async function loadStats() {
     .eq('user_id', me.id)
     .eq('status', 'mastered');
 
-  el('s-words').textContent = words.count || 0;
+  put('s-words', words.count || 0);
 
   // Toàn bộ buổi học đã ghi lại
   const { data: atts } = await db
@@ -110,8 +116,8 @@ async function loadStats() {
     }
   }
 
-  el('s-vocab').textContent = vN ? vOk + '/' + vN : '—';
-  el('s-drill').textContent = dN ? dOk + '/' + dN : '—';
+  put('s-vocab', vN ? vOk + '/' + vN : '—');
+  put('s-drill', dN ? dOk + '/' + dN : '—');
 
   // --- Thi thử gần nhất ---
   const { data: mocks } = await db
@@ -124,9 +130,9 @@ async function loadStats() {
 
   const last = (mocks || [])[0];
 
-  el('s-mock').textContent = last
+  put('s-mock', last
     ? (last.listening_correct + last.reading_correct) + '/' + last.total_questions
-    : '—';
+    : '—');
 
   drawBreakdown(drill, dOk, dN, vOk, vN, mocks || []);
 }
@@ -318,9 +324,10 @@ el('btn-logout').addEventListener('click', async function () {
   if (!me) return;
 
   await loadProfile();
-  loadStats();
+
+  safely(loadStats);
+  safely(loadStreak);
   loadBoard();
-  loadStreak();
   loadFeedback();
   loadClass();
   loadMyAssignments();
@@ -601,6 +608,15 @@ async function loadStreak() {
   // Ghi lại kỷ lục
   if (streak > best) {
     await db.from('profiles').update({ best_streak: streak }).eq('id', me.id);
+  }
+}
+
+function safely(fn) {
+  try {
+    const r = fn();
+    if (r && r.catch) r.catch(function (e) { console.error(fn.name, e); });
+  } catch (e) {
+    console.error(fn.name, e);
   }
 }
 

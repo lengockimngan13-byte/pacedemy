@@ -14,11 +14,13 @@
 
     if (prof && prof.role === 'teacher') return;
 
-    const { data: mem } = await db
+    const { data: mem, error } = await db
       .from('class_members').select('class_id')
       .eq('student_id', user.id).eq('status', 'active').limit(1);
 
-    if (!mem || !mem.length) {
+    // Chỉ chặn khi chắc chắn học viên không có lớp nào.
+    // Truy vấn lỗi thì để trang chạy tiếp, không đá người dùng ra.
+    if (!error && Array.isArray(mem) && mem.length === 0) {
       location.replace('app.html?can-lop=1');
     }
   } catch (e) {
