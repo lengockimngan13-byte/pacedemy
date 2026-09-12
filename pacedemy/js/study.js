@@ -231,6 +231,8 @@ async function finish() {
     showWrong();
   }
 
+  showNotMastered();
+
   const seconds = Math.round((Date.now() - started.getTime()) / 1000);
 
   await db.from('attempts').insert({
@@ -298,4 +300,84 @@ function esc(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+
+// ---------- Toàn bộ từ trong bộ mà bạn chưa thuộc ----------
+
+async function showNotMastered() {
+  if (!topicSlug) return;
+
+  const { data: t } = await db
+    .from('topics').select('id').eq('slug', topicSlug).single();
+  if (!t) return;
+
+  const { data: words } = await db.from('vocabulary')
+    .select('id, word, phonetic, pos, meaning_vi, level')
+    .eq('topic_id', t.id).order('level').order('order_index').order('id');
+
+  if (!words || !words.length) return;
+
+  let list = words;
+
+  if (muc) {
+    const lv = parseInt(muc, 10);
+    list = list.filter(function (w) { return (w.level || 1) === lv; });
+  }
+  if (bo) {
+    const i = parseInt(bo, 10) - 1;
+    list = list.slice(i * SET_SIZE, (i + 1) * SET_SIZE);
+  }
+
+  const { data: prog } = await db
+    .from('vocab_progress').select('vocabulary_id, status').eq('user_id', me.id);
+
+  const st = {};
+  for (const p of (prog || [])) st[p.vocabulary_id] = p.status;
+
+  const left = list.filter(function (w) { return st[w.id] !== 'mastered'; });
+
+  const box = document.getElementById('left-box');
+  if (!box) return;
+
+  if (!left.length) {
+    box.innerHTML =
+      '<p class="review-head">Bạn đã thuộc hết ' + list.length + ' từ của bộ này.</p>';
+    return;
+  }
+
+  let html =
+    '<p class="review-head">Còn ' + left.length + '/' + list.length +
+    ' từ trong bộ này bạn chưa thuộc</p><ul class="wordlist">';
+
+  for (const w of left) {
+    const tag = st[w.id] === 'reviewing' ? 'đang ôn'
+              : (st[w.id] === 'learning' ? 'mới học' : 'chưa gặp');
+
+    html +=
+      '<li>' +
+        '<div class="wl-main">' +
+          '<span class="wl-word">' + esc(w.word) + '</span>' +
+          (w.phonetic ? '<span class="wl-ipa">' + esc(w.phonetic) + '</span>' : '') +
+          '<span class="wl-pos">' + tag + '</span>' +
+        '</div>' +
+        '<div class="wl-mean">' + esc(w.meaning_vi || '') + '</div>' +
+        '<div class="wl-act">' +
+          '<button class="wl-say" data-leftsay="' + esc(w.word) + '">&#128266;</button>' +
+        '</div>' +
+      '</li>';
+  }
+
+  html += '</ul>';
+  box.innerHTML = html;
+
+  box.querySelectorAll('button[data-leftsay]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(b.dataset.leftsay);
+      u.lang = 'en-US'; u.rate = 0.92;
+      window.speechSynthesis.speak(u);
+    });
+  });
 }

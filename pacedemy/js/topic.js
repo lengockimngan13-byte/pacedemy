@@ -119,7 +119,7 @@ async function build() {
           '<div class="bar"><span class="' + (finished ? 'full' : '') + '" style="width:' + pct + '%"></span></div>' +
           '<span class="count">' + ok + '/' + chunk.length + ' đã thuộc</span>' +
           '<div class="topic-actions">' +
-            '<button class="btn-sm" data-see="' + key + '">Xem từ</button>' +
+            (isTeacher ? '<button class="btn-sm" data-see="' + key + '">Sửa từ</button>' : '') +
             '<a class="btn-sm learn" href="flashcard.html' + link + '">Học thẻ</a>' +
             '<a class="btn-sm test" href="study.html' + link + '">Kiểm tra</a>' +
           '</div>' +
@@ -160,7 +160,7 @@ function bindSee() {
       const open = !box.classList.contains('hidden');
       if (open) {
         box.classList.add('hidden');
-        b.textContent = 'Xem từ';
+        b.textContent = 'Sửa từ';
       } else {
         drawWords(key);
         box.classList.remove('hidden');

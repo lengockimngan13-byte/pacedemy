@@ -820,7 +820,7 @@ a { color: inherit; }
   transition: transform .5s cubic-bezier(.4,.2,.2,1);
 }
 
-.card.flipped { transform: rotateY(180deg); }
+.card.flipped { transform: rotateX(180deg); }
 
 .card-face {
   position: absolute;
@@ -846,7 +846,7 @@ a { color: inherit; }
   background: var(--paper);
   color: var(--ink);
   border: 1.5px solid var(--line);
-  transform: rotateY(180deg);
+  transform: rotateX(180deg);
   padding: 34px 28px 28px;
   overflow-y: auto;
   text-align: left;

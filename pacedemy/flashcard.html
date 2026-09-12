@@ -26,7 +26,18 @@
 
 <main class="wrap">
 
-  <section class="deck" id="view-deck">
+  <!-- Bước 1: xem qua danh sách từ -->
+  <section class="done hidden" id="view-list">
+    <h1 id="list-title">Bộ từ này có những từ nào</h1>
+    <p class="sub" id="list-sub">Xem lướt một lượt cho quen mặt chữ, rồi mới lật thẻ.</p>
+    <div id="list-box"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold" id="btn-start-deck">Bắt đầu lật thẻ</button>
+      <a class="btn btn-line" id="btn-back-topic" href="vocab.html">Về chủ đề</a>
+    </div>
+  </section>
+
+  <section class="deck hidden" id="view-deck">
     <div class="deck-top">
       <span id="topic-name">Đang tải…</span>
       <label class="toggle">
@@ -126,6 +137,7 @@
   <section class="done hidden" id="view-done">
     <h1 id="done-title">Đã xem hết bộ thẻ</h1>
     <p class="sub" id="done-sub"></p>
+    <div id="recap-box"></div>
     <div id="marked-box"></div>
     <div class="done-actions">
       <button class="btn btn-gold hidden" id="btn-redo">Học lại từ đã đánh dấu</button>

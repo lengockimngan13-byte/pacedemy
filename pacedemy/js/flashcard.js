@@ -44,8 +44,49 @@ const AUDIO_KEY = 'pacedemy_tu_doc';
   document.querySelectorAll('a[href="vocab.html"]').forEach(function (a) {
     a.href = 'topic.html?chu-de=' + encodeURIComponent(topicSlug || '');
   });
-  render();
+  // Bước 1: cho xem danh sách trước, chưa vào thẻ ngay
+  drawList('list-box');
+  $('list-sub').textContent =
+    'Bộ này có ' + deck.length + ' từ. Xem lướt một lượt cho quen mặt chữ, rồi mới lật thẻ.';
+  $('view-list').classList.remove('hidden');
+
+  $('btn-start-deck').addEventListener('click', function () {
+    $('view-list').classList.add('hidden');
+    $('view-deck').classList.remove('hidden');
+    render();
+  });
 })();
+
+// ---------- Danh sách từ, dùng cho cả trước và sau khi lật thẻ ----------
+
+function drawList(boxId) {
+  const box = $(boxId);
+  if (!box) return;
+
+  let html = '<ul class="wordlist">';
+
+  for (const w of deck) {
+    html +=
+      '<li>' +
+        '<div class="wl-main">' +
+          '<span class="wl-word">' + esc(w.word) + '</span>' +
+          (w.phonetic ? '<span class="wl-ipa">' + esc(w.phonetic) + '</span>' : '') +
+          (w.pos ? '<span class="wl-pos">' + esc(w.pos) + '</span>' : '') +
+        '</div>' +
+        '<div class="wl-mean">' + esc(w.meaning_vi || '') + '</div>' +
+        '<div class="wl-act">' +
+          '<button class="wl-say" data-listsay="' + esc(w.word) + '" title="Nghe">&#128266;</button>' +
+        '</div>' +
+      '</li>';
+  }
+
+  html += '</ul>';
+  box.innerHTML = html;
+
+  box.querySelectorAll('button[data-listsay]').forEach(function (b) {
+    b.addEventListener('click', function () { speak(b.dataset.listsay, 'US'); });
+  });
+}
 
 // ---------- Nạp bộ thẻ ----------
 
@@ -349,6 +390,13 @@ document.addEventListener('keydown', function (e) {
 function finish() {
   $('view-deck').classList.add('hidden');
   $('view-done').classList.remove('hidden');
+
+  // Cho xem lại toàn bộ danh sách một lần nữa
+  $('recap-box').innerHTML = '<p class="review-head">Nhắc lại cả bộ ' + deck.length + ' từ</p>';
+  const wrap = document.createElement('div');
+  wrap.id = 'recap-list';
+  $('recap-box').appendChild(wrap);
+  drawList('recap-list');
 
   const ids = Object.keys(marked).map(Number);
 
