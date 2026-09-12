@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhập đề — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <span class="teacher-only">Teacher Studio</span>
+      <a class="btn-quiet" href="teacher-reading.html">Nhập đề Part 6-7</a>
+      <a class="btn-quiet" href="teacher-listen.html">Nhập bài nghe</a>
+      <a class="btn-quiet" href="teacher-class.html">Lớp học</a>
+      <a class="btn-quiet" href="teacher-vocab.html">Nhập từ vựng</a>
+      <a class="btn-quiet" href="teacher.html">Về lớp học</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+    <div class="greet">
+      <h1>Nhập đề vào ngân hàng câu hỏi</h1>
+      <p>Dán nội dung đã soạn sẵn vào đây. Xem trước, sửa chỗ nào chưa ưng, rồi lưu.</p>
+    </div>
+
+    <div class="tbox">
+      <h3>Cách dùng</h3>
+      <p style="margin:0 0 10px;font-size:0.94rem;line-height:1.65">
+        Gửi file PDF hoặc Word cho Claude trong khung chat, kèm câu nhắc ở nút bên dưới.
+        Claude trả về một khối dữ liệu, Ngân copy rồi dán vào ô này.
+      </p>
+      <button class="btn btn-line" id="btn-prompt">Copy câu nhắc cho Claude</button>
+      <span id="prompt-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+    </div>
+
+    <div class="field">
+      <label for="raw">Dữ liệu câu hỏi</label>
+      <textarea id="raw" style="min-height:220px;font-family:ui-monospace,monospace;font-size:0.88rem"
+        placeholder='Dán khối JSON Claude trả về, hoặc mỗi câu một dòng ngăn bằng dấu |'></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn btn-ink" id="btn-parse">Xem trước</button>
+      <button class="btn btn-gold hidden" id="btn-save">Lưu vào ngân hàng đề</button>
+    </div>
+
+    <div id="note" class="note hidden"></div>
+    <div id="preview"></div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/teacher-import.js"></script>
+</body>
+</html>

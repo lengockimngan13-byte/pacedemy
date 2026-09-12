@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng nhập — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="auth">
+
+  <aside class="auth-side">
+    <a class="brand" href="index.html">Pac<span class="brand-e">e</span>demy</a>
+
+    <div class="auth-side-mid">
+      <div class="cycle" id="cycle">
+        <svg class="cycle-line" viewBox="0 0 210 264" fill="none" aria-hidden="true">
+          <path d="M37.5 5.5 V 231" stroke="#2A7F76" stroke-width="1.5"/>
+          <path d="M37.5 231 C 6 244, 6 -8, 37.5 5.5" stroke="#2A7F76" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <path d="M31 1.5 L 38 5.5 L 31 9.5" stroke="#2A7F76" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <ol class="cycle-list">
+          <li class="beat on"><span class="dot"></span>Learn</li>
+          <li class="beat"><span class="dot"></span>Practice</li>
+          <li class="beat"><span class="dot"></span>Review</li>
+          <li class="beat"><span class="dot"></span>Repeat</li>
+        </ol>
+      </div>
+
+      <p class="auth-tag">
+        Bốn bước lặp lại mỗi ngày. Không cần học nhiều, chỉ cần học đều —
+        đó là cách điểm TOEIC lên bền nhất.
+      </p>
+    </div>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-card">
+
+      <div id="note" class="note hidden"></div>
+
+      <!-- ĐĂNG NHẬP -->
+      <section id="view-login">
+        <h1>Chào bạn trở lại</h1>
+        <p class="lead">Đăng nhập để tiếp tục lộ trình đang học.</p>
+
+        <div class="field">
+          <label for="li-email">Email</label>
+          <input type="email" id="li-email" autocomplete="email" placeholder="ban@email.com">
+        </div>
+
+        <div class="field">
+          <label for="li-pass">Mật khẩu</label>
+          <input type="password" id="li-pass" autocomplete="current-password" placeholder="••••••••">
+        </div>
+
+        <button class="btn btn-ink btn-full" id="btn-login">Đăng nhập</button>
+
+        <p class="auth-foot">
+          Chưa có tài khoản?
+          <button class="btn-quiet" id="to-signup">Tạo tài khoản mới</button>
+        </p>
+      </section>
+
+      <!-- ĐĂNG KÝ -->
+      <section id="view-signup" class="hidden">
+        <h1>Tạo tài khoản</h1>
+        <p class="lead">Miễn phí. Học được ngay sau khi tạo xong.</p>
+
+        <div class="field">
+          <label for="su-name">Họ và tên</label>
+          <input type="text" id="su-name" autocomplete="name" placeholder="Nguyễn Văn A">
+        </div>
+
+        <div class="field">
+          <label for="su-email">Email</label>
+          <input type="email" id="su-email" autocomplete="email" placeholder="ban@email.com">
+        </div>
+
+        <div class="field">
+          <label for="su-pass">Mật khẩu</label>
+          <input type="password" id="su-pass" autocomplete="new-password" placeholder="Ít nhất 6 ký tự">
+          <p class="field-hint">Dùng ít nhất 6 ký tự.</p>
+        </div>
+
+        <div class="field">
+          <label for="su-target">Mục tiêu điểm TOEIC</label>
+          <select id="su-target">
+            <option value="450">450 — qua chuẩn đầu ra cơ bản</option>
+            <option value="550">550</option>
+            <option value="650" selected>650</option>
+            <option value="750">750</option>
+            <option value="850">850 trở lên</option>
+          </select>
+        </div>
+
+        <button class="btn btn-ink btn-full" id="btn-signup">Tạo tài khoản</button>
+
+        <p class="auth-foot">
+          Đã có tài khoản?
+          <button class="btn-quiet" id="to-login">Đăng nhập</button>
+        </p>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/cycle.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

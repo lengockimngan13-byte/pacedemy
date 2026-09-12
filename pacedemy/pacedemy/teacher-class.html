@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lớp học — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <span class="teacher-only">Teacher Studio</span>
+      <a class="btn-quiet" href="teacher.html">Tất cả học viên</a>
+      <a class="btn-quiet" href="teacher-vocab.html">Nhập từ vựng</a>
+      <a class="btn-quiet" href="teacher-import.html">Nhập đề Part 5</a>
+      <a class="btn-quiet" href="teacher-reading.html">Nhập đề Part 6-7</a>
+      <a class="btn-quiet" href="teacher-listen.html">Nhập bài nghe</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <!-- Danh sách lớp -->
+  <section class="hidden" id="view-list">
+    <div class="greet">
+      <h1>Các lớp của bạn</h1>
+      <p>Mỗi lớp có một mã riêng. Học viên nhập mã đó trên trang học là vào lớp.</p>
+    </div>
+
+    <div class="tbox">
+      <h3>Mở lớp mới</h3>
+      <div class="field">
+        <label for="new-name">Tên lớp</label>
+        <input id="new-name" type="text" placeholder="Ví dụ: TOEIC 500 tối thứ 3-5">
+      </div>
+      <div class="field">
+        <label for="new-note">Ghi chú (không bắt buộc)</label>
+        <input id="new-note" type="text" placeholder="Ví dụ: khai giảng 10/10, mục tiêu 600">
+      </div>
+      <button class="btn btn-gold" id="btn-new">Tạo lớp</button>
+      <span id="new-note-msg" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+    </div>
+
+    <div id="classes"><p class="empty">Đang tải danh sách lớp…</p></div>
+  </section>
+
+  <!-- Một lớp -->
+  <section class="hidden" id="view-one">
+    <a class="crumb" href="teacher-class.html">← Về danh sách lớp</a>
+
+    <div class="greet">
+      <h1 id="c-name">Lớp</h1>
+      <p id="c-sub"></p>
+    </div>
+
+    <div class="due-card">
+      <div>
+        <h2>Mã vào lớp: <span id="c-code" style="letter-spacing:2px">——————</span></h2>
+        <p>Gửi mã này cho học viên. Các em nhập trên trang học là tự vào lớp.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-line" id="btn-copy">Copy mã</button>
+        <button class="btn btn-line" id="btn-newcode">Đổi mã</button>
+      </div>
+    </div>
+
+    <div class="tbox">
+      <h3>Sĩ số tối đa</h3>
+      <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+        Đủ số này thì mã lớp hết tác dụng, người lạ có mã cũng không vào được.
+        Để trống nghĩa là không giới hạn.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="c-max" type="number" min="1" placeholder="không giới hạn"
+          style="width:170px;padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)">
+        <button class="btn-sm test" id="btn-max">Lưu</button>
+        <span id="max-ok" style="font-size:0.88rem;color:var(--teal)"></span>
+      </div>
+    </div>
+
+    <div id="pending-box"></div>
+
+    <div class="tbox" style="border-color:var(--gold)">
+      <h3>Gửi nhận xét cho cả lớp</h3>
+      <div class="field">
+        <textarea id="all-msg" rows="3"
+          placeholder="Ví dụ: Tuần này cả lớp làm Part 5 mảng Mệnh đề quan hệ nhé, cô vừa thêm 60 câu."
+          style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui);font-size:0.96rem"></textarea>
+      </div>
+      <button class="btn btn-ink" id="btn-all">Gửi cho tất cả</button>
+      <span id="all-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+    </div>
+
+    <div class="tbox">
+      <h3>Giao bài cho lớp</h3>
+
+      <div class="field">
+        <label for="as-title">Tên bài tập</label>
+        <input id="as-title" type="text" placeholder="Ví dụ: Bài tuần 12 đến 18/10">
+      </div>
+
+      <div class="field">
+        <label for="as-due">Hạn hoàn thành</label>
+        <input id="as-due" type="date">
+      </div>
+
+      <p style="margin:0 0 10px;font-size:0.94rem;font-weight:600">Đầu việc</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <select id="it-kind" style="padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)">
+          <option value="vocab">Từ vựng</option>
+          <option value="part5">Part 5</option>
+          <option value="listen">Luyện nghe</option>
+        </select>
+        <select id="it-target" style="flex:1;min-width:180px;padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)"></select>
+        <input id="it-amount" type="number" min="1" value="20"
+          style="width:90px;padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)">
+        <button class="btn-sm test" id="btn-add-item">Thêm việc</button>
+      </div>
+
+      <div id="it-list"></div>
+
+      <button class="btn btn-gold" id="btn-save-as">Giao bài</button>
+      <span id="as-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+    </div>
+
+    <div class="section-head" style="margin-top:32px">
+      <h2>Bài đã giao</h2>
+    </div>
+    <div id="assigns"><p class="empty">Đang tải…</p></div>
+
+    <div class="section-head" style="margin-top:32px">
+      <h2>Học viên trong lớp</h2>
+      <span class="stat-lab" id="c-count"></span>
+    </div>
+    <div id="roster"><p class="empty">Đang tải…</p></div>
+
+    <div class="section-head" style="margin-top:32px">
+      <h2>Thêm học viên chưa có lớp</h2>
+    </div>
+    <div id="outside"></div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/assign.js"></script>
+<script src="js/teacher-class.js"></script>
+</body>
+</html>

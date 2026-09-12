@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trang học — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">
+      Pac<span class="brand-e">e</span>demy
+    </a>
+    <div class="app-user">
+      <span class="streak" id="streak">0 ngày liên tiếp</span>
+      <a class="btn-quiet hidden" id="link-teacher" href="teacher.html">Teacher Studio</a>
+      <button class="btn-quiet" id="btn-logout">Đăng xuất</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="greet">
+    <h1 id="greet-name">Đang tải…</h1>
+    <p id="greet-line"></p>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <span class="stat-num" id="s-vocab">—</span>
+      <span class="stat-lab">Kiểm tra từ vựng đúng</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="s-words">—</span>
+      <span class="stat-lab">Từ đã thuộc hẳn</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="s-drill">—</span>
+      <span class="stat-lab">Luyện đề đúng</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="s-mock">—</span>
+      <span class="stat-lab">Thi thử gần nhất</span>
+    </div>
+  </section>
+
+  <div id="break-box"></div>
+
+  <div id="as-box"></div>
+  <div id="fb-box"></div>
+  <div id="join-box"></div>
+
+  <section>
+    <div class="section-head"><h2>Hôm nay học gì</h2></div>
+    <div class="modules">
+
+      <a class="module" href="vocab.html">
+        <h3>Từ vựng theo chủ đề</h3>
+        <p>12 chủ đề thường gặp trong đề thi. Học từ mới và ôn lại những từ tới hạn.</p>
+        <span class="module-meta" id="m-vocab">Bắt đầu học →</span>
+      </a>
+
+      <a class="module" href="listen.html">
+        <h3>Luyện nghe — Part 1 đến 4</h3>
+        <p>Mô tả tranh, hỏi đáp, hội thoại ngắn và bài nói chuyện. Có lời thoại và bản dịch sau khi trả lời.</p>
+        <span class="module-meta">Bắt đầu nghe →</span>
+      </a>
+
+      <a class="module" href="part5.html">
+        <h3>Luyện đọc — Part 5</h3>
+        <p>Hoàn thành câu. Luyện theo từng dạng ngữ pháp, hoặc trộn tất cả như thi thật.</p>
+        <span class="module-meta">Bắt đầu luyện →</span>
+      </a>
+
+      <a class="module" href="read.html">
+        <h3>Luyện đọc — Part 6 và 7</h3>
+        <p>Điền đoạn văn và bài đọc hiểu. Làm xong có giải thích và bản dịch cả bài.</p>
+        <span class="module-meta">Bắt đầu luyện →</span>
+      </a>
+
+      <a class="module" href="fulltest.html">
+        <h3>Thi thử có bấm giờ</h3>
+        <p>Làm trọn bài trong 120 phút, đồng hồ chạy như thi thật, hết giờ tự nộp.</p>
+        <span class="module-meta">Vào thi thử →</span>
+      </a>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Bảng xếp hạng tuần</h2>
+      <a class="btn-quiet" href="leaderboard.html">Xem đầy đủ →</a>
+    </div>
+    <div id="board-wrap">
+      <p class="empty">Đang tải bảng xếp hạng…</p>
+    </div>
+  </section>
+
+  <section id="teacher-card" style="margin-bottom:20px;display:none">
+    <a class="module" href="about.html" style="display:flex;align-items:center;gap:18px">
+      <img src="images/ngan.jpg" alt="" onerror="this.style.display='none'"
+           style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none">
+      <span>
+        <h3 style="margin:0 0 3px">Về giáo viên của bạn</h3>
+        <p style="margin:0">Mười năm dạy TOEIC, giáo trình tự biên soạn. Xem cách mình dạy và cách liên hệ.</p>
+      </span>
+    </a>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/teacher-info.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/assign.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pacedemy — Luyện TOEIC theo nhịp của bạn</title>
+<meta name="description" content="Học từ vựng theo chủ đề, luyện từng Part Listening và Reading, thi thử có bấm giờ. Theo dõi tiến độ mỗi ngày.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="home">
+
+<header class="wrap topbar">
+  <a class="brand" href="index.html">
+    Pac<span class="brand-e">e</span>demy
+  </a>
+  <nav class="topbar-links">
+    <a href="login.html">Đăng nhập</a>
+    <a class="btn btn-gold" href="login.html?dangky=1">Tạo tài khoản</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <h1>Luyện TOEIC theo nhịp của riêng bạn.</h1>
+      <p>
+        Học từ vựng theo 12 chủ đề thường gặp trong đề thi, luyện riêng từng Part,
+        rồi thi thử full test có bấm giờ như phòng thi thật. Mỗi ngày bạn đều thấy
+        rõ mình đang đứng ở đâu so với mục tiêu.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-gold" href="login.html?dangky=1">Bắt đầu học miễn phí</a>
+        <a class="btn btn-line" href="login.html">Mình đã có tài khoản</a>
+      </div>
+    </div>
+
+    <!-- Vòng lặp học tập -->
+    <div class="cycle" id="cycle">
+      <svg class="cycle-line" viewBox="0 0 210 264" fill="none" aria-hidden="true">
+        <path d="M37.5 5.5 V 231" stroke="#2A7F76" stroke-width="1.5"/>
+        <path d="M37.5 231 C 6 244, 6 -8, 37.5 5.5" stroke="#2A7F76" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M31 1.5 L 38 5.5 L 31 9.5" stroke="#2A7F76" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+      <ol class="cycle-list">
+        <li class="beat on"><span class="dot"></span>Learn</li>
+        <li class="beat"><span class="dot"></span>Practice</li>
+        <li class="beat"><span class="dot"></span>Review</li>
+        <li class="beat"><span class="dot"></span>Repeat</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="strip">
+    <div class="wrap">
+      <h2 class="strip-head">Bốn phần trong một lộ trình</h2>
+      <div class="strip-grid">
+        <div class="strip-item">
+          <span class="strip-num">Learn</span>
+          <h3>Từ vựng theo chủ đề</h3>
+          <p>Hợp đồng, tuyển dụng, tài chính, sản xuất… Mỗi từ có phiên âm, nghĩa và câu ví dụ đúng ngữ cảnh TOEIC.</p>
+        </div>
+        <div class="strip-item">
+          <span class="strip-num">Practice</span>
+          <h3>Luyện từng Part</h3>
+          <p>Part 1–4 phần nghe, Part 5–7 phần đọc. Làm bao nhiêu câu tuỳ bạn, có giải thích ngay sau mỗi câu.</p>
+        </div>
+        <div class="strip-item">
+          <span class="strip-num">Review</span>
+          <h3>Ôn lại từ hay quên</h3>
+          <p>Từ nào sai sẽ tự quay lại sớm, từ nào thuộc rồi thì giãn ngày ôn ra. Bạn không phải tự nhớ nên ôn gì.</p>
+        </div>
+        <div class="strip-item">
+          <span class="strip-num">Repeat</span>
+          <h3>Thi thử có bấm giờ</h3>
+          <p>Đồng hồ đếm ngược 120 phút, quy đổi ra thang điểm TOEIC. Đóng trình duyệt giữa chừng, giờ vẫn chạy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="who-sec" id="who-sec" style="display:none">
+    <div class="wrap who-in">
+      <img class="who-photo" src="images/ngan.jpg" alt="Giáo viên Pacedemy" onerror="this.style.display='none'">
+      <div>
+        <span class="who-tag">Người đứng sau Pacedemy</span>
+        <h2 id="who-name">Lê Ngọc Kim Ngân</h2>
+        <p id="who-short">Mình là Ngân, mười năm dạy TOEIC cho người đi làm và sinh viên. Pacedemy là nơi mình đưa toàn bộ giáo trình tự soạn lên thành một lộ trình học có thể theo dõi được tiến độ.</p>
+        <a class="btn btn-gold" href="login.html?dangky=1">Học thử miễn phí</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="js/teacher-info.js"></script>
+<script>
+  if (typeof TEACHER !== 'undefined' && TEACHER.show) {
+    document.getElementById('who-sec').style.display = '';
+  }
+</script>
+<script src="js/cycle.js"></script>
+</body>
+</html>

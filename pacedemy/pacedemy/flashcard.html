@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Học thẻ — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="focus-mode">
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <a class="btn-quiet" href="vocab.html">Thoát</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- Bước 1: xem qua danh sách từ -->
+  <section class="done hidden" id="view-list">
+    <h1 id="list-title">Bộ từ này có những từ nào</h1>
+    <p class="sub" id="list-sub">Xem lướt một lượt cho quen mặt chữ, rồi mới lật thẻ.</p>
+    <div id="list-box"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold" id="btn-start-deck">Bắt đầu lật thẻ</button>
+      <a class="btn btn-line" id="btn-back-topic" href="vocab.html">Về chủ đề</a>
+    </div>
+  </section>
+
+  <section class="deck hidden" id="view-deck">
+    <div class="deck-top">
+      <span id="topic-name">Đang tải…</span>
+      <label class="toggle">
+        <input type="checkbox" id="auto-audio" checked>
+        Tự đọc phát âm
+      </label>
+    </div>
+    <div class="study-bar"><span id="progress" style="width:0"></span></div>
+
+    <div class="card-stage">
+      <div class="card" id="card">
+
+        <div class="card-face card-front">
+        <button class="bookmark" data-mark title="Đánh dấu chưa nhớ" aria-label="Đánh dấu chưa nhớ">
+          <svg viewBox="0 0 34 46" aria-hidden="true">
+            <path class="fill" d="M7 0 h20 a0 0 0 0 1 0 0 v34 l-10-7 -10 7 V0 Z"/>
+            <path class="edge" d="M7 0 v34 l10-7 10 7 V0"/>
+          </svg>
+        </button>
+
+          <p class="w" id="f-word">—</p>
+
+          <div class="word-line">
+            <span class="pos-tag" id="f-pos"></span>
+            <span class="ipa" id="f-phonetic"></span>
+          </div>
+
+          <div class="audio-row">
+            <button class="audio-btn" data-voice="US">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+              Giọng Mỹ
+            </button>
+            <button class="audio-btn" data-voice="UK">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+              Giọng Anh
+            </button>
+          </div>
+
+          <span class="flip-hint">Space để lật thẻ</span>
+        </div>
+
+        <div class="card-face card-back">
+        <button class="bookmark" data-mark title="Đánh dấu chưa nhớ" aria-label="Đánh dấu chưa nhớ">
+          <svg viewBox="0 0 34 46" aria-hidden="true">
+            <path class="fill" d="M7 0 h20 a0 0 0 0 1 0 0 v34 l-10-7 -10 7 V0 Z"/>
+            <path class="edge" d="M7 0 v34 l10-7 10 7 V0"/>
+          </svg>
+        </button>
+
+          <p class="back-word" id="b-word"></p>
+          <p class="m" id="b-meaning">—</p>
+
+          <div class="blk" id="blk-syn">
+            <p class="blk-h">Từ đồng nghĩa</p>
+            <p class="tap-hint">Bấm vào từ để nghe</p>
+            <div class="chips" id="b-syn"></div>
+          </div>
+
+          <div class="blk" id="blk-col">
+            <p class="blk-h">Cụm hay gặp trong TOEIC</p>
+            <ul class="colloc" id="b-col"></ul>
+          </div>
+
+          <div class="blk" id="blk-ex">
+            <p class="blk-h">Ví dụ</p>
+            <div class="ex-row">
+              <div class="ex-text">
+                <p class="ex" id="b-ex"></p>
+                <p class="exvi" id="b-exvi"></p>
+              </div>
+              <button class="say-btn" id="btn-say-ex" title="Nghe cả câu" aria-label="Nghe cả câu">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <span class="flip-hint" id="b-count"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="deck-controls">
+      <button class="nav-btn" id="btn-prev" title="Thẻ trước" aria-label="Thẻ trước">←</button>
+      <button class="btn btn-line" id="btn-flip">Lật thẻ</button>
+      <button class="nav-btn" id="btn-next" title="Thẻ sau" aria-label="Thẻ sau">→</button>
+    </div>
+
+    <p class="keys">
+      <kbd>←</kbd> <kbd>→</kbd> chuyển thẻ &nbsp;·&nbsp;
+      <kbd>Space</kbd> lật thẻ &nbsp;·&nbsp;
+      <kbd>M</kbd> đánh dấu chưa nhớ &nbsp;·&nbsp;
+      <kbd>P</kbd> giọng Mỹ &nbsp;·&nbsp; <kbd>B</kbd> giọng Anh
+    </p>
+  </section>
+
+  <section class="done hidden" id="view-done">
+    <h1 id="done-title">Đã xem hết bộ thẻ</h1>
+    <p class="sub" id="done-sub"></p>
+    <div id="recap-box"></div>
+    <div id="marked-box"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold hidden" id="btn-redo">Học lại từ đã đánh dấu</button>
+      <a class="btn btn-ink" id="btn-test" href="#">Làm bài kiểm tra</a>
+      <a class="btn btn-line" href="vocab.html">Chọn chủ đề khác</a>
+    </div>
+  </section>
+
+  <section class="done hidden" id="view-empty">
+    <h1>Chủ đề này chưa có từ</h1>
+    <p class="sub">Bạn quay lại chọn chủ đề khác nhé.</p>
+    <div class="done-actions">
+      <a class="btn btn-ink" href="vocab.html">Về danh sách chủ đề</a>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/flashcard.js"></script>
+</body>
+</html>
