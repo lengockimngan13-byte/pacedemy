@@ -171,4 +171,118 @@ el('btn-logout').addEventListener('click', async function () {
   await loadProfile();
   loadStats();
   loadBoard();
+  loadFeedback();
+  loadClass();
 })();
+
+
+// ============================================================
+// Nhận xét của cô và lớp học
+// ============================================================
+
+async function loadFeedback() {
+  const box = el('fb-box');
+  if (!box) return;
+
+  const { data } = await db
+    .from('feedback')
+    .select('id, body, is_read, created_at')
+    .eq('student_id', me.id)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (!data || !data.length) { box.innerHTML = ''; return; }
+
+  const unread = data.filter(function (f) { return !f.is_read; }).length;
+
+  let html =
+    '<div class="tbox" style="border-color:var(--gold)">' +
+      '<h3>Lời nhắn của cô' + (unread ? ' · ' + unread + ' tin mới' : '') + '</h3>';
+
+  for (const f of data) {
+    const d = new Date(f.created_at);
+    html +=
+      '<div class="kv" style="align-items:flex-start">' +
+        '<span style="min-width:88px;color:var(--teal);font-size:0.86rem">' +
+          d.getDate() + '/' + (d.getMonth() + 1) + '</span>' +
+        '<span style="font-weight:' + (f.is_read ? '400' : '600') + '">' +
+          escapeHtml(f.body) + '</span>' +
+      '</div>';
+  }
+
+  if (unread) {
+    html += '<button class="btn-quiet" id="btn-fb-read" style="margin-top:10px">Đánh dấu đã đọc</button>';
+  }
+
+  html += '</div>';
+  box.innerHTML = html;
+
+  const b = el('btn-fb-read');
+  if (b) {
+    b.addEventListener('click', async function () {
+      await db.from('feedback').update({ is_read: true })
+        .eq('student_id', me.id).eq('is_read', false);
+      loadFeedback();
+    });
+  }
+}
+
+async function loadClass() {
+  const box = el('join-box');
+  if (!box) return;
+
+  const { data: mem } = await db
+    .from('class_members').select('class_id').eq('student_id', me.id);
+
+  if (mem && mem.length) {
+    const { data: cs } = await db
+      .from('classes').select('name')
+      .in('id', mem.map(function (m) { return m.class_id; }));
+
+    const names = (cs || []).map(function (c) { return c.name; }).join(' · ');
+    box.innerHTML = names
+      ? '<p class="empty" style="text-align:left">Bạn đang học lớp: <b>' +
+        escapeHtml(names) + '</b></p>'
+      : '';
+    return;
+  }
+
+  box.innerHTML =
+    '<div class="tbox">' +
+      '<h3>Vào lớp của cô</h3>' +
+      '<p style="margin:0 0 12px;font-size:0.94rem">Nhập mã lớp cô đưa cho bạn.</p>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<input id="join-code" type="text" maxlength="6" placeholder="VD: K7M2QP" ' +
+          'style="flex:1;min-width:160px;padding:10px 14px;border:1.5px solid var(--line);' +
+          'border-radius:var(--r);font-family:var(--ui);text-transform:uppercase;letter-spacing:2px">' +
+        '<button class="btn btn-line" id="btn-join">Vào lớp</button>' +
+      '</div>' +
+      '<span id="join-msg" style="display:block;margin-top:10px;font-size:0.88rem;color:var(--teal)"></span>' +
+    '</div>';
+
+  el('btn-join').addEventListener('click', async function () {
+    const code = el('join-code').value.trim().toUpperCase();
+    if (!code) return;
+
+    this.disabled = true;
+
+    const { data: c } = await db
+      .from('classes').select('id, name').eq('code', code).eq('is_active', true).maybeSingle();
+
+    if (!c) {
+      this.disabled = false;
+      el('join-msg').textContent = 'Không tìm thấy lớp nào có mã này. Bạn kiểm tra lại nhé.';
+      return;
+    }
+
+    const { error } = await db.from('class_members')
+      .insert({ class_id: c.id, student_id: me.id });
+
+    this.disabled = false;
+
+    if (error) { el('join-msg').textContent = 'Không vào được lớp: ' + error.message; return; }
+
+    el('join-msg').textContent = 'Đã vào lớp ' + c.name + '.';
+    setTimeout(loadClass, 1200);
+  });
+}
