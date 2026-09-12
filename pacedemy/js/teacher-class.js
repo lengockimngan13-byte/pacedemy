@@ -134,14 +134,35 @@ async function openClass() {
     setTimeout(() => { this.textContent = 'Copy mã'; }, 2500);
   });
 
+  $('c-max').value = c.max_students || '';
+
+  $('btn-newcode').addEventListener('click', async function () {
+    if (!confirm('Đổi mã lớp? Mã cũ sẽ không dùng được nữa.')) return;
+    this.disabled = true;
+    const { data, error } = await db.rpc('doi_ma_lop', { p_class_id: Number(classId) });
+    this.disabled = false;
+    if (error) { alert('Không đổi được: ' + error.message); return; }
+    $('c-code').textContent = data;
+  });
+
+  $('btn-max').addEventListener('click', async function () {
+    const v = $('c-max').value.trim();
+    const { error } = await db.from('classes')
+      .update({ max_students: v ? parseInt(v, 10) : null }).eq('id', classId);
+    $('max-ok').textContent = error ? 'Không lưu được' : 'Đã lưu';
+    setTimeout(function () { $('max-ok').textContent = ''; }, 2500);
+  });
+
   await loadRoster();
+  loadPending();
   loadOutside();
   initAssign();
 }
 
 async function loadRoster() {
   const { data: mem } = await db
-    .from('class_members').select('student_id').eq('class_id', classId);
+    .from('class_members').select('student_id')
+    .eq('class_id', classId).eq('status', 'active');
 
   const ids = (mem || []).map(function (m) { return m.student_id; });
 
@@ -309,7 +330,7 @@ async function loadOutside() {
 
   $('outside').querySelectorAll('button[data-add]').forEach(function (b) {
     b.addEventListener('click', async function () {
-      await db.from('class_members').insert({ class_id: classId, student_id: b.dataset.add });
+      await db.from('class_members').insert({ class_id: classId, student_id: b.dataset.add, status: 'active' });
       loadRoster(); loadOutside();
     });
   });
@@ -513,6 +534,67 @@ async function listAssigns() {
       if (!confirm('Đóng bài tập này? Học viên sẽ không thấy nữa.')) return;
       await db.from('assignments').update({ is_active: false }).eq('id', b.dataset.delAs);
       listAssigns();
+    });
+  });
+}
+
+
+// ============================================================
+// Hàng chờ duyệt
+// ============================================================
+
+async function loadPending() {
+  const box = $('pending-box');
+  if (!box) return;
+
+  const { data: mem } = await db
+    .from('class_members').select('student_id, joined_at')
+    .eq('class_id', classId).eq('status', 'pending');
+
+  if (!mem || !mem.length) { box.innerHTML = ''; return; }
+
+  const { data: ps } = await db
+    .from('profiles').select('id, full_name, created_at')
+    .in('id', mem.map(function (m) { return m.student_id; }));
+
+  let html =
+    '<div class="tbox" style="border-color:var(--gold)">' +
+      '<h3>Đang chờ duyệt · ' + mem.length + ' người</h3>' +
+      '<p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">' +
+        'Những người này đã nhập đúng mã lớp. Chưa duyệt thì họ không vào được ' +
+        'phần học và không nhận được bài tập.</p>';
+
+  for (const m of mem) {
+    const p = (ps || []).filter(function (x) { return x.id === m.student_id; })[0];
+    const d = new Date(m.joined_at);
+
+    html +=
+      '<div class="wrong-q" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+        '<span style="flex:1;min-width:160px;font-weight:600">' +
+          esc(p ? (p.full_name || 'Chưa đặt tên') : 'Không rõ') + '</span>' +
+        '<span class="stat-lab">xin vào ' + d.getDate() + '/' + (d.getMonth() + 1) + '</span>' +
+        '<button class="btn-sm test" data-ok="' + m.student_id + '">Duyệt</button>' +
+        '<button class="btn-sm" data-no="' + m.student_id + '">Từ chối</button>' +
+      '</div>';
+  }
+
+  html += '</div>';
+  box.innerHTML = html;
+
+  box.querySelectorAll('button[data-ok]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      await db.from('class_members').update({ status: 'active' })
+        .eq('class_id', classId).eq('student_id', b.dataset.ok);
+      loadPending(); loadRoster();
+    });
+  });
+
+  box.querySelectorAll('button[data-no]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      if (!confirm('Từ chối người này?')) return;
+      await db.from('class_members').delete()
+        .eq('class_id', classId).eq('student_id', b.dataset.no);
+      loadPending(); loadOutside();
     });
   });
 }

@@ -73,8 +73,27 @@
         <h2>Mã vào lớp: <span id="c-code" style="letter-spacing:2px">——————</span></h2>
         <p>Gửi mã này cho học viên. Các em nhập trên trang học là tự vào lớp.</p>
       </div>
-      <button class="btn btn-line" id="btn-copy">Copy mã</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-line" id="btn-copy">Copy mã</button>
+        <button class="btn btn-line" id="btn-newcode">Đổi mã</button>
+      </div>
     </div>
+
+    <div class="tbox">
+      <h3>Sĩ số tối đa</h3>
+      <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+        Đủ số này thì mã lớp hết tác dụng, người lạ có mã cũng không vào được.
+        Để trống nghĩa là không giới hạn.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="c-max" type="number" min="1" placeholder="không giới hạn"
+          style="width:170px;padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)">
+        <button class="btn-sm test" id="btn-max">Lưu</button>
+        <span id="max-ok" style="font-size:0.88rem;color:var(--teal)"></span>
+      </div>
+    </div>
+
+    <div id="pending-box"></div>
 
     <div class="tbox" style="border-color:var(--gold)">
       <h3>Gửi nhận xét cho cả lớp</h3>

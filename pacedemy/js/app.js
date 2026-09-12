@@ -232,13 +232,19 @@ async function loadClass() {
   const box = el('join-box');
   if (!box) return;
 
-  const { data: mem } = await db
-    .from('class_members').select('class_id').eq('student_id', me.id);
+  const kicked = new URLSearchParams(location.search).get('can-lop') === '1';
 
-  if (mem && mem.length) {
+  const { data: mem } = await db
+    .from('class_members').select('class_id, status').eq('student_id', me.id);
+
+  const active  = (mem || []).filter(function (m) { return m.status === 'active'; });
+  const pending = (mem || []).filter(function (m) { return m.status === 'pending'; });
+
+  // Đã được duyệt vào ít nhất một lớp
+  if (active.length) {
     const { data: cs } = await db
       .from('classes').select('name')
-      .in('id', mem.map(function (m) { return m.class_id; }));
+      .in('id', active.map(function (m) { return m.class_id; }));
 
     const names = (cs || []).map(function (c) { return c.name; }).join(' · ');
     box.innerHTML = names
@@ -248,15 +254,32 @@ async function loadClass() {
     return;
   }
 
+  // Đã nhập mã, đang chờ cô duyệt
+  if (pending.length) {
+    box.innerHTML =
+      '<div class="tbox" style="border-color:var(--gold)">' +
+        '<h3>Đang chờ cô duyệt</h3>' +
+        '<p style="margin:0;font-size:0.94rem;line-height:1.65">' +
+          'Bạn đã nhập mã lớp thành công. Cô sẽ duyệt trong thời gian sớm nhất. ' +
+          'Khi được duyệt, các phần học sẽ mở ra ngay trên trang này.</p>' +
+      '</div>';
+    return;
+  }
+
+  // Chưa có lớp
   box.innerHTML =
-    '<div class="tbox">' +
-      '<h3>Vào lớp của cô</h3>' +
-      '<p style="margin:0 0 12px;font-size:0.94rem">Nhập mã lớp cô đưa cho bạn.</p>' +
+    '<div class="tbox" style="border-color:var(--gold)">' +
+      '<h3>Nhập mã lớp để bắt đầu</h3>' +
+      '<p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">' +
+        (kicked
+          ? 'Phần học chỉ mở cho học viên trong lớp. Bạn nhập mã lớp cô đưa cho bạn nhé.'
+          : 'Nhập mã lớp cô đưa cho bạn. Cô duyệt xong là học được ngay.') +
+      '</p>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
         '<input id="join-code" type="text" maxlength="6" placeholder="VD: K7M2QP" ' +
           'style="flex:1;min-width:160px;padding:10px 14px;border:1.5px solid var(--line);' +
           'border-radius:var(--r);font-family:var(--ui);text-transform:uppercase;letter-spacing:2px">' +
-        '<button class="btn btn-line" id="btn-join">Vào lớp</button>' +
+        '<button class="btn btn-gold" id="btn-join">Vào lớp</button>' +
       '</div>' +
       '<span id="join-msg" style="display:block;margin-top:10px;font-size:0.88rem;color:var(--teal)"></span>' +
     '</div>';
@@ -266,28 +289,22 @@ async function loadClass() {
     if (!code) return;
 
     this.disabled = true;
-
-    const { data: c } = await db
-      .from('classes').select('id, name').eq('code', code).eq('is_active', true).maybeSingle();
-
-    if (!c) {
-      this.disabled = false;
-      el('join-msg').textContent = 'Không tìm thấy lớp nào có mã này. Bạn kiểm tra lại nhé.';
-      return;
-    }
-
-    const { error } = await db.from('class_members')
-      .insert({ class_id: c.id, student_id: me.id });
-
+    const { data, error } = await db.rpc('vao_lop', { p_code: code });
     this.disabled = false;
 
     if (error) { el('join-msg').textContent = 'Không vào được lớp: ' + error.message; return; }
 
-    el('join-msg').textContent = 'Đã vào lớp ' + c.name + '.';
-    setTimeout(loadClass, 1200);
+    const say = {
+      'khong-tim-thay': 'Không có lớp nào dùng mã này. Bạn kiểm tra lại nhé.',
+      'da-o-trong':     'Bạn đã ở trong lớp này rồi.',
+      'het-cho':        'Lớp này đã đủ sĩ số. Bạn nhắn cô nhé.',
+      'cho-duyet':      'Đã gửi yêu cầu. Chờ cô duyệt là học được.'
+    };
+
+    el('join-msg').textContent = say[data] || 'Đã gửi yêu cầu.';
+    if (data === 'cho-duyet' || data === 'da-o-trong') setTimeout(loadClass, 1400);
   });
 }
-
 
 // ============================================================
 // Bài cô giao
