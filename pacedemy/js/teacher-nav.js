@@ -22,11 +22,10 @@
       icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' }
   ];
 
-  const here = (location.pathname.split('/').pop() || '').toLowerCase();
-  const isTeacherPage = ITEMS.some(function (it) { return it.href === here; })
-    || here === 'teacher-student.html';
-
-  if (!isTeacherPage) return;
+  // So khớp không phân biệt có hay không đuôi .html, phòng khi
+  // máy chủ phục vụ đường dẫn sạch kiểu /teacher thay vì /teacher.html.
+  const strip = function (s) { return (s || '').toLowerCase().replace(/\.html$/, '').replace(/^\//, ''); };
+  const here = strip(location.pathname.split('/').pop());
 
   let html =
     '<button class="side-toggle" id="side-toggle" aria-label="Mở menu">' +
@@ -38,7 +37,7 @@
       '<div class="side-links">';
 
   for (const it of ITEMS) {
-    const on = it.href === here;
+    const on = strip(it.href) === here;
     html +=
       '<a class="side-link' + (on ? ' on' : '') + '" href="' + it.href + '"' +
         (on ? ' aria-current="page"' : '') + '>' +
