@@ -66,9 +66,14 @@
     nav.classList.toggle('open');
     veil.classList.toggle('open');
   });
-  veil.addEventListener('click', function () {
+  function close() {
     nav.classList.remove('open');
     veil.classList.remove('open');
+  }
+
+  veil.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
   });
 
   document.getElementById('side-logout').addEventListener('click', async function () {

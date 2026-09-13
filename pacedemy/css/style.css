@@ -2490,27 +2490,26 @@ a { color: inherit; }
   z-index: 39;
 }
 
-body.has-side-nav { padding-left: var(--side-w); }
+/* Menu luôn đóng sẵn, chỉ trượt ra khi bấm nút — không chiếm chỗ nội dung */
+.side-nav {
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+  box-shadow: 4px 0 18px rgba(12, 36, 34, 0.18);
+}
+.side-nav.open { transform: translateX(0); }
+
+.side-toggle { display: flex; }
+.side-veil.open { display: block; }
 
 /* Teacher Studio bỏ hẳn thanh đầu trang. Bên học viên vẫn giữ,
    vì đó là chỗ hiện chuỗi ngày học và nút đăng xuất. */
 body.has-side-nav:not(.side-nav-user) .app-bar { display: none; }
-body.side-nav-user .side-toggle { top: 10px; }
+body.has-side-nav:not(.side-nav-user) { padding-top: 62px; }
 
-@media (max-width: 880px) {
-  body.has-side-nav { padding-left: 0; padding-top: 62px; }
-  /* Bên học viên thanh đầu trang vẫn còn nên không cần chừa thêm chỗ */
-  body.side-nav-user { padding-top: 0; }
-  body.side-nav-user .app-bar .wrap { padding-left: 62px; }
-  .side-toggle { display: flex; }
-  .side-nav {
-    transform: translateX(-100%);
-    transition: transform 0.2s ease;
-    box-shadow: 4px 0 18px rgba(12, 36, 34, 0.18);
-  }
-  .side-nav.open { transform: translateX(0); }
-  .side-veil.open { display: block; }
-}
+body.side-nav-user .side-toggle { top: 10px; }
+body.side-nav-user .app-bar .wrap { padding-left: 62px; }
+
+
 
 /* ---------- Đăng nhập bằng Google ---------- */
 

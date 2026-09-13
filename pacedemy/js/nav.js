@@ -69,9 +69,14 @@
     nav.classList.toggle('open');
     veil.classList.toggle('open');
   });
-  veil.addEventListener('click', function () {
+  function close() {
     nav.classList.remove('open');
     veil.classList.remove('open');
+  }
+
+  veil.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
   });
 
   // Học viên đã được duyệt vào lớp thì mục Xếp hạng đổi thành Lớp học.
