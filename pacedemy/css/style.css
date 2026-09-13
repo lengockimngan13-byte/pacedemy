@@ -2618,3 +2618,21 @@ body.focus-mode .side-toggle { display: none; }
   .stat-v2 { animation: none; opacity: 1; }
   .stat-bar-fill { transition: none; }
 }
+
+/* ---------- Khung hướng dẫn cách làm bài từng Part ---------- */
+
+.guide-box { margin-bottom: 22px; }
+.guide-box h3 { margin: 0 0 10px; }
+
+.guide-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.guide-list li::marker { color: var(--gold); }
+.guide-list b { color: var(--ink); font-weight: 600; }

@@ -113,6 +113,8 @@ function bindTabs() {
       [1, 2, 3, 4].forEach(function (n) {
         const sec = document.getElementById('lvl-' + n);
         if (sec) sec.classList.toggle('hidden', String(n) !== p);
+        const guide = document.getElementById('guide-' + n);
+        if (guide) guide.classList.toggle('hidden', String(n) !== p);
       });
 
       tabs.querySelectorAll('button[data-tab]').forEach(function (x) {
