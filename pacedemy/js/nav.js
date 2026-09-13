@@ -8,15 +8,15 @@
   const ITEMS = [
     { href: 'app.html',         label: 'Trang học',
       icon: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>' },
-    { href: 'vocab.html',       label: 'Từ vựng',
+    { href: 'vocab.html',       label: 'Từ vựng',       feat: 'vocab',
       icon: '<path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zm16 0h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7z"/>' },
-    { href: 'listen.html',      label: 'Luyện nghe',
+    { href: 'listen.html',      label: 'Luyện nghe',    feat: 'listen',
       icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' },
-    { href: 'part5.html',       label: 'Luyện đọc',
+    { href: 'part5.html',       label: 'Luyện đọc',     feat: 'read',
       icon: '<path d="M5 3h11l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 9h8v2H8zm0 4h6v2H8z"/>' },
-    { href: 'fulltest.html',    label: 'Thi thử',
+    { href: 'fulltest.html',    label: 'Thi thử',       feat: 'mock',
       icon: '<path d="M12 3a9 9 0 1 0 9 9h-9z"/>' },
-    { href: 'leaderboard.html', label: 'Xếp hạng',
+    { href: 'leaderboard.html', label: 'Xếp hạng',      feat: 'leaderboard',
       icon: '<path d="M4 20h4v-7H4zm6 0h4V4h-4zm6 0h4V9h-4z"/>' },
     { href: 'account.html',     label: 'Tài khoản',
       icon: '<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/>' }
@@ -49,6 +49,7 @@
     const on = strip(it.href) === active;
     html +=
       '<a class="side-link' + (on ? ' on' : '') + '" href="' + it.href + '"' +
+        (it.feat ? ' data-feat="' + it.feat + '"' : '') +
         (on ? ' aria-current="page"' : '') + '>' +
         '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' + it.icon + '</svg>' +
         '<span>' + it.label + '</span>' +
@@ -81,12 +82,28 @@
 
   // Học viên đã được duyệt vào lớp thì mục Xếp hạng đổi thành Lớp học.
   // Bảng xếp hạng chung vẫn xem được từ bên trong trang lớp.
+  // Đồng thời áp dụng tính năng nào giáo viên đã tắt trong Chỉnh trang web.
   (async function () {
     try {
       if (typeof db === 'undefined') return;
 
       const { data: { user } } = await db.auth.getUser();
       if (!user) return;
+
+      const { data: prof } = await db.from('profiles').select('role').eq('id', user.id).single();
+      const isTeacher = !!(prof && prof.role === 'teacher');
+
+      // Giáo viên luôn thấy đủ mọi mục, kể cả đang tắt, để còn kiểm tra.
+      if (!isTeacher) {
+        const { data: fs } = await db.from('site_settings').select('value').eq('key', 'features').single();
+        const feat = (fs && fs.value) || {};
+
+        document.querySelectorAll('[data-feat]').forEach(function (elt) {
+          if (feat[elt.dataset.feat] === false) elt.style.display = 'none';
+        });
+
+        if (feat.class === false) return; // bỏ luôn phần đổi mục Xếp hạng -> Lớp học
+      }
 
       const { data: mem } = await db
         .from('class_members').select('class_id')

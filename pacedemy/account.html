@@ -39,7 +39,7 @@
     <!-- Hồ sơ -->
     <section class="panel">
       <h2>Hồ sơ</h2>
-      <p class="lead">Tên và ảnh của bạn sẽ hiện trên bảng xếp hạng.</p>
+      <p class="lead">Tên và ảnh của bạn sẽ hiện trên bảng xếp hạng. Đăng nhập bằng <b id="acc-email">—</b>.</p>
 
       <div class="avatar-row">
         <img class="avatar hidden" id="ava-img" alt="Ảnh đại diện">
@@ -57,22 +57,24 @@
         <input type="text" id="p-name" autocomplete="name">
       </div>
 
-      <div class="field">
-        <label for="p-target">Mục tiêu điểm TOEIC</label>
-        <select id="p-target">
-          <option value="450">450</option>
-          <option value="550">550</option>
-          <option value="650">650</option>
-          <option value="750">750</option>
-          <option value="850">850 trở lên</option>
-        </select>
-      </div>
+      <div id="goal-fields">
+        <div class="field">
+          <label for="p-target">Mục tiêu điểm TOEIC</label>
+          <select id="p-target">
+            <option value="450">450</option>
+            <option value="550">550</option>
+            <option value="650">650</option>
+            <option value="750">750</option>
+            <option value="850">850 trở lên</option>
+          </select>
+        </div>
 
-      <div class="field">
-        <label for="p-goal">Mục tiêu của bạn</label>
-        <textarea id="p-goal" maxlength="500"
-          placeholder="Ví dụ: Mình cần 700 điểm trước tháng 6 để nộp hồ sơ xin việc. Mỗi ngày học 20 phút buổi tối."></textarea>
-        <p class="field-hint">Viết ra mục tiêu giúp bạn kiên trì hơn. Tối đa 500 ký tự.</p>
+        <div class="field">
+          <label for="p-goal">Mục tiêu của bạn</label>
+          <textarea id="p-goal" maxlength="500"
+            placeholder="Ví dụ: Mình cần 700 điểm trước tháng 6 để nộp hồ sơ xin việc. Mỗi ngày học 20 phút buổi tối."></textarea>
+          <p class="field-hint">Viết ra mục tiêu giúp bạn kiên trì hơn. Tối đa 500 ký tự.</p>
+        </div>
       </div>
 
       <button class="btn btn-ink" id="btn-save">Lưu thay đổi</button>

@@ -29,8 +29,8 @@
 <main>
   <section class="wrap hero">
     <div class="hero-copy">
-      <h1>Luyện TOEIC theo nhịp của riêng bạn.</h1>
-      <p>
+      <h1 id="hero-title">Luyện TOEIC theo nhịp của riêng bạn.</h1>
+      <p id="hero-sub">
         Học từ vựng theo 12 chủ đề thường gặp trong đề thi, luyện riêng từng Part,
         rồi thi thử full test có bấm giờ như phòng thi thật. Mỗi ngày bạn đều thấy
         rõ mình đang đứng ở đâu so với mục tiêu.
@@ -59,27 +59,27 @@
 
   <section class="strip">
     <div class="wrap">
-      <h2 class="strip-head">Bốn bước lặp lại cho tới khi thành phản xạ</h2>
+      <h2 class="strip-head" id="strip-head">Bốn bước lặp lại cho tới khi thành phản xạ</h2>
       <div class="strip-grid">
         <div class="strip-item">
           <span class="strip-num">Learn</span>
-          <h3>Nạp kiến thức mới</h3>
-          <p>Từ vựng và ngữ pháp mới, mỗi buổi một lượng vừa sức. Đây là bước nền — chưa cần nhớ hết, chỉ cần làm quen mặt chữ.</p>
+          <h3 id="strip-learn-title">Nạp kiến thức mới</h3>
+          <p id="strip-learn-desc">Từ vựng và ngữ pháp mới, mỗi buổi một lượng vừa sức. Đây là bước nền — chưa cần nhớ hết, chỉ cần làm quen mặt chữ.</p>
         </div>
         <div class="strip-item">
           <span class="strip-num">Practice</span>
-          <h3>Áp dụng ngay, đừng để nguội</h3>
-          <p>Học xong là làm bài liền, để biết mình thật sự hiểu hay chỉ mới đọc lướt qua. Sai ở đâu, lộ ra ngay ở bước này.</p>
+          <h3 id="strip-practice-title">Áp dụng ngay, đừng để nguội</h3>
+          <p id="strip-practice-desc">Học xong là làm bài liền, để biết mình thật sự hiểu hay chỉ mới đọc lướt qua. Sai ở đâu, lộ ra ngay ở bước này.</p>
         </div>
         <div class="strip-item">
           <span class="strip-num">Review</span>
-          <h3>Nhìn lại lỗi sai để không lặp lại</h3>
-          <p>Xem đúng chỗ mình vừa sai, hiểu vì sao sai, rồi ôn lại đúng những chỗ đó. Không ôn lan man những gì đã vững.</p>
+          <h3 id="strip-review-title">Nhìn lại lỗi sai để không lặp lại</h3>
+          <p id="strip-review-desc">Xem đúng chỗ mình vừa sai, hiểu vì sao sai, rồi ôn lại đúng những chỗ đó. Không ôn lan man những gì đã vững.</p>
         </div>
         <div class="strip-item">
           <span class="strip-num">Repeat</span>
-          <h3>Lặp lại tới khi thành phản xạ</h3>
-          <p>Một kiến thức chỉ thật sự là của mình khi gặp lại đủ số lần trải dài qua nhiều ngày. Tới lúc đó, dùng được ngay mà không phải dừng lại để nhớ.</p>
+          <h3 id="strip-repeat-title">Lặp lại tới khi thành phản xạ</h3>
+          <p id="strip-repeat-desc">Một kiến thức chỉ thật sự là của mình khi gặp lại đủ số lần trải dài qua nhiều ngày. Tới lúc đó, dùng được ngay mà không phải dừng lại để nhớ.</p>
         </div>
       </div>
     </div>
@@ -87,7 +87,7 @@
 
   <section class="who-sec" id="who-sec" style="display:none">
     <div class="wrap who-in">
-      <img class="who-photo" src="images/ngan.jpg" alt="Giáo viên Pacedemy" onerror="this.style.display='none'">
+      <img class="who-photo" id="who-photo" src="images/ngan.jpg" alt="Giáo viên Pacedemy" onerror="this.style.display='none'">
       <div>
         <span class="who-tag">Người đứng sau Pacedemy</span>
         <h2 id="who-name">Lê Ngọc Kim Ngân</h2>
@@ -98,12 +98,9 @@
   </section>
 </main>
 
-<script src="js/teacher-info.js"></script>
-<script>
-  if (typeof TEACHER !== 'undefined' && TEACHER.show) {
-    document.getElementById('who-sec').style.display = '';
-  }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/site-content.js"></script>
 <script src="js/cycle.js"></script>
 </body>
 </html>

@@ -24,19 +24,27 @@ function clearNote() { $('note').className = 'note hidden'; }
   me = await requireLogin();
   if (!me) return;
 
-  $('acc-email').textContent = me.email;
+  const emailEl = $('acc-email');
+  if (emailEl) emailEl.textContent = me.email;
 
   const { data } = await db
     .from('profiles')
-    .select('full_name, avatar_url, target_score, goal_note')
+    .select('full_name, avatar_url, target_score, goal_note, role')
     .eq('id', me.id)
     .single();
 
   profile = data || {};
 
-  $('f-name').value = profile.full_name || '';
-  $('f-goal').value = profile.goal_note || '';
-  if (profile.target_score) $('f-target').value = String(profile.target_score);
+  $('p-name').value = profile.full_name || '';
+
+  // Mục tiêu điểm và mục tiêu học chỉ dành cho học viên, giáo viên không cần.
+  if (profile.role === 'teacher') {
+    const goalCard = $('goal-fields');
+    if (goalCard) goalCard.classList.add('hidden');
+  } else {
+    $('p-goal').value = profile.goal_note || '';
+    if (profile.target_score) $('p-target').value = String(profile.target_score);
+  }
 
   drawAvatar();
 })();
@@ -44,20 +52,26 @@ function clearNote() { $('note').className = 'note hidden'; }
 // ---------- Ảnh đại diện ----------
 
 function drawAvatar() {
-  const box = $('ava');
+  const img = $('ava-img');
+  const ini = $('ava-ini');
+
   if (profile.avatar_url) {
-    box.innerHTML = '<img src="' + esc(profile.avatar_url) + '" alt="Ảnh đại diện">';
+    img.src = profile.avatar_url;
+    img.classList.remove('hidden');
+    ini.classList.add('hidden');
     $('btn-rm-ava').classList.remove('hidden');
   } else {
+    img.classList.add('hidden');
+    ini.classList.remove('hidden');
     const n = (profile.full_name || 'U').trim().split(/\s+/);
-    box.textContent = n[n.length - 1].charAt(0).toUpperCase();
+    ini.textContent = n[n.length - 1].charAt(0).toUpperCase();
     $('btn-rm-ava').classList.add('hidden');
   }
 }
 
-$('btn-pick').addEventListener('click', function () { $('ava-file').click(); });
+$('btn-pick').addEventListener('click', function () { $('file-ava').click(); });
 
-$('ava-file').addEventListener('change', async function () {
+$('file-ava').addEventListener('change', async function () {
   const file = this.files && this.files[0];
   if (!file) return;
 
@@ -131,18 +145,21 @@ $('btn-rm-ava').addEventListener('click', async function () {
 // ---------- Lưu thông tin ----------
 
 $('btn-save').addEventListener('click', async function () {
-  const name = $('f-name').value.trim();
+  const name = $('p-name').value.trim();
   if (!name) return say('Bạn nhập họ tên nhé.');
 
   clearNote();
   this.disabled = true;
   this.textContent = 'Đang lưu…';
 
-  const res = await db.from('profiles').update({
-    full_name: name,
-    target_score: parseInt($('f-target').value, 10),
-    goal_note: $('f-goal').value.trim() || null
-  }).eq('id', me.id);
+  const patch = { full_name: name };
+
+  if (profile.role !== 'teacher') {
+    patch.target_score = parseInt($('p-target').value, 10);
+    patch.goal_note = $('p-goal').value.trim() || null;
+  }
+
+  const res = await db.from('profiles').update(patch).eq('id', me.id);
 
   this.disabled = false;
   this.textContent = 'Lưu thay đổi';
@@ -157,8 +174,8 @@ $('btn-save').addEventListener('click', async function () {
 // ---------- Đổi mật khẩu ----------
 
 $('btn-pass').addEventListener('click', async function () {
-  const p1 = $('f-pass').value;
-  const p2 = $('f-pass2').value;
+  const p1 = $('p-pass1').value;
+  const p2 = $('p-pass2').value;
 
   if (p1.length < 6) return say('Mật khẩu cần ít nhất 6 ký tự.');
   if (p1 !== p2)     return say('Hai lần nhập mật khẩu chưa khớp nhau.');
@@ -179,21 +196,21 @@ $('btn-pass').addEventListener('click', async function () {
     return say('Không đổi được mật khẩu: ' + error.message);
   }
 
-  $('f-pass').value = '';
-  $('f-pass2').value = '';
+  $('p-pass1').value = '';
+  $('p-pass2').value = '';
   say('Đã đổi mật khẩu. Lần sau bạn đăng nhập bằng mật khẩu mới nhé.', 'good');
 });
 
 // ---------- Xoá tài khoản ----------
 
 $('btn-del').addEventListener('click', async function () {
-  const typed = prompt(
-    'Thao tác này không khôi phục được.\n\n' +
-    'Gõ chính xác chữ XOA rồi bấm OK để xác nhận:'
-  );
+  const typed = $('p-confirm').value.trim().toUpperCase();
 
-  if (typed === null) return;
-  if (typed.trim().toUpperCase() !== 'XOA') return say('Chưa xoá. Bạn cần gõ đúng chữ XOA.');
+  if (typed !== 'XOA TAI KHOAN') {
+    return say('Bạn gõ đúng chữ XOA TAI KHOAN vào ô phía trên để xác nhận nhé.');
+  }
+
+  if (!confirm('Thao tác này không khôi phục được. Xoá hẳn tài khoản?')) return;
 
   this.disabled = true;
   this.textContent = 'Đang xoá…';

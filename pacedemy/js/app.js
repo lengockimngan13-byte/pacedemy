@@ -489,6 +489,14 @@ async function loadClass() {
   const active  = (mem || []).filter(function (m) { return m.status === 'active'; });
   const pending = (mem || []).filter(function (m) { return m.status === 'pending'; });
 
+  // Giáo viên đã tắt tính năng lớp học, và bạn cũng chưa ở trong lớp nào
+  // thì khỏi mời nhập mã.
+  if (!active.length && !pending.length) {
+    const { data: fs } = await db.from('site_settings').select('value').eq('key', 'features').single();
+    const feat = (fs && fs.value) || {};
+    if (feat.class === false) { box.innerHTML = ''; return; }
+  }
+
   // Đã được duyệt vào ít nhất một lớp
   if (active.length) {
     const { data: cs } = await db

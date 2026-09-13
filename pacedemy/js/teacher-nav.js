@@ -19,7 +19,9 @@
     { href: 'teacher-reading.html', label: 'Nhập đề Part 6-7',
       icon: '<path d="M4 5h8v15H4zm16 0h-8v15h8z"/>' },
     { href: 'teacher-listen.html',  label: 'Nhập bài nghe',
-      icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' }
+      icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' },
+    { href: 'teacher-site.html',    label: 'Chỉnh trang web',
+      icon: '<path d="M4 20l4.5-1.5L20 7 17 4 5.5 15.5 4 20zM15 6l3 3"/>' }
   ];
 
   // So khớp không phân biệt có hay không đuôi .html, phòng khi

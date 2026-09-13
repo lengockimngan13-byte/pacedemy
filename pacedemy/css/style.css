@@ -2695,3 +2695,26 @@ body.nav-open .side-toggle { opacity: 0; pointer-events: none; }
   white-space: nowrap;
 }
 .part-chip b { color: var(--ink); font-weight: 700; }
+
+/* ---------- Hàng checkbox trong Chỉnh trang web ---------- */
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  font-size: 0.94rem;
+  cursor: pointer;
+}
+.check-row input[type="checkbox"] {
+  width: 18px; height: 18px;
+  accent-color: var(--teal);
+  cursor: pointer;
+}
+
+/* ---------- Truy cập nhanh trên trang chủ Teacher Studio ---------- */
+
+.dash-quick { margin-bottom: 8px; }
+.dash-quick .module { padding: 16px 18px; }
+.dash-quick .module h3 { font-size: 0.96rem; margin-bottom: 3px; }
+.dash-quick .module p { font-size: 0.84rem; }
