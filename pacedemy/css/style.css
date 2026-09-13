@@ -2341,3 +2341,46 @@ a { color: inherit; }
   .heat { grid-template-columns: repeat(12, 1fr); }
   .streak-side { text-align: left; }
 }
+
+/* ============================================================
+   THI THỬ — GIAO DIỆN KIỂU MÁY THI THẬT
+   ============================================================ */
+
+.exam-solo { max-width: 720px; }
+
+.exam-split {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+.exam-passage {
+  position: sticky;
+  top: 14px;
+  max-height: calc(100vh - 28px);
+  overflow-y: auto;
+  background: var(--mist);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  line-height: 1.85;
+}
+.exam-passage .doc + .doc {
+  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line);
+}
+.exam-questions { min-width: 0; }
+
+@media (max-width: 760px) {
+  .exam-split { grid-template-columns: 1fr; }
+  .exam-passage { position: static; max-height: none; margin-bottom: 18px; }
+}
+
+.exam-nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 24px 0 40px;
+  position: sticky;
+  bottom: 0;
+  padding: 12px 0;
+  background: linear-gradient(0deg, var(--paper) 65%, transparent);
+}

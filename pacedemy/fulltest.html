@@ -17,7 +17,7 @@
   <div class="wrap">
     <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
     <div class="app-user">
-      <span class="timer hidden" id="timer">120:00</span>
+      <span class="timer hidden" id="timer">01:59:00</span>
       <a class="btn-quiet" id="link-out" href="app.html">Về trang học</a>
     </div>
   </div>
@@ -25,22 +25,29 @@
 
 <main class="wrap">
 
-  <!-- Màn hình bắt đầu -->
-  <section id="view-start">
+  <!-- Chọn bộ đề -->
+  <section id="view-pick">
     <div class="greet">
       <h1>Thi thử full test</h1>
-      <p>Một bài thi đầy đủ, bấm giờ như thi thật. Làm xong mới xem đáp án.</p>
+      <p>Chọn một bộ đề, làm trọn bài trong 1 giờ 59 phút như thi thật.</p>
     </div>
-    <div id="start-info"><p class="empty">Đang chuẩn bị đề…</p></div>
+    <div id="pick-list"><p class="empty">Đang tải…</p></div>
   </section>
 
-  <!-- Làm bài -->
+  <!-- Màn hình bắt đầu một bộ đề -->
+  <section class="hidden" id="view-start">
+    <div id="start-info"></div>
+  </section>
+
+  <!-- Làm bài, một màn một câu / một bài -->
   <section class="hidden" id="view-test">
     <div class="test-tabs" id="tabs"></div>
-    <div id="body"></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:22px 0">
+    <p class="stat-lab" id="pos-label" style="margin:0 0 14px"></p>
+    <div id="screen"></div>
+    <div class="exam-nav">
+      <button class="btn btn-line" id="btn-prev">← Câu trước</button>
+      <button class="btn btn-line" id="btn-next">Câu sau →</button>
       <button class="btn btn-gold" id="btn-submit">Nộp bài</button>
-      <span id="count-left" class="stat-lab"></span>
     </div>
   </section>
 
