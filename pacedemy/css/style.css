@@ -252,9 +252,11 @@ a { color: inherit; }
 .strip-item { background: var(--mist); padding: 24px 22px 26px; }
 
 .strip-item h3 {
-  margin: 0 0 7px;
+  margin: 0 0 8px;
   font-size: 1.02rem;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink);
 }
 
 .strip-item p {
