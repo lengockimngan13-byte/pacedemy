@@ -2551,3 +2551,70 @@ body.focus-mode .side-toggle { display: none; }
 @media (max-width: 880px) {
   body.focus-mode .side-toggle { display: none; }
 }
+
+/* ============================================================
+   BỐN Ô THỐNG KÊ — bản dễ hiểu, có hoạt hình
+   ============================================================ */
+
+.stats-v2 { grid-template-columns: repeat(4, 1fr); }
+
+.stat-v2 {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 22px 20px 20px;
+  opacity: 0;
+  animation: statIn 0.5s ease forwards;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+@keyframes statIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stat-ic {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 100px;
+  background: var(--mist);
+  color: var(--teal);
+  margin-bottom: 6px;
+}
+.stat-ic svg { width: 16px; height: 16px; }
+
+.stat-frac { display: flex; align-items: baseline; flex-wrap: wrap; }
+.stat-of { font-size: 0.92rem; font-weight: 500; color: #6C837E; }
+
+.stat-sub {
+  font-size: 0.8rem;
+  color: #8DA39D;
+  margin-top: 2px;
+}
+
+.stat-bar {
+  display: block;
+  height: 5px;
+  border-radius: 100px;
+  background: var(--mist);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.stat-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--teal));
+  border-radius: 100px;
+  transition: width 0.9s cubic-bezier(.2,.8,.2,1);
+}
+
+@media (max-width: 640px) {
+  .stats-v2 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-v2 { animation: none; opacity: 1; }
+  .stat-bar-fill { transition: none; }
+}

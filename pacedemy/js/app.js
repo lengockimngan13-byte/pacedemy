@@ -83,7 +83,7 @@ async function loadStats() {
     .eq('user_id', me.id)
     .eq('status', 'mastered');
 
-  put('s-words', words.count || 0);
+  setMastered(words.count || 0);
 
   // Toàn bộ buổi học đã ghi lại
   const { data: atts } = await db
@@ -116,8 +116,8 @@ async function loadStats() {
     }
   }
 
-  put('s-vocab', vN ? vOk + '/' + vN : '—');
-  put('s-drill', dN ? dOk + '/' + dN : '—');
+  setAccuracy('vocab', vOk, vN, 'Chưa kiểm tra từ vựng lần nào');
+  setAccuracy('drill', dOk, dN, 'Chưa luyện đề lần nào');
 
   // --- Thi thử gần nhất ---
   const { data: mocks } = await db
@@ -129,12 +129,77 @@ async function loadStats() {
     .limit(10);
 
   const last = (mocks || [])[0];
-
-  put('s-mock', last
-    ? (last.listening_correct + last.reading_correct) + '/' + last.total_questions
-    : '—');
+  setMock(last);
 
   drawBreakdown(drill, dOk, dN, vOk, vN, mocks || []);
+}
+
+// ---------- Đếm số chạy dần và thanh tiến trình ----------
+
+function animateNumber(el, target) {
+  if (!el) return;
+  const from = 0;
+  const dur = 900;
+  const t0 = performance.now();
+
+  function tick(now) {
+    const p = Math.min(1, (now - t0) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + (target - from) * eased);
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function setMastered(n) {
+  animateNumber(el('s-words'), n);
+  if (n > 0) put('s-words-sub', n === 1 ? '1 từ đã nằm lòng' : n + ' từ đã nằm lòng');
+}
+
+function setAccuracy(key, ok, n, emptyText) {
+  const numEl = el('s-' + key);
+  const ofEl = el('s-' + key + '-of');
+  const bar = el('s-' + key + '-bar');
+  const card = el('card-' + key);
+
+  if (!n) {
+    if (numEl) numEl.textContent = '0';
+    if (ofEl) ofEl.textContent = '';
+    if (bar) bar.style.width = '0%';
+    const lab = card && card.querySelector('.stat-lab');
+    if (lab) {
+      const extra = document.createElement('span');
+      extra.className = 'stat-sub';
+      extra.textContent = emptyText;
+      lab.insertAdjacentElement('afterend', extra);
+    }
+    return;
+  }
+
+  const pct = Math.round(ok / n * 100);
+  animateNumber(numEl, ok);
+  if (ofEl) ofEl.textContent = ' / ' + n + ' câu · ' + pct + '%';
+  if (bar) setTimeout(function () { bar.style.width = pct + '%'; }, 120);
+}
+
+function setMock(last) {
+  const numEl = el('s-mock');
+  const ofEl = el('s-mock-of');
+  const sub = el('s-mock-sub');
+
+  if (!last) {
+    if (numEl) numEl.textContent = '0';
+    if (ofEl) ofEl.textContent = '';
+    return;
+  }
+
+  const ok = last.listening_correct + last.reading_correct;
+  const pct = last.total_questions ? Math.round(ok / last.total_questions * 100) : 0;
+  const d = new Date(last.submitted_at);
+
+  animateNumber(numEl, ok);
+  if (ofEl) ofEl.textContent = ' / ' + last.total_questions + ' câu · ' + pct + '%';
+  if (sub) sub.textContent = 'Ngày ' + d.getDate() + '/' + (d.getMonth() + 1);
 }
 
 // ---------- Hai thẻ chi tiết ----------
