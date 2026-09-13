@@ -57,7 +57,7 @@ async function build() {
     for (const s of list) nq += (qInSet[s.id] || 0);
 
     html +=
-      '<section class="level-block">' +
+      '<section class="level-block hidden" id="lvl-' + p.n + '">' +
         '<div class="part-head">' +
           '<div>' +
             '<h2>' + esc(p.name) + '</h2>' +
@@ -98,6 +98,34 @@ async function build() {
   }
 
   $('parts').innerHTML = html;
+  document.getElementById('lvl-1').classList.remove('hidden');
+  bindTabs();
+}
+
+function bindTabs() {
+  const tabs = document.getElementById('listen-tabs');
+  if (!tabs) return;
+
+  tabs.querySelectorAll('button[data-tab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const p = b.dataset.tab;
+
+      [1, 2, 3, 4].forEach(function (n) {
+        const sec = document.getElementById('lvl-' + n);
+        if (sec) sec.classList.toggle('hidden', String(n) !== p);
+      });
+
+      tabs.querySelectorAll('button[data-tab]').forEach(function (x) {
+        x.classList.toggle('on', x.dataset.tab === p);
+      });
+    });
+  });
+
+  // Vào thẳng một tab qua đường dẫn, ví dụ listen.html?tab=3
+  const wanted = new URLSearchParams(location.search).get('tab');
+  if (wanted && ['1', '2', '3', '4'].indexOf(wanted) !== -1) {
+    tabs.querySelector('button[data-tab="' + wanted + '"]').click();
+  }
 }
 
 function level(d) {
