@@ -2504,3 +2504,38 @@ body.has-side-nav .app-bar { display: none; }
   .side-nav.open { transform: translateX(0); }
   .side-veil.open { display: block; }
 }
+
+/* ---------- Đăng nhập bằng Google ---------- */
+
+.auth-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: #8DA39D;
+  font-size: 0.84rem;
+}
+.auth-or::before, .auth-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 11px 18px;
+  border-radius: var(--r);
+  cursor: pointer;
+}
+.btn-google svg { width: 18px; height: 18px; flex: none; }
+.btn-google:hover { border-color: var(--teal); background: var(--mist); }
