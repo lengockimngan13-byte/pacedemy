@@ -66,10 +66,12 @@
   document.getElementById('u-toggle').addEventListener('click', function () {
     nav.classList.toggle('open');
     veil.classList.toggle('open');
+    document.body.classList.toggle('nav-open');
   });
   function close() {
     nav.classList.remove('open');
     veil.classList.remove('open');
+    document.body.classList.remove('nav-open');
   }
 
   veil.addEventListener('click', close);
