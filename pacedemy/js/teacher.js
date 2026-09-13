@@ -359,11 +359,6 @@ $('back-list').addEventListener('click', function (e) {
   window.scrollTo(0, 0);
 });
 
-$('btn-logout').addEventListener('click', async function () {
-  await db.auth.signOut();
-  window.location.replace('index.html');
-});
-
 function esc(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
