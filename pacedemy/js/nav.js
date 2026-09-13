@@ -14,8 +14,6 @@
       icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' },
     { href: 'part5.html',       label: 'Luyện đọc',
       icon: '<path d="M5 3h11l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 9h8v2H8zm0 4h6v2H8z"/>' },
-    { href: 'read.html',        label: 'Part 6 và 7',
-      icon: '<path d="M4 5h8v15H4zm16 0h-8v15h8z"/>' },
     { href: 'fulltest.html',    label: 'Thi thử',
       icon: '<path d="M12 3a9 9 0 1 0 9 9h-9z"/>' },
     { href: 'leaderboard.html', label: 'Xếp hạng',
