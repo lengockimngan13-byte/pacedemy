@@ -2636,3 +2636,49 @@ body.focus-mode .side-toggle { display: none; }
 }
 .guide-list li::marker { color: var(--gold); }
 .guide-list b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Thanh đầu trang gọn gàng hơn trên điện thoại ---------- */
+
+@media (max-width: 640px) {
+  .app-bar .wrap {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .app-user {
+    flex-basis: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.82rem;
+  }
+
+  .streak, .teacher-only, .app-user .btn-quiet {
+    white-space: nowrap;
+    font-size: 0.78rem;
+    padding: 5px 9px;
+  }
+
+  .brand { font-size: 1.1rem; }
+}
+
+/* ---------- Chip Part trong ô Luyện đề ---------- */
+
+.stat-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.part-chip {
+  font-size: 0.76rem;
+  padding: 3px 9px;
+  border-radius: 100px;
+  background: var(--mist);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.part-chip b { color: var(--ink); font-weight: 700; }

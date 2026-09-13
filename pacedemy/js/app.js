@@ -116,8 +116,8 @@ async function loadStats() {
     }
   }
 
-  setAccuracy('vocab', vOk, vN, 'Chưa kiểm tra từ vựng lần nào');
-  setAccuracy('drill', dOk, dN, 'Chưa luyện đề lần nào');
+  setAccuracy('vocab', vOk, vN);
+  setDrillBreakdown(drill, dOk, dN);
 
   // --- Thi thử gần nhất ---
   const { data: mocks } = await db
@@ -153,26 +153,17 @@ function animateNumber(el, target) {
 
 function setMastered(n) {
   animateNumber(el('s-words'), n);
-  if (n > 0) put('s-words-sub', n === 1 ? '1 từ đã nằm lòng' : n + ' từ đã nằm lòng');
 }
 
-function setAccuracy(key, ok, n, emptyText) {
+function setAccuracy(key, ok, n) {
   const numEl = el('s-' + key);
   const ofEl = el('s-' + key + '-of');
   const bar = el('s-' + key + '-bar');
-  const card = el('card-' + key);
 
   if (!n) {
     if (numEl) numEl.textContent = '0';
-    if (ofEl) ofEl.textContent = '';
+    if (ofEl) ofEl.textContent = ' — chưa có dữ liệu';
     if (bar) bar.style.width = '0%';
-    const lab = card && card.querySelector('.stat-lab');
-    if (lab) {
-      const extra = document.createElement('span');
-      extra.className = 'stat-sub';
-      extra.textContent = emptyText;
-      lab.insertAdjacentElement('afterend', extra);
-    }
     return;
   }
 
@@ -180,6 +171,42 @@ function setAccuracy(key, ok, n, emptyText) {
   animateNumber(numEl, ok);
   if (ofEl) ofEl.textContent = ' / ' + n + ' câu · ' + pct + '%';
   if (bar) setTimeout(function () { bar.style.width = pct + '%'; }, 120);
+}
+
+const PART_SHORT = {
+  1: 'Nghe P1', 2: 'Nghe P2', 3: 'Nghe P3', 4: 'Nghe P4',
+  5: 'Đọc P5', 6: 'Đọc P6', 7: 'Đọc P7'
+};
+
+function setDrillBreakdown(drill, dOk, dN) {
+  const numEl = el('s-drill');
+  const ofEl = el('s-drill-of');
+  const empty = el('s-drill-empty');
+  const box = el('s-drill-parts');
+
+  if (!dN) {
+    numEl.textContent = '0';
+    ofEl.textContent = '';
+    empty.classList.remove('hidden');
+    box.innerHTML = '';
+    return;
+  }
+
+  empty.classList.add('hidden');
+  const pct = Math.round(dOk / dN * 100);
+  animateNumber(numEl, dOk);
+  ofEl.textContent = ' / ' + dN + ' câu tổng · ' + pct + '%';
+
+  const keys = Object.keys(drill).map(Number)
+    .filter(function (k) { return k >= 1 && k <= 7 && drill[k].n; })
+    .sort(function (a, b) { return a - b; });
+
+  box.innerHTML = keys.map(function (k) {
+    const v = drill[k];
+    const p = Math.round(v.ok / v.n * 100);
+    return '<span class="part-chip">' + (PART_SHORT[k] || ('Part ' + k)) +
+      ' <b>' + v.ok + '/' + v.n + '</b> · ' + p + '%</span>';
+  }).join('');
 }
 
 function setMock(last) {
