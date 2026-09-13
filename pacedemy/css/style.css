@@ -2491,10 +2491,17 @@ a { color: inherit; }
 }
 
 body.has-side-nav { padding-left: var(--side-w); }
-body.has-side-nav .app-bar { display: none; }
+
+/* Teacher Studio bỏ hẳn thanh đầu trang. Bên học viên vẫn giữ,
+   vì đó là chỗ hiện chuỗi ngày học và nút đăng xuất. */
+body.has-side-nav:not(.side-nav-user) .app-bar { display: none; }
+body.side-nav-user .side-toggle { top: 10px; }
 
 @media (max-width: 880px) {
   body.has-side-nav { padding-left: 0; padding-top: 62px; }
+  /* Bên học viên thanh đầu trang vẫn còn nên không cần chừa thêm chỗ */
+  body.side-nav-user { padding-top: 0; }
+  body.side-nav-user .app-bar .wrap { padding-left: 62px; }
   .side-toggle { display: flex; }
   .side-nav {
     transform: translateX(-100%);
@@ -2539,3 +2546,9 @@ body.has-side-nav .app-bar { display: none; }
 }
 .btn-google svg { width: 18px; height: 18px; flex: none; }
 .btn-google:hover { border-color: var(--teal); background: var(--mist); }
+
+/* Trang đang làm bài: ẩn nút mở menu cho khỏi bấm nhầm giữa chừng */
+body.focus-mode .side-toggle { display: none; }
+@media (max-width: 880px) {
+  body.focus-mode .side-toggle { display: none; }
+}
