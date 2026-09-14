@@ -1,6 +1,11 @@
 // ============================================================
-// Pacedemy — kiểm tra từ vựng
-// Không hiện đúng sai từng câu. Toàn bộ phần ôn dồn vào cuối bài.
+// Pacedemy — kiểm tra từ vựng, 3 kiểu chọn trước khi vào làm:
+//   nghia    — từ → chọn nghĩa tiếng Việt (kiểu gốc, có tính Leitner)
+//   colloc   — cụm quen dùng bị khuyết từ → chọn từ điền vào
+//   synonym  — từ → chọn từ/cụm gần nghĩa nhất
+// Chỉ kiểu "nghia" ghi vào vocab_progress (ảnh hưởng trạng thái
+// đã thuộc). Hai kiểu còn lại là luyện thêm, không đụng Leitner.
+// Không hiện đúng sai từng câu, dồn vào cuối bài.
 // ============================================================
 
 const SIZE = 10;
@@ -20,8 +25,13 @@ let topicSlug = null;
 let mode = 'topic';
 let muc = null;
 let bo = null;
+let kind = null;       // 'nghia' | 'colloc' | 'synonym' — chốt khi bấm chọn ở màn hình picker
 const SET_SIZE = 12;
 let locked = false;
+
+let topicWords = [];   // toàn bộ từ của chủ đề, không lọc mức/bộ — nguồn nhiễu cho mọi kiểu
+let scopeWords = [];   // từ trong phạm vi đang chọn (đã lọc theo mức/bộ nếu có)
+let progOf = {};
 
 const $ = function (id) { return document.getElementById(id); };
 
@@ -38,7 +48,7 @@ const $ = function (id) { return document.getElementById(id); };
   mode = q.get('mode') === 'review' ? 'review' : 'topic';
 
   started = new Date();
-  await buildQueue();
+  await loadWords();
 
   if (topicSlug) {
     document.querySelectorAll('a[href="vocab.html"]').forEach(function (a) {
@@ -46,18 +56,18 @@ const $ = function (id) { return document.getElementById(id); };
     });
   }
 
-  if (!queue.length) {
-    $('view-study').classList.add('hidden');
+  if (!scopeWords.length) {
     $('view-empty').classList.remove('hidden');
     return;
   }
 
-  render();
+  bindPicker();
+  $('view-picker').classList.remove('hidden');
 })();
 
-// ---------- Chọn từ ----------
+// ---------- Nạp từ của chủ đề/bộ đang chọn ----------
 
-async function buildQueue() {
+async function loadWords() {
   let topicId = null;
   let topicName = 'Ôn tập';
 
@@ -77,35 +87,78 @@ async function buildQueue() {
 
   qy = qy.order('level').order('order_index').order('id');
 
-  let { data: words } = await qy;
+  const { data: words } = await qy;
   if (!words || !words.length) return;
 
-  const allWords = words.slice();   // dùng làm phương án nhiễu
+  topicWords = words;
+
+  let list = words;
+  let subLabel = topicName;
 
   if (muc) {
     const lv = parseInt(muc, 10);
-    words = words.filter(function (w) { return (w.level || 1) === lv; });
+    list = list.filter(function (w) { return (w.level || 1) === lv; });
   }
   if (bo) {
     const i = parseInt(bo, 10) - 1;
-    words = words.slice(i * SET_SIZE, (i + 1) * SET_SIZE);
-    $('topic-name').textContent = topicName + ' · Bộ ' + bo;
+    list = list.slice(i * SET_SIZE, (i + 1) * SET_SIZE);
+    subLabel += ' · Bộ ' + bo;
   }
-  if (!words.length) return;
+
+  scopeWords = list;
+  $('picker-topic').textContent = subLabel + ' · ' + list.length + ' từ';
 
   const { data: prog } = await db
     .from('vocab_progress')
     .select('vocabulary_id, status, box, next_review')
     .eq('user_id', me.id);
 
-  const progOf = {};
   for (const p of (prog || [])) progOf[p.vocabulary_id] = p;
+}
 
+function queueLimit() {
+  return bo ? Math.min(scopeWords.length, SET_SIZE) : SIZE;
+}
+
+// ---------- Màn hình chọn kiểu ----------
+
+function bindPicker() {
+  document.querySelectorAll('button[data-kind]').forEach(function (b) {
+    b.addEventListener('click', function () { startKind(b.dataset.kind); });
+  });
+}
+
+function startKind(k) {
+  const built =
+    k === 'nghia'   ? buildNghiaQueue() :
+    k === 'colloc'  ? buildCollocQueue() :
+                       buildSynonymQueue();
+
+  if (!built.length) {
+    $('picker-warn').textContent = 'Bộ này chưa đủ dữ liệu cho kiểu này, chọn kiểu khác nhé.';
+    $('picker-warn').classList.remove('hidden');
+    return;
+  }
+
+  $('picker-warn').classList.add('hidden');
+
+  kind = k;
+  queue = built;
+  at = 0; right = 0; xp = 0; wrongWords = [];
+
+  $('view-picker').classList.add('hidden');
+  $('view-study').classList.remove('hidden');
+  render();
+}
+
+// ---------- Xây hàng đợi câu hỏi — kiểu Nghĩa của từ (giữ nguyên Leitner) ----------
+
+function buildNghiaQueue() {
   const now = Date.now();
   const due = [];
   const fresh = [];
 
-  for (const w of words) {
+  for (const w of scopeWords) {
     const p = progOf[w.id];
     if (!p) { fresh.push(w); continue; }
     if (p.status === 'mastered') continue;
@@ -115,23 +168,107 @@ async function buildQueue() {
   let picked = mode === 'review' ? due.slice() : due.concat(fresh);
 
   if (!picked.length) {
-    picked = words.filter(function (w) {
+    picked = scopeWords.filter(function (w) {
       const p = progOf[w.id];
       return p && p.status !== 'mastered';
     });
   }
-  if (!picked.length) picked = words.slice();
+  if (!picked.length) picked = scopeWords.slice();
 
-  const limit = bo ? Math.min(words.length, SET_SIZE) : SIZE;
-  queue = shuffle(picked).slice(0, limit);
+  const qs = shuffle(picked).slice(0, queueLimit());
 
-  for (const w of queue) {
-    const others = shuffle(allWords.filter(function (x) {
+  for (const w of qs) {
+    const others = shuffle(topicWords.filter(function (x) {
       return x.id !== w.id && x.meaning_vi !== w.meaning_vi;
     })).slice(0, 3);
     w.choices = shuffle([w].concat(others));
     w.box = progOf[w.id] ? progOf[w.id].box : 1;
   }
+
+  return qs;
+}
+
+// ---------- Xây hàng đợi — kiểu Cụm từ ----------
+
+function buildCollocQueue() {
+  const eligible = [];
+
+  for (const w of scopeWords) {
+    const entries = splitCollocations(w.collocations);
+    let found = null;
+    for (const e of entries) {
+      if (!e.phrase) continue;
+      const blanked = findAndBlank(e.phrase, w.word);
+      if (blanked) { found = { phrase: e.phrase, meaning: e.meaning, blanked: blanked }; break; }
+    }
+    if (found) eligible.push(Object.assign({}, w, { collocPick: found }));
+  }
+
+  return finalizeQueue(eligible, function (w) { return w.word; });
+}
+
+// ---------- Xây hàng đợi — kiểu Cách nói khác ----------
+
+function buildSynonymQueue() {
+  const eligible = [];
+
+  for (const w of scopeWords) {
+    const syns = splitSynonyms(w.synonyms);
+    if (syns.length) eligible.push(Object.assign({}, w, { synPick: syns[Math.floor(Math.random() * syns.length)] }));
+  }
+
+  return finalizeQueue(eligible, function (w) { return w.synPick; });
+}
+
+// ---------- Dùng chung: gán 4 lựa chọn (đúng + 3 nhiễu) cho mỗi câu ----------
+
+function finalizeQueue(eligible, answerText) {
+  const qs = shuffle(eligible).slice(0, queueLimit());
+  const out = [];
+
+  for (const w of qs) {
+    const correct = answerText(w);
+    const correctLower = correct.toLowerCase();
+
+    const distractPool = shuffle(topicWords.filter(function (x) {
+      return x.id !== w.id && x.word.toLowerCase() !== correctLower;
+    }));
+
+    const distract = [];
+    for (const x of distractPool) {
+      if (distract.length >= 3) break;
+      if (distract.indexOf(x.word) === -1) distract.push(x.word);
+    }
+    if (distract.length < 3) continue; // không đủ nhiễu, bỏ câu này
+
+    w.optChoices = shuffle([correct].concat(distract));
+    w.optCorrect = correct;
+    out.push(w);
+  }
+
+  return out;
+}
+
+// ---------- Tách chuỗi collocations / synonyms ----------
+
+function splitCollocations(raw) {
+  return (raw || '').split(';').map(function (x) { return x.trim(); }).filter(Boolean).map(function (x) {
+    const bits = x.split(/\s+[—–-]\s+/);
+    return { phrase: bits[0].trim(), meaning: bits.length > 1 ? bits.slice(1).join(' - ').trim() : '' };
+  });
+}
+
+function splitSynonyms(raw) {
+  return (raw || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+}
+
+// Tìm từ trong cụm rồi thay bằng chỗ trống. Bắt cả biến thể đuôi
+// (s/es/ed/ing…) vì cụm hay chia động từ khác dạng gốc.
+function findAndBlank(phrase, word) {
+  const stem = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('\\b' + stem + '\\w*', 'i');
+  if (!re.test(phrase)) return null;
+  return phrase.replace(re, '_____');
 }
 
 function shuffle(a) {
@@ -152,16 +289,39 @@ function render() {
   $('counter').textContent = 'Câu ' + (at + 1) + ' / ' + queue.length;
   $('progress').style.width = (at / queue.length * 100) + '%';
 
-  $('word').textContent = w.word;
-  $('pos').textContent = w.pos || '';
-  $('pos').style.display = w.pos ? '' : 'none';
-  $('phonetic').textContent = w.phonetic || '';
+  let boxHtml = '';
+  let opts = [];
 
-  let html = '';
-  for (let i = 0; i < w.choices.length; i++) {
-    html += '<button class="opt" data-i="' + i + '">' + esc(w.choices[i].meaning_vi) + '</button>';
+  if (kind === 'nghia') {
+    boxHtml =
+      '<p class="word">' + esc(w.word) + '</p>' +
+      '<div class="word-meta">' +
+        (w.pos ? '<span class="pos">' + esc(w.pos) + '</span>' : '') +
+        (w.phonetic ? '<span>' + esc(w.phonetic) + '</span>' : '') +
+      '</div>';
+    opts = w.choices.map(function (c) { return c.meaning_vi; });
+  } else if (kind === 'colloc') {
+    boxHtml =
+      '<p class="quiz-prompt">Điền từ còn thiếu vào cụm</p>' +
+      '<p class="quiz-sentence">' + esc(w.collocPick.blanked) + '</p>' +
+      (w.collocPick.meaning ? '<p class="quiz-hint">' + esc(w.collocPick.meaning) + '</p>' : '');
+    opts = w.optChoices;
+  } else {
+    boxHtml =
+      '<p class="word">' + esc(w.word) + '</p>' +
+      '<div class="word-meta">' +
+        (w.pos ? '<span class="pos">' + esc(w.pos) + '</span>' : '') +
+        (w.phonetic ? '<span>' + esc(w.phonetic) + '</span>' : '') +
+      '</div>' +
+      '<p class="quiz-prompt">Từ hoặc cụm nào gần nghĩa nhất?</p>';
+    opts = w.optChoices;
   }
-  $('opts').innerHTML = html;
+
+  $('word-box').innerHTML = boxHtml;
+
+  $('opts').innerHTML = opts.map(function (text, i) {
+    return '<button class="opt" data-i="' + i + '">' + esc(text) + '</button>';
+  }).join('');
 
   $('opts').querySelectorAll('.opt').forEach(function (b) {
     b.addEventListener('click', function () { answer(parseInt(b.dataset.i, 10)); });
@@ -175,19 +335,19 @@ function answer(i) {
   locked = true;
 
   const w = queue[at];
-  const ok = w.choices[i].id === w.id;
+  const ok = kind === 'nghia' ? (w.choices[i].id === w.id) : (w.optChoices[i] === w.optCorrect);
 
   if (ok) { right++; xp += XP_RIGHT; }
   else { xp += XP_WRONG; wrongWords.push(w); }
 
-  saveProgress(w, ok);
+  if (kind === 'nghia') saveProgress(w, ok);
 
   at++;
   if (at >= queue.length) finish();
   else render();
 }
 
-// ---------- Ghi tiến độ ----------
+// ---------- Ghi tiến độ Leitner (chỉ kiểu Nghĩa của từ) ----------
 
 async function saveProgress(w, ok) {
   const box = ok ? Math.min(5, (w.box || 1) + 1) : 1;
@@ -221,8 +381,9 @@ async function finish() {
 
   if (right === queue.length) {
     $('done-title').textContent = 'Đúng hết. Rất tốt.';
-    $('done-sub').textContent =
-      'Bạn trả lời đúng ' + right + ' câu. Các từ này sẽ quay lại sau vài ngày để kiểm tra trí nhớ.';
+    $('done-sub').textContent = kind === 'nghia'
+      ? 'Bạn trả lời đúng ' + right + ' câu. Các từ này sẽ quay lại sau vài ngày để kiểm tra trí nhớ.'
+      : 'Bạn trả lời đúng ' + right + ' câu.';
   } else {
     $('done-title').textContent = right >= queue.length * 0.7
       ? 'Làm tốt lắm.' : 'Xong bài kiểm tra.';
@@ -231,13 +392,13 @@ async function finish() {
     showWrong();
   }
 
-  showNotMastered();
+  if (kind === 'nghia') showNotMastered();
 
   const seconds = Math.round((Date.now() - started.getTime()) / 1000);
 
   await db.from('attempts').insert({
     user_id: me.id,
-    mode: 'vocab',
+    mode: kind === 'colloc' ? 'vocab_colloc' : (kind === 'synonym' ? 'vocab_synonym' : 'vocab'),
     started_at: started.toISOString(),
     submitted_at: new Date().toISOString(),
     total_questions: queue.length,
@@ -262,6 +423,7 @@ function showWrong() {
         '<p class="rp">' + esc([w.pos, w.phonetic].filter(Boolean).join('  ')) + '</p>' +
         '<p class="rm">' + esc(w.meaning_vi) + '</p>' +
         (w.synonyms ? '<p class="rp">Đồng nghĩa: ' + esc(w.synonyms) + '</p>' : '') +
+        (w.collocations ? '<p class="rp">Cụm hay dùng: ' + esc(w.collocations) + '</p>' : '') +
         (w.example_en ? '<p class="re">' + highlight(w.example_en, w.word) + '</p>' : '') +
         (w.example_vi ? '<p class="rp" style="margin-top:5px">' + esc(w.example_vi) + '</p>' : '') +
       '</div>';
@@ -309,7 +471,7 @@ function esc(s) {
 }
 
 
-// ---------- Toàn bộ từ trong bộ mà bạn chưa thuộc ----------
+// ---------- Toàn bộ từ trong bộ mà bạn chưa thuộc (chỉ dùng cho kiểu Nghĩa) ----------
 
 async function showNotMastered() {
   if (!topicSlug) return;

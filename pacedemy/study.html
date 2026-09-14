@@ -26,20 +26,36 @@
 
 <main class="wrap">
 
-  <section class="study" id="view-study">
+  <section class="picker hidden" id="view-picker">
+    <div class="greet" style="padding-top:0">
+      <h1>Chọn kiểu kiểm tra</h1>
+      <p id="picker-topic"></p>
+    </div>
+    <p class="picker-warn hidden" id="picker-warn"></p>
+    <div class="picker-grid">
+      <button class="picker-card" data-kind="nghia">
+        <h3>Nghĩa của từ</h3>
+        <p>Cho từ tiếng Anh, chọn đúng nghĩa tiếng Việt. Kiểu quen thuộc, có tính vào tiến độ thuộc từ.</p>
+      </button>
+      <button class="picker-card" data-kind="colloc">
+        <h3>Cụm từ</h3>
+        <p>Cho một cụm quen dùng bị khuyết từ, chọn đúng từ để điền vào chỗ trống.</p>
+      </button>
+      <button class="picker-card" data-kind="synonym">
+        <h3>Cách nói khác</h3>
+        <p>Cho một từ, chọn đúng từ hoặc cụm gần nghĩa nhất trong 4 lựa chọn.</p>
+      </button>
+    </div>
+  </section>
+
+  <section class="study hidden" id="view-study">
     <div class="study-top">
       <span id="topic-name">Đang tải…</span>
       <span id="counter"></span>
     </div>
     <div class="study-bar"><span id="progress" style="width:0"></span></div>
 
-    <div class="word-box">
-      <p class="word" id="word">—</p>
-      <div class="word-meta">
-        <span class="pos" id="pos"></span>
-        <span id="phonetic"></span>
-      </div>
-    </div>
+    <div class="word-box" id="word-box"></div>
 
     <div class="opts" id="opts"></div>
   </section>

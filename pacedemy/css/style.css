@@ -733,6 +733,54 @@ a { color: inherit; }
 
 .opts { display: grid; gap: 10px; }
 
+.quiz-prompt { margin: 0 0 10px; color: #4A635E; font-size: 0.95rem; }
+
+.quiz-sentence {
+  font-family: var(--disp);
+  font-size: clamp(1.2rem, 4.5vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+.quiz-hint { color: #4A635E; font-style: italic; margin: 0; }
+
+/* ---------- Picker: chọn kiểu kiểm tra ---------- */
+
+.picker { max-width: 720px; margin: 0 auto; padding: 30px 0 60px; }
+
+.picker-warn {
+  color: var(--danger);
+  background: #FBEAE5;
+  border-radius: var(--r);
+  padding: 10px 14px;
+  margin: 0 0 16px;
+}
+
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.picker-card {
+  text-align: left;
+  padding: 20px 20px 22px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: none;
+  cursor: pointer;
+  transition: border-color .15s ease;
+  font-family: inherit;
+}
+.picker-card:hover { border-color: var(--teal); }
+.picker-card h3 { margin: 0 0 6px; font-family: var(--disp); font-size: 1.05rem; }
+.picker-card p { margin: 0; color: #4A635E; font-size: 0.9rem; line-height: 1.5; }
+
+@media (max-width: 700px) {
+  .picker-grid { grid-template-columns: 1fr; }
+}
+
 .opt {
   width: 100%;
   text-align: left;
