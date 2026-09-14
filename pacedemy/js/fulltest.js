@@ -329,12 +329,29 @@ async function submit(auto) {
   if (rN) statCards.push(stat(rOk + '/' + rN, 'Phần Đọc'));
   statCards.push(stat(all.length ? Math.round((lOk + rOk) / all.length * 100) + '%' : '—', 'Độ chính xác'));
 
+  // Điểm TOEIC ước lượng — quy đổi qua bảng tham khảo, không phải điểm ETS thật
+  let scoreNote = '<p class="review-note">Đề này chưa đủ 200 câu như đề thật nên chưa quy ra điểm TOEIC được.</p>';
+  if (lN && rN) {
+    const [lRes, rRes] = await Promise.all([
+      db.rpc('toeic_estimate', { p_section: 'listening', p_correct: lOk, p_total: lN }),
+      db.rpc('toeic_estimate', { p_section: 'reading', p_correct: rOk, p_total: rN })
+    ]);
+    const lScore = lRes.data, rScore = rRes.data;
+    if (lScore != null && rScore != null) {
+      statCards.push(stat(lScore + rScore, 'Điểm TOEIC ước lượng'));
+      scoreNote = '<p class="review-note">Điểm TOEIC ước lượng: Nghe ' + lScore + ' · Đọc ' + rScore +
+        ' · Tổng ' + (lScore + rScore) +
+        '. Đây là điểm quy đổi tham khảo, không phải điểm thi thật — mỗi đề ETS có bảng quy đổi riêng, ' +
+        'chênh nhau vài chục điểm ở hai đầu thang.</p>';
+    }
+  }
+
   $('result').innerHTML =
     '<div class="greet"><h1>' + (auto ? 'Hết giờ, bài đã tự nộp' : 'Đã nộp bài') + '</h1>' +
     '<p>' + esc(examSet.name) + ' · làm hết ' + Math.floor(secs / 60) + ' phút ' + (secs % 60) + ' giây' +
     (left ? ', bỏ trống ' + left + ' câu' : '') + '.</p></div>' +
     '<section class="stats">' + statCards.join('') + '</section>' +
-    '<p class="review-note">Đề này chưa đủ 200 câu như đề thật nên chưa quy ra điểm TOEIC được.</p>' +
+    scoreNote +
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:18px 0">' +
       '<button class="btn btn-ink" id="btn-review">Xem lại bài làm</button>' +
       '<a class="btn btn-line" href="app.html">Về trang học</a>' +
