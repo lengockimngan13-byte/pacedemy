@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luyện đọc — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <a class="btn-quiet" href="app.html">Về trang học</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <a class="crumb" href="app.html">← Về trang học</a>
+
+  <section class="greet">
+    <h1>Luyện đọc</h1>
+    <p>Ba phần trong bài thi đọc TOEIC: hoàn thành câu, điền đoạn văn, và đọc hiểu.</p>
+  </section>
+
+  <div class="test-tabs" id="read-tabs">
+    <button class="test-tab on" data-tab="5">Part 5<span>Hoàn thành câu</span></button>
+    <button class="test-tab" data-tab="6">Part 6<span>Điền đoạn văn</span></button>
+    <button class="test-tab" data-tab="7">Part 7<span>Đọc hiểu</span></button>
+  </div>
+
+  <!-- ================= PART 5 ================= -->
+  <section id="panel-5">
+    <div class="tbox guide-box">
+      <h3>Cách làm bài — Part 5</h3>
+      <ul class="guide-list">
+        <li>Đề thật có <b>30 câu</b>.</li>
+        <li>Mỗi câu là một câu tiếng Anh có <b>một chỗ trống</b>, chọn 1 trong 4 phương án A, B, C, D để điền vào cho đúng ngữ pháp hoặc đúng nghĩa.</li>
+        <li>Không có đoạn văn hay ngữ cảnh dài — chỉ cần đọc đúng câu đó là đủ để chọn đáp án.</li>
+        <li>Đây thường là phần làm nhanh nhất trong bài đọc, nên luyện phản xạ nhận diện dạng câu là chính.</li>
+      </ul>
+    </div>
+
+    <div class="due-card">
+      <div>
+        <h2>Luyện trộn tất cả dạng</h2>
+        <p>10 câu ngẫu nhiên từ mọi dạng, giống cách đề thi xáo trộn.</p>
+      </div>
+      <a class="btn btn-gold" href="practice.html?part=5">Bắt đầu</a>
+    </div>
+
+    <div class="due-card">
+      <div>
+        <h2>Chuyển sang luyện nghe</h2>
+        <p>Part 1 đến 4, nghe bao nhiêu lần cũng được, có lời thoại kèm bản dịch.</p>
+      </div>
+      <a class="btn btn-line" href="listen.html">Sang luyện nghe</a>
+    </div>
+
+    <div id="groups"><p class="empty">Đang tải các dạng bài…</p></div>
+  </section>
+
+  <!-- ================= PART 6 ================= -->
+  <section class="hidden" id="panel-6">
+    <div class="tbox guide-box">
+      <h3>Cách làm bài — Part 6</h3>
+      <ul class="guide-list">
+        <li>Đề thật có <b>16 câu</b>, chia thành 4 đoạn văn, mỗi đoạn <b>4 chỗ trống</b>.</li>
+        <li>Giống Part 5 nhưng đặt trong một đoạn văn liền mạch — phải đọc câu trước và câu sau chỗ trống mới chọn đúng, không chỉ nhìn mỗi câu chứa chỗ trống.</li>
+        <li>Một trong bốn câu thường yêu cầu chọn <b>cả một câu hoàn chỉnh</b> để điền vào đoạn, chứ không chỉ điền một từ.</li>
+        <li>Mỗi chỗ trống chỉ chọn 1 trong 4 phương án A, B, C, D.</li>
+      </ul>
+    </div>
+
+    <div id="p6-view-pick">
+      <div id="p6-list"><p class="empty">Đang tải…</p></div>
+    </div>
+
+    <section class="hidden" id="p6-view-do">
+      <div class="greet">
+        <h1 id="p6-d-title">—</h1>
+        <p id="p6-d-sub">—</p>
+      </div>
+      <div class="passage" id="p6-d-passage"></div>
+      <div id="p6-d-questions"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:20px 0">
+        <button class="btn btn-gold" id="p6-btn-submit">Nộp bài</button>
+        <button class="btn btn-line" id="p6-btn-back">Chọn đoạn khác</button>
+      </div>
+      <div id="p6-d-result"></div>
+    </section>
+  </section>
+
+  <!-- ================= PART 7 ================= -->
+  <section class="hidden" id="panel-7">
+    <div class="tbox guide-box">
+      <h3>Cách làm bài — Part 7</h3>
+      <ul class="guide-list">
+        <li>Đề thật có <b>54 câu</b>: bài đơn (1 văn bản, khoảng 29 câu) và bài đôi/ba (2-3 văn bản liên quan nhau, khoảng 25 câu).</li>
+        <li>Văn bản là email, thông báo, quảng cáo, tin nhắn, bài báo, biểu mẫu, hoá đơn...</li>
+        <li>Mỗi bài có từ <b>2 đến 5 câu hỏi</b>, mỗi câu chọn 1 trong 4 phương án A, B, C, D.</li>
+        <li>Bài đôi/ba luôn có ít nhất một câu bắt buộc phải đọc từ <b>2 văn bản trở lên</b> mới trả lời được — đọc một văn bản là không đủ.</li>
+      </ul>
+    </div>
+
+    <div id="p7-view-pick">
+      <div id="p7-list"><p class="empty">Đang tải…</p></div>
+    </div>
+
+    <section class="hidden" id="p7-view-do">
+      <div class="greet">
+        <h1 id="p7-d-title">—</h1>
+        <p id="p7-d-sub">—</p>
+      </div>
+      <div class="passage" id="p7-d-passage"></div>
+      <div id="p7-d-questions"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:20px 0">
+        <button class="btn btn-gold" id="p7-btn-submit">Nộp bài</button>
+        <button class="btn btn-line" id="p7-btn-back">Chọn đoạn khác</button>
+      </div>
+      <div id="p7-d-result"></div>
+    </section>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/part5.js"></script>
+<script src="js/read.js"></script>
+<script src="js/reading-tabs.js"></script>
+</body>
+</html>

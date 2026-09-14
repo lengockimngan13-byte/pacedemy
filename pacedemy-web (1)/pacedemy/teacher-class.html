@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lớp học — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+
+    <div class="greet" style="padding-bottom:18px">
+      <h1>Lớp học</h1>
+      <p>Chọn một lớp ở bên trái để xem bài tập, học viên và gửi nhận xét.</p>
+    </div>
+
+    <div class="tc-layout">
+
+      <!-- Sidebar: danh sách lớp -->
+      <div class="tc-sidebar">
+        <div class="tc-sidebar-head">
+          <h3>Các lớp của bạn</h3>
+          <button class="btn-sm" id="btn-toggle-new">+ Lớp mới</button>
+        </div>
+
+        <div class="tc-new hidden" id="tc-new">
+          <input id="new-name" type="text" placeholder="Tên lớp">
+          <input id="new-note" type="text" placeholder="Ghi chú (không bắt buộc)">
+          <button class="btn btn-gold btn-sm" id="btn-new" style="width:100%;margin-top:8px">Tạo lớp</button>
+          <span id="new-note-msg" style="display:block;margin-top:6px;font-size:0.82rem;color:var(--teal)"></span>
+        </div>
+
+        <div class="tc-class-list" id="tc-class-list"><p class="empty">Đang tải danh sách lớp…</p></div>
+      </div>
+
+      <!-- Nội dung 1 lớp -->
+      <div class="tc-main">
+
+        <div class="tc-main-empty" id="tc-empty">
+          <p class="empty">Chọn một lớp ở bên trái, hoặc tạo lớp mới nếu bạn chưa có lớp nào.</p>
+        </div>
+
+        <div class="tc-main-body hidden" id="tc-body">
+
+          <div class="tc-head">
+            <h2 id="c-name">Lớp</h2>
+            <p id="c-sub"></p>
+          </div>
+
+          <div class="test-tabs" id="tc-tabs">
+            <button class="test-tab on" data-tab="bai-tap">Bài tập</button>
+            <button class="test-tab" data-tab="hoc-vien">Học viên</button>
+            <button class="test-tab" data-tab="nhan-xet">Nhận xét</button>
+            <button class="test-tab" data-tab="cai-dat">Cài đặt lớp</button>
+          </div>
+
+          <!-- Bài tập -->
+          <div class="tc-pane" id="pane-bai-tap">
+            <div class="tc-split">
+              <div class="tc-split-main">
+                <div id="assigns"><p class="empty">Đang tải…</p></div>
+              </div>
+              <div class="tc-split-side">
+                <h3>Giao bài mới</h3>
+
+                <div class="field">
+                  <label for="as-title">Tên bài tập</label>
+                  <input id="as-title" type="text" placeholder="Ví dụ: Bài tuần 12 đến 18/10">
+                </div>
+
+                <div class="field">
+                  <label for="as-due">Hạn hoàn thành</label>
+                  <input id="as-due" type="date">
+                </div>
+
+                <p style="margin:0 0 10px;font-size:0.9rem;font-weight:600">Đầu việc</p>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+                  <select id="it-kind">
+                    <option value="vocab">Từ vựng</option>
+                    <option value="part5">Part 5</option>
+                    <option value="listen">Luyện nghe</option>
+                  </select>
+                  <select id="it-target"></select>
+                  <input id="it-amount" type="number" min="1" value="20" placeholder="Số lượng">
+                  <button class="btn-sm test" id="btn-add-item" style="width:100%">Thêm việc</button>
+                </div>
+
+                <div id="it-list"></div>
+
+                <button class="btn btn-gold" id="btn-save-as" style="width:100%;margin-top:8px">Giao bài</button>
+                <span id="as-ok" style="display:block;margin-top:8px;font-size:0.86rem;color:var(--teal)"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Học viên -->
+          <div class="tc-pane hidden" id="pane-hoc-vien">
+            <div id="pending-box"></div>
+
+            <div class="section-head">
+              <h2>Học viên trong lớp</h2>
+              <span class="stat-lab" id="c-count"></span>
+            </div>
+            <div id="roster"><p class="empty">Đang tải…</p></div>
+
+            <div class="section-head" style="margin-top:32px">
+              <h2>Thêm học viên chưa có lớp</h2>
+            </div>
+            <div id="outside"></div>
+          </div>
+
+          <!-- Nhận xét -->
+          <div class="tc-pane hidden" id="pane-nhan-xet">
+            <div class="tbox" style="border-color:var(--gold)">
+              <h3>Gửi nhận xét cho cả lớp</h3>
+              <div class="field">
+                <textarea id="all-msg" rows="4"
+                  placeholder="Ví dụ: Tuần này cả lớp làm Part 5 mảng Mệnh đề quan hệ nhé, cô vừa thêm 60 câu."
+                  style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui);font-size:0.96rem"></textarea>
+              </div>
+              <button class="btn btn-ink" id="btn-all">Gửi cho tất cả</button>
+              <span id="all-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+            </div>
+            <p class="review-note">Muốn nhắn riêng cho một em, sang tab Học viên — mỗi em có ô nhận xét riêng ngay bên dưới tên.</p>
+          </div>
+
+          <!-- Cài đặt lớp -->
+          <div class="tc-pane hidden" id="pane-cai-dat">
+            <div class="due-card">
+              <div>
+                <h2>Mã vào lớp: <span id="c-code" style="letter-spacing:2px">——————</span></h2>
+                <p>Gửi mã này cho học viên. Các em nhập trên trang học là tự vào lớp.</p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-line" id="btn-copy">Copy mã</button>
+                <button class="btn btn-line" id="btn-newcode">Đổi mã</button>
+              </div>
+            </div>
+
+            <div class="tbox">
+              <h3>Sĩ số tối đa</h3>
+              <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+                Đủ số này thì mã lớp hết tác dụng, người lạ có mã cũng không vào được.
+                Để trống nghĩa là không giới hạn.
+              </p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <input id="c-max" type="number" min="1" placeholder="không giới hạn"
+                  style="width:170px;padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)">
+                <button class="btn-sm test" id="btn-max">Lưu</button>
+                <span id="max-ok" style="font-size:0.88rem;color:var(--teal)"></span>
+              </div>
+            </div>
+
+            <div class="tbox">
+              <h3>Trạng thái lớp</h3>
+              <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+                Đóng lớp thì mã lớp ngừng nhận học viên mới, học viên cũ vẫn học bình thường.
+              </p>
+              <button class="btn-sm" id="btn-toggle-active">Đóng lớp</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/assign.js"></script>
+<script src="js/teacher-class.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chỉnh trang web — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+    <div class="greet">
+      <h1>Chỉnh trang web</h1>
+      <p>Đổi chữ trên trang giới thiệu (pacedemy.com) và bật/tắt tính năng cho học viên — lưu xong hiện ngay, không cần deploy lại.</p>
+    </div>
+
+    <div id="note" class="note hidden"></div>
+
+    <!-- Bật/tắt tính năng -->
+    <div class="tbox">
+      <h3>Bật/tắt tính năng cho học viên</h3>
+      <p style="margin:0 0 14px;font-size:0.94rem;line-height:1.65">
+        Tắt một mục thì học viên không thấy thẻ đó trên trang học và không vào được trang tương ứng.
+        Riêng tài khoản giáo viên luôn thấy đủ, để kiểm tra trước khi mở lại.
+      </p>
+      <div id="feat-list"></div>
+      <button class="btn btn-gold" id="btn-save-feat" style="margin-top:14px">Lưu tính năng</button>
+    </div>
+
+    <!-- Đề và nội dung theo từng phần -->
+    <div class="tbox">
+      <h3>Bật/tắt từng đề, từng bài</h3>
+      <p style="margin:0;font-size:0.94rem;line-height:1.65">
+        Việc này làm ngay trong từng trang nhập liệu — mỗi bộ từ vựng, đề Part 5-7, bài nghe,
+        hay bộ đề thi thử đều có sẵn nút "Tạm ẩn" / "Mở lại" ngay tại trang đó, không cần qua đây.
+      </p>
+    </div>
+
+    <!-- Trang giới thiệu -->
+    <div class="tbox">
+      <h3>Câu mở đầu trang giới thiệu</h3>
+      <div class="field">
+        <label for="hero-title">Tiêu đề lớn</label>
+        <input id="hero-title" type="text">
+      </div>
+      <div class="field">
+        <label for="hero-sub">Đoạn mô tả bên dưới</label>
+        <textarea id="hero-sub" rows="4"></textarea>
+      </div>
+    </div>
+
+    <div class="tbox">
+      <h3>Bốn thẻ Learn — Practice — Review — Repeat</h3>
+      <div class="field">
+        <label for="strip-head">Tiêu đề khối</label>
+        <input id="strip-head" type="text">
+      </div>
+
+      <div id="strip-fields"></div>
+    </div>
+
+    <div class="tbox">
+      <h3>Thẻ giới thiệu giáo viên</h3>
+      <label class="check-row">
+        <input type="checkbox" id="bio-show">
+        <span>Hiện thẻ này trên trang giới thiệu</span>
+      </label>
+      <div class="field">
+        <label for="bio-name">Tên</label>
+        <input id="bio-name" type="text">
+      </div>
+      <div class="field">
+        <label for="bio-role">Chức danh / vai trò</label>
+        <input id="bio-role" type="text">
+      </div>
+      <div class="field">
+        <label for="bio-short">Giới thiệu ngắn</label>
+        <textarea id="bio-short" rows="4"></textarea>
+      </div>
+      <div class="field">
+        <label for="bio-photo">Đường dẫn ảnh (trong thư mục images/)</label>
+        <input id="bio-photo" type="text" placeholder="images/ngan.jpg">
+      </div>
+    </div>
+
+    <button class="btn btn-gold" id="btn-save-content">Lưu trang giới thiệu</button>
+    <a class="btn btn-line" href="index.html" target="_blank" style="margin-left:10px">Xem thử trang giới thiệu</a>
+
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-site.js"></script>
+</body>
+</html>

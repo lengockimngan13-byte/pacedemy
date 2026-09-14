@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bộ đề thi thử — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+    <div class="greet">
+      <h1>Bộ đề thi thử</h1>
+      <p>Mỗi bộ đề là một thư mục riêng, tách hẳn khỏi ngân hàng luyện đề. Học viên chọn bộ đề rồi thi trọn bài.</p>
+    </div>
+
+    <!-- Danh sách thư mục -->
+    <div id="view-sets">
+      <div class="tbox">
+        <h3>Tạo bộ đề mới</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="new-name" type="text" placeholder="Ví dụ: Đề số 1"
+            style="flex:1;min-width:180px;padding:9px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui)">
+          <button class="btn btn-gold" id="btn-new">Tạo</button>
+        </div>
+      </div>
+      <div id="set-list"><p class="empty">Đang tải…</p></div>
+    </div>
+
+    <!-- Bên trong một bộ đề -->
+    <div class="hidden" id="view-inside">
+      <button class="btn-quiet" id="btn-back-sets" style="margin-bottom:10px">← Tất cả bộ đề</button>
+      <div class="greet"><h1 id="set-title">—</h1></div>
+      <div id="have-box" style="margin-bottom:20px"></div>
+
+      <div class="test-tabs" id="part-tabs">
+        <button class="test-tab on" data-p="listen">Nghe · Part 1-4</button>
+        <button class="test-tab" data-p="5">Part 5</button>
+        <button class="test-tab" data-p="6">Part 6</button>
+        <button class="test-tab" data-p="7">Part 7</button>
+      </div>
+
+      <div class="tbox">
+        <h3>Bước 1 · Lấy câu nhắc</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-line" id="btn-prompt">Copy câu nhắc</button>
+          <button class="btn btn-line" id="btn-sample">Xem ví dụ mẫu</button>
+        </div>
+        <span id="prompt-ok" style="display:block;margin-top:10px;font-size:0.88rem;color:var(--teal)"></span>
+      </div>
+
+      <!-- Chỉ hiện khi đang ở tab Nghe -->
+      <div class="tbox hidden" id="upload-box">
+        <h3>Bước 2 · Tải file mp3 và ảnh lên trước</h3>
+        <input type="file" id="file-input" multiple accept="audio/*,image/*">
+        <div id="upload-list" style="margin-top:10px"></div>
+      </div>
+
+      <div class="field">
+        <label for="raw">Dữ liệu</label>
+        <textarea id="raw" style="min-height:260px;font-family:ui-monospace,monospace;font-size:0.86rem;width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r)"
+          placeholder="Dán khối dữ liệu ChatGPT trả về vào đây"></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn btn-ink" id="btn-parse">Xem trước</button>
+        <button class="btn btn-gold hidden" id="btn-save">Lưu vào bộ đề</button>
+      </div>
+
+      <div id="note" class="note hidden"></div>
+      <div id="preview"></div>
+    </div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-exam.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hồ sơ học viên — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+    <div class="greet">
+      <h1 id="s-name">—</h1>
+      <p id="s-sub">Đang tải…</p>
+    </div>
+
+    <div id="alert-box"></div>
+
+    <div class="test-tabs" id="tabs">
+      <button class="test-tab on" data-t="tong-quan">Tổng quan</button>
+      <button class="test-tab" data-t="luyen-de">Luyện đề</button>
+      <button class="test-tab" data-t="thi-thu">Thi thử</button>
+      <button class="test-tab" data-t="tu-vung">Từ vựng</button>
+      <button class="test-tab" data-t="hay-sai">Dạng hay sai</button>
+      <button class="test-tab" data-t="nhat-ky">Nhật ký</button>
+    </div>
+
+    <div id="body"><p class="empty">Đang tải…</p></div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-student.js"></script>
+</body>
+</html>

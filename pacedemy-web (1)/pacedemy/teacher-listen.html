@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhập bài nghe — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+    <div class="greet">
+      <h1>Nhập bài nghe Part 1 đến 4</h1>
+      <p>Tải file âm thanh lên trước, sau đó dán nội dung câu hỏi. Mỗi file âm thanh là một bài nghe.</p>
+    </div>
+
+    <!-- Bước 1 -->
+    <div class="tbox">
+      <h3>Bước 1 · Tải file âm thanh và ảnh</h3>
+      <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+        Chọn được nhiều file cùng lúc. File mp3 hoặc m4a cho bài nghe, file ảnh cho Part 1.
+        Tải xong bạn chỉ cần ghi đúng tên file vào phần dữ liệu bên dưới, hệ thống tự tìm đường dẫn.
+      </p>
+      <input type="file" id="files" multiple accept="audio/*,image/*"
+             style="font-size:0.92rem;margin-bottom:10px">
+      <div><button class="btn btn-line" id="btn-upload">Tải lên</button>
+      <span id="up-note" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span></div>
+      <div id="up-list" style="margin-top:14px"></div>
+    </div>
+
+    <!-- Bước 2 -->
+    <div class="tbox">
+      <h3>Bước 2 · Lấy câu nhắc cho Claude</h3>
+      <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+        Copy câu nhắc, dán vào khung chat kèm file script bài nghe của bạn.
+        Claude trả về một khối dữ liệu, bạn copy rồi dán vào ô ở bước 3.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-line" id="btn-prompt">Copy câu nhắc soạn bài nghe</button>
+        <button class="btn btn-line" id="btn-sample">Xem một ví dụ mẫu</button>
+      </div>
+      <span id="prompt-ok" style="margin-left:2px;font-size:0.88rem;color:var(--teal)"></span>
+    </div>
+
+    <!-- Bước 3 -->
+    <div class="field">
+      <label for="raw">Bước 3 · Dữ liệu bài nghe</label>
+      <textarea id="raw" style="min-height:260px;font-family:ui-monospace,monospace;font-size:0.88rem;width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r)"
+        placeholder='Dán khối dữ liệu Claude trả về vào đây'></textarea>
+      <p class="field-hint">Mỗi phần tử là một bài nghe, bên trong có danh sách câu hỏi.</p>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn btn-ink" id="btn-parse">Xem trước</button>
+      <button class="btn btn-gold hidden" id="btn-save">Lưu vào ngân hàng đề</button>
+    </div>
+
+    <div id="note" class="note hidden"></div>
+    <div id="preview"></div>
+
+    <!-- Bài nghe đã có -->
+    <div class="section-head" style="margin-top:36px">
+      <h2>Bài nghe đã có</h2>
+      <span class="stat-lab" id="have-n"></span>
+    </div>
+    <div id="have"></div>
+
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-listen.js"></script>
+</body>
+</html>
