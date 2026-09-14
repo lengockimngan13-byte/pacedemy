@@ -32,52 +32,21 @@
     <p class="greet-quote" id="greet-quote"></p>
   </section>
 
-  <section class="stats stats-v2" id="stats-section">
-    <div class="stat stat-v2" id="card-words" style="--i:0">
-      <span class="stat-ic">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zm16 0h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7z"/>
-        </svg>
-      </span>
-      <span class="stat-num" id="s-words" data-n="0">0</span>
-      <span class="stat-lab">Từ vựng đã thuộc lòng</span>
-      <span class="stat-sub" id="s-words-sub">Từ đã trả lời đúng nhiều lần liên tiếp qua nhiều ngày ôn</span>
+  <section class="tstats" id="tstats-section">
+    <div class="test-tabs" id="tstats-tabs">
+      <button class="test-tab on" data-range="today">Hôm nay</button>
+      <button class="test-tab" data-range="week">Tuần</button>
+      <button class="test-tab" data-range="month">Tháng</button>
+      <button class="test-tab" data-range="all">Tất cả</button>
+      <button class="test-tab" data-range="custom">Tùy chỉnh</button>
     </div>
-
-    <div class="stat stat-v2" id="card-vocab" style="--i:1">
-      <span class="stat-ic">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm0-4a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-        </svg>
-      </span>
-      <span class="stat-frac"><span class="stat-num" id="s-vocab" data-n="0">0</span><span class="stat-of" id="s-vocab-of"></span></span>
-      <span class="stat-lab">Độ chính xác khi làm bài Kiểm tra từ vựng</span>
-      <span class="stat-sub">Gộp mọi lần Kiểm tra, kể cả từ chưa thuộc</span>
-      <span class="stat-bar"><span class="stat-bar-fill" id="s-vocab-bar" style="width:0%"></span></span>
+    <div class="tstats-custom hidden" id="tstats-custom">
+      <input type="date" id="tstats-from">
+      <span>–</span>
+      <input type="date" id="tstats-to">
+      <button class="btn-sm" id="tstats-apply">Xem</button>
     </div>
-
-    <div class="stat stat-v2 stat-drill" id="card-drill" style="--i:2">
-      <span class="stat-ic">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 3h11l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 9h8m-8 4h6"/>
-        </svg>
-      </span>
-      <span class="stat-frac"><span class="stat-num" id="s-drill" data-n="0">0</span><span class="stat-of" id="s-drill-of"></span></span>
-      <span class="stat-lab">Độ chính xác khi luyện đề, tính riêng từng Part</span>
-      <span class="stat-sub hidden" id="s-drill-empty">Chưa luyện đề lần nào</span>
-      <div id="s-drill-parts" class="stat-parts"></div>
-    </div>
-
-    <div class="stat stat-v2" id="card-mock" style="--i:3">
-      <span class="stat-ic">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm0-13v5l3 3"/>
-        </svg>
-      </span>
-      <span class="stat-frac"><span class="stat-num" id="s-mock" data-n="0">0</span><span class="stat-of" id="s-mock-of"></span></span>
-      <span class="stat-lab">Kết quả lần thi thử gần nhất</span>
-      <span class="stat-sub" id="s-mock-sub">Chưa thi thử lần nào</span>
-    </div>
+    <div class="tstats-grid" id="tstats-grid"></div>
   </section>
 
   <div id="streak-box"></div>

@@ -10,6 +10,7 @@ let marked = {};
 let topicSlug = null;
 let muc = null;
 let bo = null;
+let sessionStart = null;
 const SET_SIZE = 12;
 
 const $ = function (id) { return document.getElementById(id); };
@@ -51,6 +52,7 @@ const AUDIO_KEY = 'pacedemy_tu_doc';
   $('view-list').classList.remove('hidden');
 
   $('btn-start-deck').addEventListener('click', function () {
+    sessionStart = Date.now();
     $('view-list').classList.add('hidden');
     $('view-deck').classList.remove('hidden');
     render();
@@ -390,6 +392,16 @@ document.addEventListener('keydown', function (e) {
 function finish() {
   $('view-deck').classList.add('hidden');
   $('view-done').classList.remove('hidden');
+
+  if (sessionStart) {
+    const secs = Math.round((Date.now() - sessionStart) / 1000);
+    db.from('attempts').insert({
+      user_id: me.id, mode: 'flashcard',
+      total_questions: deck.length, correct_count: 0,
+      seconds_used: secs, submitted_at: new Date().toISOString()
+    });
+    sessionStart = null;
+  }
 
   // Cho xem lại toàn bộ danh sách một lần nữa
   $('recap-box').innerHTML = '<p class="review-head">Nhắc lại cả bộ ' + deck.length + ' từ</p>';

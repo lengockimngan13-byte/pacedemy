@@ -2644,6 +2644,69 @@ body.focus-mode .side-toggle { display: none; }
 }
 
 /* ============================================================
+   THỐNG KÊ THEO KHOẢNG THỜI GIAN — Hôm nay / Tuần / Tháng / Tất cả / Tùy chỉnh
+   ============================================================ */
+
+.tstats { margin-bottom: 46px; }
+
+.tstats-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 0 18px;
+  flex-wrap: wrap;
+}
+.tstats-custom input[type="date"] {
+  font-family: var(--ui);
+  font-size: 0.86rem;
+  padding: 6px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.tstats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.tcard {
+  background: var(--paper);
+  padding: 18px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  animation: statIn 0.5s ease forwards;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+.tcard-ic {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 100px;
+  background: var(--mist);
+  color: var(--teal);
+  margin-bottom: 4px;
+}
+.tcard-ic svg { width: 15px; height: 15px; }
+
+.tcard-lab { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; color: #6C837E; }
+.tcard-num { font-family: var(--disp); font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; }
+.tcard-sub { font-size: 0.78rem; color: #8DA39D; }
+
+@media (max-width: 900px) {
+  .tstats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 560px) {
+  .tstats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
    BỐN Ô THỐNG KÊ — bản dễ hiểu, có hoạt hình
    ============================================================ */
 

@@ -3,6 +3,8 @@
 // ============================================================
 
 let me = null;
+let masteredCount = 0;
+let statsRange = 'today';
 
 function el(id) { return document.getElementById(id); }
 
@@ -76,16 +78,19 @@ const PART_NAME = {
 };
 
 async function loadStats() {
-  // Số từ đã thuộc hẳn
+  // Số từ đã thuộc hẳn — tổng cả quá trình, dùng làm dòng phụ trong thẻ Từ vựng
   const words = await db
     .from('vocab_progress')
     .select('vocabulary_id', { count: 'exact', head: true })
     .eq('user_id', me.id)
     .eq('status', 'mastered');
 
-  setMastered(words.count || 0);
+  masteredCount = words.count || 0;
 
-  // Toàn bộ buổi học đã ghi lại
+  bindTimeTabs();
+  loadTimeStats(statsRange);
+
+  // --- Phần dưới nuôi khối "Xem chi tiết" gấp mở (#break-box), không đổi ---
   const { data: atts } = await db
     .from('attempts')
     .select('mode, part, total_questions, correct_count, submitted_at')
@@ -93,14 +98,12 @@ async function loadStats() {
     .not('submitted_at', 'is', null)
     .order('submitted_at', { ascending: false });
 
-  // --- Từ vựng ---
   let vOk = 0, vN = 0;
-  // --- Luyện đề, tách theo part ---
   const drill = {};
   let dOk = 0, dN = 0;
 
   for (const a of (atts || [])) {
-    if (a.mode === 'vocab' || a.mode === 'review') {
+    if (a.mode === 'vocab' || a.mode === 'vocab_colloc' || a.mode === 'vocab_synonym' || a.mode === 'review') {
       vOk += a.correct_count || 0;
       vN  += a.total_questions || 0;
       continue;
@@ -116,10 +119,6 @@ async function loadStats() {
     }
   }
 
-  setAccuracy('vocab', vOk, vN);
-  setDrillBreakdown(drill, dOk, dN);
-
-  // --- Thi thử gần nhất ---
   const { data: mocks } = await db
     .from('mock_tests')
     .select('id, submitted_at, seconds_used, listening_correct, reading_correct, total_questions, payload')
@@ -128,13 +127,10 @@ async function loadStats() {
     .order('submitted_at', { ascending: false })
     .limit(10);
 
-  const last = (mocks || [])[0];
-  setMock(last);
-
   drawBreakdown(drill, dOk, dN, vOk, vN, mocks || []);
 }
 
-// ---------- Đếm số chạy dần và thanh tiến trình ----------
+// ---------- Đếm số chạy dần ----------
 
 function animateNumber(el, target) {
   if (!el) return;
@@ -151,82 +147,141 @@ function animateNumber(el, target) {
   requestAnimationFrame(tick);
 }
 
-function setMastered(n) {
-  animateNumber(el('s-words'), n);
-}
+// ============================================================
+// Thống kê theo khoảng thời gian — Hôm nay / Tuần / Tháng / Tất cả / Tùy chỉnh
+// ============================================================
 
-function setAccuracy(key, ok, n) {
-  const numEl = el('s-' + key);
-  const ofEl = el('s-' + key + '-of');
-  const bar = el('s-' + key + '-bar');
-
-  if (!n) {
-    if (numEl) numEl.textContent = '0';
-    if (ofEl) ofEl.textContent = ' — chưa có dữ liệu';
-    if (bar) bar.style.width = '0%';
-    return;
-  }
-
-  const pct = Math.round(ok / n * 100);
-  animateNumber(numEl, ok);
-  if (ofEl) ofEl.textContent = ' / ' + n + ' câu · ' + pct + '%';
-  if (bar) setTimeout(function () { bar.style.width = pct + '%'; }, 120);
-}
-
-const PART_SHORT = {
-  1: 'Nghe P1', 2: 'Nghe P2', 3: 'Nghe P3', 4: 'Nghe P4',
-  5: 'Đọc P5', 6: 'Đọc P6', 7: 'Đọc P7'
+const RANGE_LABEL = {
+  today: 'Hôm nay', week: 'Tuần này', month: 'Tháng này',
+  all: 'Tất cả', custom: 'Khoảng đã chọn'
 };
 
-function setDrillBreakdown(drill, dOk, dN) {
-  const numEl = el('s-drill');
-  const ofEl = el('s-drill-of');
-  const empty = el('s-drill-empty');
-  const box = el('s-drill-parts');
+function bindTimeTabs() {
+  document.querySelectorAll('#tstats-tabs .test-tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#tstats-tabs .test-tab').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      statsRange = b.dataset.range;
 
-  if (!dN) {
-    numEl.textContent = '0';
-    ofEl.textContent = '';
-    empty.classList.remove('hidden');
-    box.innerHTML = '';
-    return;
-  }
+      const customBox = el('tstats-custom');
+      if (statsRange === 'custom') {
+        customBox.classList.remove('hidden');
+        return; // chờ chọn ngày rồi bấm Xem
+      }
+      customBox.classList.add('hidden');
+      loadTimeStats(statsRange);
+    });
+  });
 
-  empty.classList.add('hidden');
-  const pct = Math.round(dOk / dN * 100);
-  animateNumber(numEl, dOk);
-  ofEl.textContent = ' / ' + dN + ' câu tổng · ' + pct + '%';
-
-  const keys = Object.keys(drill).map(Number)
-    .filter(function (k) { return k >= 1 && k <= 7 && drill[k].n; })
-    .sort(function (a, b) { return a - b; });
-
-  box.innerHTML = keys.map(function (k) {
-    const v = drill[k];
-    const p = Math.round(v.ok / v.n * 100);
-    return '<span class="part-chip">' + (PART_SHORT[k] || ('Part ' + k)) +
-      ' <b>' + v.ok + '/' + v.n + '</b> · ' + p + '%</span>';
-  }).join('');
+  const applyBtn = el('tstats-apply');
+  if (applyBtn) applyBtn.addEventListener('click', function () {
+    const f = el('tstats-from').value;
+    const t = el('tstats-to').value;
+    if (!f || !t) return;
+    loadTimeStats('custom', f, t);
+  });
 }
 
-function setMock(last) {
-  const numEl = el('s-mock');
-  const ofEl = el('s-mock-of');
-  const sub = el('s-mock-sub');
+function rangeBounds(range, customFrom, customTo) {
+  const now = new Date();
+  let from = null, to = null;
 
-  if (!last) {
-    if (numEl) numEl.textContent = '0';
-    if (ofEl) ofEl.textContent = '';
-    return;
+  if (range === 'today') {
+    from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  } else if (range === 'week') {
+    const day = (now.getDay() + 6) % 7; // Thứ 2 làm ngày đầu tuần
+    from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+  } else if (range === 'month') {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+  } else if (range === 'custom') {
+    from = customFrom ? new Date(customFrom + 'T00:00:00') : null;
+    to   = customTo   ? new Date(customTo   + 'T23:59:59') : null;
+  }
+  // range === 'all' → from/to đều null, không lọc theo ngày
+
+  return { from: from, to: to };
+}
+
+async function loadTimeStats(range, customFrom, customTo) {
+  const grid = el('tstats-grid');
+  if (!grid) return;
+
+  const { from, to } = rangeBounds(range, customFrom, customTo);
+
+  let aq = db.from('attempts')
+    .select('mode, part, total_questions, seconds_used, submitted_at')
+    .eq('user_id', me.id)
+    .not('submitted_at', 'is', null);
+  if (from) aq = aq.gte('submitted_at', from.toISOString());
+  if (to)   aq = aq.lte('submitted_at', to.toISOString());
+
+  let mq = db.from('mock_tests')
+    .select('seconds_used, submitted_at')
+    .eq('user_id', me.id)
+    .not('submitted_at', 'is', null);
+  if (from) mq = mq.gte('submitted_at', from.toISOString());
+  if (to)   mq = mq.lte('submitted_at', to.toISOString());
+
+  const [{ data: atts }, { data: mocks }] = await Promise.all([aq, mq]);
+
+  let seconds = 0, drillN = 0, readN = 0, listenN = 0, vocabN = 0;
+
+  for (const a of (atts || [])) {
+    seconds += a.seconds_used || 0;
+
+    if (a.mode === 'practice') {
+      drillN += a.total_questions || 0;
+      if (a.part >= 5 && a.part <= 7) readN += a.total_questions || 0;
+      else if (a.part >= 1 && a.part <= 4) listenN += a.total_questions || 0;
+    } else if (a.mode === 'vocab' || a.mode === 'vocab_colloc' || a.mode === 'vocab_synonym') {
+      vocabN += a.total_questions || 0;
+    }
   }
 
-  const ok = last.listening_correct + last.reading_correct;
-  const pct = last.total_questions ? Math.round(ok / last.total_questions * 100) : 0;
-  const d = new Date(last.submitted_at);
+  for (const m of (mocks || [])) seconds += m.seconds_used || 0;
 
-  animateNumber(numEl, ok);
-  if (ofEl) ofEl.textContent = ' / ' + last.total_questions + ' câu · ' + pct + '%';
-  if (sub) sub.textContent = 'Ngày ' + d.getDate() + '/' + (d.getMonth() + 1);
+  renderTimeStats({ seconds: seconds, drill: drillN, read: readN, listen: listenN, vocab: vocabN });
+}
+
+function fmtStudyTime(sec) {
+  const m = Math.round(sec / 60);
+  if (m < 60) return m + 'm';
+  const h = Math.floor(m / 60);
+  const rm = m % 60;
+  return h + 'h' + (rm ? ' ' + rm + 'm' : '');
+}
+
+const TCARD_ICONS = {
+  clock:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm0-13v5l3 3"/></svg>',
+  drill:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 9h8m-8 4h6"/></svg>',
+  read:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zm16 0h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7z"/></svg>',
+  listen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2m-16 0a2 2 0 0 0 2 2h1v-6H6a2 2 0 0 0-2 2zm16 0a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2z"/></svg>',
+  vocab:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm0-4a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>'
+};
+
+function renderTimeStats(d) {
+  const grid = el('tstats-grid');
+  if (!grid) return;
+
+  const lab = RANGE_LABEL[statsRange] || '';
+  const vocabSub = lab + ' · câu đã ôn' + (masteredCount ? ' · thuộc lòng ' + masteredCount + ' từ' : '');
+
+  const cards = [
+    { ic: 'clock',  lab2: 'THỜI GIAN HỌC', num: fmtStudyTime(d.seconds), sub: lab },
+    { ic: 'drill',  lab2: 'LUYỆN ĐỀ',      num: d.drill,  sub: lab + ' · câu' },
+    { ic: 'read',   lab2: 'ĐỌC',           num: d.read,   sub: lab + ' · câu' },
+    { ic: 'listen', lab2: 'NGHE',          num: d.listen, sub: lab + ' · câu' },
+    { ic: 'vocab',  lab2: 'TỪ VỰNG',       num: d.vocab,  sub: vocabSub }
+  ];
+
+  grid.innerHTML = cards.map(function (c, i) {
+    return '<div class="tcard" style="--i:' + i + '">' +
+      '<span class="tcard-ic">' + TCARD_ICONS[c.ic] + '</span>' +
+      '<span class="tcard-lab">' + c.lab2 + '</span>' +
+      '<span class="tcard-num">' + c.num + '</span>' +
+      '<span class="tcard-sub">' + c.sub + '</span>' +
+    '</div>';
+  }).join('');
 }
 
 // ---------- Hai thẻ chi tiết ----------
