@@ -228,12 +228,6 @@ $('btn-del').addEventListener('click', async function () {
   window.location.replace('index.html');
 });
 
-// ---------- Đăng xuất ----------
-
-$('btn-logout').addEventListener('click', async function () {
-  await db.auth.signOut();
-  window.location.replace('index.html');
-});
 
 function esc(s) {
   return String(s == null ? '' : s)

@@ -140,11 +140,6 @@ function esc(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-$('btn-logout').addEventListener('click', async function () {
-  await db.auth.signOut();
-  window.location.replace('index.html');
-});
-
 
 // ============================================================
 // Danh sách từ trong một bộ

@@ -56,7 +56,14 @@
       '</a>';
   }
 
-  html += '</div></nav>';
+  html +=
+      '</div>' +
+      '<div class="side-foot">' +
+        '<span class="streak" id="streak">—</span>' +
+        '<a class="side-back hidden" id="link-teacher" href="teacher.html">Teacher Studio</a>' +
+        '<button class="side-back" id="btn-logout" type="button">Đăng xuất</button>' +
+      '</div>' +
+    '</nav>';
 
   document.body.insertAdjacentHTML('afterbegin', html);
   document.body.classList.add('has-side-nav', 'side-nav-user');
@@ -80,6 +87,11 @@
     if (e.key === 'Escape') close();
   });
 
+  document.getElementById('btn-logout').addEventListener('click', async function () {
+    if (typeof db !== 'undefined') await db.auth.signOut();
+    location.replace('index.html');
+  });
+
   // Học viên đã được duyệt vào lớp thì mục Xếp hạng đổi thành Lớp học.
   // Bảng xếp hạng chung vẫn xem được từ bên trong trang lớp.
   // Đồng thời áp dụng tính năng nào giáo viên đã tắt trong Chỉnh trang web.
@@ -92,6 +104,7 @@
 
       const { data: prof } = await db.from('profiles').select('role').eq('id', user.id).single();
       const isTeacher = !!(prof && prof.role === 'teacher');
+      if (isTeacher) document.getElementById('link-teacher').classList.remove('hidden');
 
       // Giáo viên luôn thấy đủ mọi mục, kể cả đang tắt, để còn kiểm tra.
       if (!isTeacher) {

@@ -47,7 +47,7 @@ async function loadProfile() {
   const days = data.streak_days || 0;
   el('streak').textContent = days > 0 ? days + ' ngày liên tiếp' : 'Bắt đầu chuỗi ngày học';
 
-  if (data.role === 'teacher') el('link-teacher').classList.remove('hidden');
+  if (data.role === 'teacher') el('link-teacher').classList.remove('hidden'); // dự phòng, nav.js đã tự làm việc này
 
   // Thẻ giới thiệu giáo viên: học viên chỉ thấy khi đã bật công tắc,
   // giáo viên luôn thấy để xem thử trước khi công bố.
@@ -401,13 +401,6 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-
-// ---------- Đăng xuất ----------
-
-el('btn-logout').addEventListener('click', async function () {
-  await db.auth.signOut();
-  window.location.replace('index.html');
-});
 
 // ---------- Khởi động ----------
 

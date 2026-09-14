@@ -115,7 +115,4 @@ function esc(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-document.getElementById('btn-logout').addEventListener('click', async function () {
-  await db.auth.signOut();
-  window.location.replace('index.html');
-});
+
