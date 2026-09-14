@@ -429,6 +429,18 @@ a { color: inherit; }
 
 .greet p { margin: 0; color: #4A635E; }
 
+.greet-quote {
+  margin: 10px 0 0 !important;
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #FBF4E4;
+  border: 1px solid #F0E0B8;
+  color: #6B4A05 !important;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
