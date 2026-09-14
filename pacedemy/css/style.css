@@ -441,6 +441,35 @@ a { color: inherit; }
   font-size: 0.85rem;
 }
 
+.oracle {
+  margin: 0 0 40px;
+  padding: 24px 24px 26px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: linear-gradient(180deg, #FBF4E4 0%, #FFFFFF 60%);
+}
+
+.oracle-head h2 { margin: 0 0 4px; font-family: var(--disp); font-size: 1.25rem; }
+.oracle-head p { margin: 0 0 16px; color: #4A635E; }
+
+.oracle-result { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+
+.oracle-title {
+  margin: 0;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.oracle-text {
+  margin: 2px 0 14px;
+  color: #4A635E;
+  font-style: italic;
+}
+
+.oracle-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
