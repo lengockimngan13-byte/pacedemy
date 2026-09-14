@@ -396,7 +396,7 @@ async function finish() {
 
   const seconds = Math.round((Date.now() - started.getTime()) / 1000);
 
-  await db.from('attempts').insert({
+  const { error: attErr } = await db.from('attempts').insert({
     user_id: me.id,
     mode: kind === 'colloc' ? 'vocab_colloc' : (kind === 'synonym' ? 'vocab_synonym' : 'vocab'),
     started_at: started.toISOString(),
@@ -406,6 +406,8 @@ async function finish() {
     seconds_used: seconds,
     xp_earned: xp
   });
+
+  if (attErr) console.error('Không ghi được kết quả kiểm tra:', attErr.message);
 
   await db.rpc('add_xp', { p_xp: xp });
 }

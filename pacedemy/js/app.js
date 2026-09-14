@@ -467,6 +467,7 @@ function escapeHtml(s) {
 
   safely(loadStats);
   safely(loadStreak);
+  safely(loadReminders);
   loadBoard();
   loadFeedback();
   loadClass();
@@ -628,6 +629,13 @@ async function loadMyAssignments() {
   const list = await fetchAssignments(classIds);
   if (!list.length) { box.innerHTML = ''; return; }
 
+  // Bài gần hết hạn hoặc quá hạn lên đầu, bài chưa đặt hạn xuống cuối
+  list.sort(function (a, b) {
+    const da = a.due_date ? new Date(a.due_date).getTime() : Infinity;
+    const db_ = b.due_date ? new Date(b.due_date).getTime() : Infinity;
+    return da - db_;
+  });
+
   let html = '';
 
   for (const a of list) {
@@ -635,8 +643,13 @@ async function loadMyAssignments() {
     const mine = done[me.id] || {};
     const pct = assignPercent(a, mine);
 
+    const due = a.due_date ? new Date(a.due_date + 'T23:59:59').getTime() : null;
+    const daysLeft = due != null ? Math.ceil((due - Date.now()) / 86400000) : null;
+    const overdue = daysLeft !== null && daysLeft < 0 && pct < 100;
+    const borderColor = pct >= 100 ? 'var(--teal)' : (overdue ? 'var(--danger)' : 'var(--gold)');
+
     html +=
-      '<div class="tbox" style="border-color:' + (pct >= 100 ? 'var(--teal)' : 'var(--gold)') + '">' +
+      '<div class="tbox" style="border-color:' + borderColor + '">' +
         '<h3>' + escapeHtml(a.title) + '</h3>' +
         '<p style="margin:0 0 12px;font-size:0.9rem;color:var(--teal)">' +
           escapeHtml(dueText(a.due_date)) +
@@ -668,6 +681,103 @@ async function loadMyAssignments() {
   }
 
   box.innerHTML = html;
+}
+
+// ============================================================
+// Nhắc học chủ động — banner nổi bật ngay khi mở trang học
+// ============================================================
+
+async function loadReminders() {
+  const box = el('reminder-box');
+  if (!box) return;
+
+  // ---- Bài tập quá hạn / sắp hết hạn ----
+  const { data: mem } = await db.from('class_members').select('class_id').eq('student_id', me.id);
+  const classIds = (mem || []).map(function (m) { return m.class_id; });
+
+  let overdue = null, dueSoon = null;
+
+  if (classIds.length) {
+    const list = await fetchAssignments(classIds);
+    const now = Date.now();
+
+    for (const a of list) {
+      if (!a.due_date) continue;
+      const done = await countProgress(a, [me.id]);
+      const pct = assignPercent(a, done[me.id] || {});
+      if (pct >= 100) continue;
+
+      const due = new Date(a.due_date + 'T23:59:59').getTime();
+      const daysLeft = Math.ceil((due - now) / 86400000);
+
+      if (daysLeft < 0) {
+        if (!overdue || due < overdue.due) overdue = { title: a.title, due: due };
+      } else if (daysLeft <= 2) {
+        if (!dueSoon || due < dueSoon.due) dueSoon = { title: a.title, due: due, daysLeft: daysLeft };
+      }
+    }
+  }
+
+  // ---- Mục tiêu hôm nay ----
+  const { data: prof } = await db.from('profiles')
+    .select('streak_days, daily_goal').eq('id', me.id).single();
+
+  const goal = (prof && prof.daily_goal) || 20;
+  const streak = (prof && prof.streak_days) || 0;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const { data: atts } = await db.from('attempts')
+    .select('total_questions').eq('user_id', me.id)
+    .not('submitted_at', 'is', null)
+    .gte('submitted_at', today.toISOString());
+
+  let doneToday = 0;
+  for (const a of (atts || [])) doneToday += a.total_questions || 0;
+
+  let html;
+
+  if (overdue) {
+    html = reminderCard('danger', '⏰ Bài tập đã quá hạn',
+      'Bài "' + escapeHtml(overdue.title) + '" đã quá hạn nộp. Làm ngay kẻo cô đóng bài.',
+      'Xem bài tập', 'as-box');
+  } else if (dueSoon) {
+    const dayWord = dueSoon.daysLeft === 0 ? 'hết hạn hôm nay'
+                  : (dueSoon.daysLeft === 1 ? 'còn 1 ngày là hết hạn' : 'còn ' + dueSoon.daysLeft + ' ngày là hết hạn');
+    html = reminderCard('warn', '📌 Bài tập sắp hết hạn',
+      'Bài "' + escapeHtml(dueSoon.title) + '" ' + dayWord + '. Tranh thủ làm nốt nhé.',
+      'Xem bài tập', 'as-box');
+  } else if (doneToday < goal) {
+    const left = goal - doneToday;
+    html = reminderCard('warn', '🔥 Giữ chuỗi ngày học',
+      streak > 0
+        ? 'Bạn chưa học hôm nay. Còn ' + left + ' câu nữa để giữ chuỗi ' + streak + ' ngày.'
+        : 'Bạn chưa học hôm nay. Làm ' + left + ' câu để bắt đầu một chuỗi ngày học mới.',
+      'Học ngay', 'modules-section');
+  } else {
+    html = reminderCard('ok', '✅ Đã xong mục tiêu hôm nay',
+      'Bạn đã học đủ ' + goal + ' câu hôm nay. Giữ vững phong độ nhé.', null, null);
+  }
+
+  box.innerHTML = html;
+
+  const btn = box.querySelector('[data-reminder-go]');
+  if (btn) btn.addEventListener('click', function () {
+    const target = el(btn.dataset.reminderGo);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+function reminderCard(kind, title, body, cta, ctaTarget) {
+  return '<div class="reminder-card reminder-' + kind + '">' +
+      '<div class="reminder-text">' +
+        '<p class="reminder-title">' + title + '</p>' +
+        '<p class="reminder-body">' + body + '</p>' +
+      '</div>' +
+      (cta ? '<button class="btn-sm' + (kind === 'ok' ? '' : ' test') +
+             '" data-reminder-go="' + ctaTarget + '">' + cta + '</button>' : '') +
+    '</div>';
 }
 
 // ============================================================

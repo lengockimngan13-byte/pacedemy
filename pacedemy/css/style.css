@@ -2784,6 +2784,35 @@ body.focus-mode .side-toggle { display: none; }
 
 
 /* ============================================================
+   NHẮC HỌC CHỦ ĐỘNG — banner đầu trang học
+   ============================================================ */
+
+.reminder-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--line);
+  margin-bottom: 26px;
+}
+
+.reminder-title { margin: 0 0 3px; font-weight: 700; font-size: 0.98rem; }
+.reminder-body { margin: 0; font-size: 0.9rem; color: #4A635E; }
+
+.reminder-danger { background: #FBEAE5; border-color: var(--danger); }
+.reminder-danger .reminder-title { color: var(--danger); }
+
+.reminder-warn { background: #FBF4E4; border-color: var(--gold); }
+.reminder-warn .reminder-title { color: #6B4A05; }
+
+.reminder-ok { background: var(--mist); border-color: var(--teal-dim); }
+.reminder-ok .reminder-title { color: var(--teal); }
+
+
+/* ============================================================
    THỐNG KÊ THEO KHOẢNG THỜI GIAN — Hôm nay / Tuần / Tháng / Tất cả / Tùy chỉnh
    ============================================================ */
 

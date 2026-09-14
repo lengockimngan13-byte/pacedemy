@@ -399,6 +399,8 @@ function finish() {
       user_id: me.id, mode: 'flashcard',
       total_questions: deck.length, correct_count: 0,
       seconds_used: secs, submitted_at: new Date().toISOString()
+    }).then(function (res) {
+      if (res.error) console.error('Không ghi được thời gian học thẻ:', res.error.message);
     });
     sessionStart = null;
   }
