@@ -1,11 +1,14 @@
 // ============================================================
-// Pacedemy — quản lý lớp học và gửi nhận xét cho học viên
-// Không có ?id thì hiện danh sách lớp, có ?id thì mở một lớp.
+// Pacedemy — quản lý lớp học và gửi nhận xét cho học viên.
+// Sidebar bên trái liệt kê lớp, chọn 1 lớp thì nội dung bên phải
+// đổi theo mà không tải lại trang. Bên trong 1 lớp chia 4 tab:
+// Bài tập / Học viên / Nhận xét / Cài đặt lớp.
 // ============================================================
 
 let me = null;
 let classId = null;
 let roster = [];   // học viên trong lớp
+let classRows = []; // toàn bộ lớp của giáo viên, dùng lại để tô đậm & đếm sĩ số
 
 const $ = function (id) { return document.getElementById(id); };
 
@@ -19,19 +22,25 @@ const $ = function (id) { return document.getElementById(id); };
     return;
   }
 
+  $('view-main').classList.remove('hidden');
+
   classId = new URLSearchParams(location.search).get('id');
 
-  if (classId) {
-    $('view-one').classList.remove('hidden');
-    openClass();
-  } else {
-    $('view-list').classList.remove('hidden');
-    listClasses();
-  }
+  bindNewClassForm();
+  bindTabs();
+  await listClasses();
+
+  if (classId) selectClass(classId, /* push */ false);
+
+  window.addEventListener('popstate', function () {
+    const id = new URLSearchParams(location.search).get('id');
+    if (id) selectClass(id, false);
+    else showEmpty();
+  });
 })();
 
 // ============================================================
-// Danh sách lớp
+// Sidebar: danh sách lớp
 // ============================================================
 
 function makeCode() {
@@ -47,13 +56,17 @@ async function listClasses() {
     .select('id, name, code, note, is_active, created_at')
     .order('created_at', { ascending: false });
 
+  const box = $('tc-class-list');
+
   if (error) {
-    $('classes').innerHTML = '<p class="empty">Không tải được: ' + esc(error.message) + '</p>';
+    box.innerHTML = '<p class="empty">Không tải được: ' + esc(error.message) + '</p>';
     return;
   }
 
-  if (!rows || !rows.length) {
-    $('classes').innerHTML = '<p class="empty">Chưa có lớp nào. Tạo lớp đầu tiên ở khung phía trên.</p>';
+  classRows = rows || [];
+
+  if (!classRows.length) {
+    box.innerHTML = '<p class="empty">Chưa có lớp nào. Bấm "+ Lớp mới" ở trên.</p>';
     return;
   }
 
@@ -61,97 +74,141 @@ async function listClasses() {
   const n = {};
   for (const m of (mem || [])) n[m.class_id] = (n[m.class_id] || 0) + 1;
 
-  let html = '';
-  for (const c of rows) {
-    html +=
-      '<div class="wrong-q" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">' +
-        '<div style="flex:1;min-width:200px">' +
-          '<p class="wq" style="font-weight:600;margin:0">' + esc(c.name) +
-            (c.is_active ? '' : ' <span class="tag-cold" style="font-size:0.76rem">đã đóng</span>') +
-          '</p>' +
-          (c.note ? '<p class="ww" style="margin:4px 0 0">' + esc(c.note) + '</p>' : '') +
-        '</div>' +
-        '<span class="q-tag" style="margin:0">Mã ' + esc(c.code) + '</span>' +
-        '<span class="stat-lab">' + (n[c.id] || 0) + ' học viên</span>' +
-        '<a class="btn-sm test" href="teacher-class.html?id=' + c.id + '">Mở lớp</a>' +
-        '<button class="btn-sm" data-close="' + c.id + '" data-on="' + (c.is_active ? '1' : '0') + '">' +
-          (c.is_active ? 'Đóng lớp' : 'Mở lại') + '</button>' +
-      '</div>';
-  }
+  box.innerHTML = classRows.map(function (c) {
+    return '<button class="tc-class-item' + (String(c.id) === String(classId) ? ' on' : '') + '" data-class="' + c.id + '">' +
+      '<span class="tc-class-name">' + esc(c.name) +
+        (c.is_active ? '' : ' <span class="tag-cold" style="font-size:0.74rem">đã đóng</span>') + '</span>' +
+      '<span class="tc-class-sub">Mã ' + esc(c.code) + ' · ' + (n[c.id] || 0) + ' học viên</span>' +
+    '</button>';
+  }).join('');
 
-  $('classes').innerHTML = html;
+  box.querySelectorAll('button[data-class]').forEach(function (b) {
+    b.addEventListener('click', function () { selectClass(b.dataset.class, true); });
+  });
+}
 
-  $('classes').querySelectorAll('button[data-close]').forEach(function (b) {
-    b.addEventListener('click', async function () {
-      await db.from('classes')
-        .update({ is_active: b.dataset.on !== '1' })
-        .eq('id', b.dataset.close);
-      listClasses();
+function bindNewClassForm() {
+  $('btn-toggle-new').addEventListener('click', function () {
+    $('tc-new').classList.toggle('hidden');
+  });
+
+  $('btn-new').addEventListener('click', async function () {
+    const name = $('new-name').value.trim();
+    if (!name) { $('new-note-msg').textContent = 'Bạn đặt tên lớp đã nhé.'; return; }
+
+    this.disabled = true;
+
+    const { data: created, error } = await db.from('classes').insert({
+      name: name,
+      note: $('new-note').value.trim() || null,
+      code: makeCode()
+    }).select('id').single();
+
+    this.disabled = false;
+
+    if (error) { $('new-note-msg').textContent = 'Không tạo được: ' + error.message; return; }
+
+    $('new-name').value = '';
+    $('new-note').value = '';
+    $('new-note-msg').textContent = 'Đã tạo lớp.';
+    $('tc-new').classList.add('hidden');
+    setTimeout(function () { $('new-note-msg').textContent = ''; }, 3000);
+
+    await listClasses();
+    if (created) selectClass(created.id, true);
+  });
+}
+
+// ============================================================
+// Chọn 1 lớp — đổi nội dung bên phải, không tải lại trang
+// ============================================================
+
+function showEmpty() {
+  classId = null;
+  $('tc-empty').classList.remove('hidden');
+  $('tc-body').classList.add('hidden');
+  $('tc-class-list').querySelectorAll('.tc-class-item').forEach(function (b) { b.classList.remove('on'); });
+}
+
+function selectClass(id, push) {
+  classId = String(id);
+
+  $('tc-class-list').querySelectorAll('.tc-class-item').forEach(function (b) {
+    b.classList.toggle('on', b.dataset.class === classId);
+  });
+
+  $('tc-empty').classList.add('hidden');
+  $('tc-body').classList.remove('hidden');
+
+  if (push) history.pushState(null, '', 'teacher-class.html?id=' + classId);
+
+  openClass();
+}
+
+// ============================================================
+// Thanh tab trong 1 lớp
+// ============================================================
+
+function bindTabs() {
+  document.querySelectorAll('#tc-tabs .test-tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#tc-tabs .test-tab').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+
+      document.querySelectorAll('.tc-pane').forEach(function (p) { p.classList.add('hidden'); });
+      $('pane-' + b.dataset.tab).classList.remove('hidden');
     });
   });
 }
 
-$('btn-new') && $('btn-new').addEventListener('click', async function () {
-  const name = $('new-name').value.trim();
-  if (!name) { $('new-note-msg').textContent = 'Bạn đặt tên lớp đã nhé.'; return; }
-
-  this.disabled = true;
-
-  const { error } = await db.from('classes').insert({
-    name: name,
-    note: $('new-note').value.trim() || null,
-    code: makeCode()
-  });
-
-  this.disabled = false;
-
-  if (error) { $('new-note-msg').textContent = 'Không tạo được: ' + error.message; return; }
-
-  $('new-name').value = '';
-  $('new-note').value = '';
-  $('new-note-msg').textContent = 'Đã tạo lớp.';
-  setTimeout(function () { $('new-note-msg').textContent = ''; }, 3000);
-  listClasses();
-});
-
 // ============================================================
-// Một lớp
+// Nội dung 1 lớp
 // ============================================================
 
 async function openClass() {
   const { data: c } = await db
-    .from('classes').select('id, name, code, note').eq('id', classId).single();
+    .from('classes').select('id, name, code, note, max_students, is_active').eq('id', classId).single();
 
   if (!c) { $('c-name').textContent = 'Không tìm thấy lớp này'; return; }
 
   $('c-name').textContent = c.name;
   $('c-sub').textContent = c.note || '';
   $('c-code').textContent = c.code;
+  $('c-max').value = c.max_students || '';
 
-  $('btn-copy').addEventListener('click', function () {
+  $('btn-copy').onclick = function () {
     navigator.clipboard.writeText(c.code);
     this.textContent = 'Đã copy';
     setTimeout(() => { this.textContent = 'Copy mã'; }, 2500);
-  });
+  };
 
-  $('c-max').value = c.max_students || '';
-
-  $('btn-newcode').addEventListener('click', async function () {
+  $('btn-newcode').onclick = async function () {
     if (!confirm('Đổi mã lớp? Mã cũ sẽ không dùng được nữa.')) return;
     this.disabled = true;
     const { data, error } = await db.rpc('doi_ma_lop', { p_class_id: Number(classId) });
     this.disabled = false;
     if (error) { alert('Không đổi được: ' + error.message); return; }
     $('c-code').textContent = data;
-  });
+  };
 
-  $('btn-max').addEventListener('click', async function () {
+  $('btn-max').onclick = async function () {
     const v = $('c-max').value.trim();
     const { error } = await db.from('classes')
       .update({ max_students: v ? parseInt(v, 10) : null }).eq('id', classId);
     $('max-ok').textContent = error ? 'Không lưu được' : 'Đã lưu';
     setTimeout(function () { $('max-ok').textContent = ''; }, 2500);
-  });
+  };
+
+  const toggleBtn = $('btn-toggle-active');
+  toggleBtn.textContent = c.is_active ? 'Đóng lớp' : 'Mở lại lớp';
+  toggleBtn.onclick = async function () {
+    await db.from('classes').update({ is_active: !c.is_active }).eq('id', classId);
+    await listClasses();
+    $('tc-class-list').querySelectorAll('.tc-class-item').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.class === classId);
+    });
+    openClass();
+  };
 
   await loadRoster();
   loadPending();
@@ -255,7 +312,7 @@ async function loadRoster() {
       if (!confirm('Cho em này rời lớp?')) return;
       await db.from('class_members').delete()
         .eq('class_id', classId).eq('student_id', b.dataset.out);
-      loadRoster(); loadOutside();
+      loadRoster(); loadOutside(); listClasses();
     });
   });
 }
@@ -280,7 +337,7 @@ async function sendOne(sid, btn) {
   setTimeout(function () { btn.textContent = 'Gửi'; loadRoster(); }, 1500);
 }
 
-$('btn-all') && $('btn-all').addEventListener('click', async function () {
+$('btn-all').addEventListener('click', async function () {
   const body = $('all-msg').value.trim();
   if (!body) return;
   if (!roster.length) { $('all-ok').textContent = 'Lớp chưa có học viên nào.'; return; }
@@ -332,7 +389,7 @@ async function loadOutside() {
   $('outside').querySelectorAll('button[data-add]').forEach(function (b) {
     b.addEventListener('click', async function () {
       await db.from('class_members').insert({ class_id: classId, student_id: b.dataset.add, status: 'active' });
-      loadRoster(); loadOutside();
+      loadRoster(); loadOutside(); listClasses();
     });
   });
 }
@@ -368,11 +425,12 @@ async function initAssign() {
     { v: '4', t: 'Part 4 — Bài nói ngắn' }
   ];
 
+  draftItems = [];
   fillTargets();
   drawDraft();
-  $('it-kind').addEventListener('change', fillTargets);
-  $('btn-add-item').addEventListener('click', addItem);
-  $('btn-save-as').addEventListener('click', saveAssign);
+  $('it-kind').onchange = fillTargets;
+  $('btn-add-item').onclick = addItem;
+  $('btn-save-as').onclick = saveAssign;
 
   listAssigns();
 }
@@ -416,8 +474,8 @@ function drawDraft() {
   let html = '';
   draftItems.forEach(function (it, i) {
     html +=
-      '<div class="wrong-q" style="display:flex;align-items:center;gap:12px;padding:10px 14px">' +
-        '<span style="flex:1">' + esc(it.label) + '</span>' +
+      '<div class="wrong-q" style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:6px">' +
+        '<span style="flex:1;font-size:0.88rem">' + esc(it.label) + '</span>' +
         '<span class="stat-lab">' + it.amount + (it.kind === 'vocab' ? ' từ' : ' câu') + '</span>' +
         '<button class="btn-sm" data-rm="' + i + '">Bỏ</button>' +
       '</div>';
@@ -478,7 +536,7 @@ async function saveAssign() {
   listAssigns();
 }
 
-// ---------- Bài đã giao và ai đã xong ----------
+// ---------- Bài đã giao — dạng bảng, bấm Xem để mở chi tiết từng em ----------
 
 async function listAssigns() {
   const list = await fetchAssignments([classId]);
@@ -489,9 +547,16 @@ async function listAssigns() {
   }
 
   const ids = roster.map(function (s) { return s.id; });
-  let html = '';
 
+  let html =
+    '<table class="tc-table">' +
+      '<thead><tr>' +
+        '<th>#</th><th>Tên bài tập</th><th>Hạn</th><th>Đầu việc</th><th>Học viên xong</th><th></th>' +
+      '</tr></thead><tbody>';
+
+  let i = 0;
   for (const a of list) {
+    i++;
     const done = await countProgress(a, ids);
 
     const rows = roster.map(function (s) {
@@ -500,35 +565,46 @@ async function listAssigns() {
 
     const finished = rows.filter(function (r) { return r.pct >= 100; }).length;
 
+    const detailRows = rows.map(function (r) {
+      return '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">' +
+        '<span style="flex:1;min-width:130px;font-size:0.92rem">' +
+          esc(r.s.full_name || 'Học viên') + '</span>' +
+        '<span class="play-bar" style="flex:2;max-width:220px;cursor:default">' +
+          '<span style="width:' + r.pct + '%"></span></span>' +
+        '<span class="stat-lab" style="min-width:44px;text-align:right">' + r.pct + '%</span>' +
+      '</div>';
+    }).join('');
+
     html +=
-      '<div class="wrong-q">' +
-        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
-          '<span style="flex:1;min-width:180px;font-weight:600">' + esc(a.title) + '</span>' +
-          '<span class="q-tag" style="margin:0">' + esc(dueText(a.due_date)) + '</span>' +
-          '<span class="stat-lab">' + finished + '/' + rows.length + ' em xong</span>' +
+      '<tr class="tc-row">' +
+        '<td>' + i + '</td>' +
+        '<td class="tc-title">' + esc(a.title) + '</td>' +
+        '<td>' + esc(dueText(a.due_date)) + '</td>' +
+        '<td class="tc-items">' + a.items.map(function (it) {
+          return esc(it.label) + ' (' + it.amount + ')';
+        }).join('; ') + '</td>' +
+        '<td>' + finished + '/' + rows.length + '</td>' +
+        '<td class="tc-actions">' +
+          '<button class="btn-sm test" data-view="' + a.id + '">Xem</button>' +
           '<button class="btn-sm" data-del-as="' + a.id + '">Đóng bài</button>' +
-        '</div>' +
-
-        '<p class="ww" style="margin:8px 0 0;color:#6C837E">' +
-          a.items.map(function (i) {
-            return esc(i.label) + ' (' + i.amount + ')';
-          }).join(' · ') + '</p>';
-
-    for (const r of rows) {
-      html +=
-        '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">' +
-          '<span style="flex:1;min-width:130px;font-size:0.92rem">' +
-            esc(r.s.full_name || 'Học viên') + '</span>' +
-          '<span class="play-bar" style="flex:2;max-width:220px;cursor:default">' +
-            '<span style="width:' + r.pct + '%"></span></span>' +
-          '<span class="stat-lab" style="min-width:44px;text-align:right">' + r.pct + '%</span>' +
-        '</div>';
-    }
-
-    html += '</div>';
+        '</td>' +
+      '</tr>' +
+      '<tr class="tc-detail-row hidden" id="detail-' + a.id + '">' +
+        '<td colspan="6">' + (detailRows || '<p class="empty">Lớp chưa có học viên nào.</p>') + '</td>' +
+      '</tr>';
   }
 
+  html += '</tbody></table>';
   $('assigns').innerHTML = html;
+
+  $('assigns').querySelectorAll('button[data-view]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const row = $('detail-' + b.dataset.view);
+      const open = !row.classList.contains('hidden');
+      row.classList.toggle('hidden');
+      b.textContent = open ? 'Xem' : 'Ẩn';
+    });
+  });
 
   $('assigns').querySelectorAll('button[data-del-as]').forEach(function (b) {
     b.addEventListener('click', async function () {
@@ -538,7 +614,6 @@ async function listAssigns() {
     });
   });
 }
-
 
 // ============================================================
 // Hàng chờ duyệt
@@ -586,7 +661,7 @@ async function loadPending() {
     b.addEventListener('click', async function () {
       await db.from('class_members').update({ status: 'active' })
         .eq('class_id', classId).eq('student_id', b.dataset.ok);
-      loadPending(); loadRoster();
+      loadPending(); loadRoster(); listClasses();
     });
   });
 

@@ -2644,6 +2644,146 @@ body.focus-mode .side-toggle { display: none; }
 }
 
 /* ============================================================
+   TEACHER STUDIO — LỚP HỌC: sidebar lớp + tab trong 1 lớp
+   ============================================================ */
+
+.tc-layout {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.tc-sidebar {
+  width: 280px;
+  flex: none;
+  border-right: 1px solid var(--line);
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.tc-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 16px 12px;
+}
+.tc-sidebar-head h3 { margin: 0; font-family: var(--disp); font-size: 1rem; }
+
+.tc-new {
+  padding: 0 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 6px;
+}
+.tc-new input {
+  font-family: var(--ui);
+  font-size: 0.9rem;
+  padding: 9px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.tc-class-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 560px;
+}
+
+.tc-class-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: var(--r);
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tc-class-item:hover { background: var(--mist); }
+.tc-class-item.on { background: var(--gold-dim); }
+
+.tc-class-name { font-size: 0.92rem; font-weight: 600; color: var(--ink); }
+.tc-class-sub { font-size: 0.78rem; color: #6C837E; }
+
+.tc-main { flex: 1; min-width: 0; background: var(--paper); padding: 24px 26px 30px; }
+
+.tc-main-empty { padding: 40px 0; }
+
+.tc-head { margin-bottom: 16px; }
+.tc-head h2 { margin: 0 0 4px; font-family: var(--disp); font-size: 1.4rem; }
+.tc-head p { margin: 0; color: #4A635E; }
+
+.tc-pane { margin-top: 4px; }
+
+.tc-split {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.tc-split-side {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px;
+}
+.tc-split-side h3 { margin: 0 0 14px; font-family: var(--disp); font-size: 1rem; }
+.tc-split-side select,
+.tc-split-side input {
+  width: 100%;
+  font-family: var(--ui);
+  font-size: 0.92rem;
+  color: var(--ink);
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+}
+
+.tc-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.tc-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1.5px solid var(--line);
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  color: #6C837E;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.tc-table td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tc-table tr.tc-row:hover { background: var(--mist); }
+.tc-title { font-weight: 600; }
+.tc-items { color: #4A635E; font-size: 0.86rem; }
+.tc-actions { white-space: nowrap; }
+.tc-actions .btn-sm { margin-right: 6px; }
+.tc-detail-row td { background: var(--mist); padding: 14px 16px; }
+
+@media (max-width: 880px) {
+  .tc-layout { flex-direction: column; }
+  .tc-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--line); }
+  .tc-class-list { max-height: 260px; }
+  .tc-split { grid-template-columns: 1fr; }
+  .tc-main { padding: 20px 18px 26px; }
+}
+
+
+/* ============================================================
    THỐNG KÊ THEO KHOẢNG THỜI GIAN — Hôm nay / Tuần / Tháng / Tất cả / Tùy chỉnh
    ============================================================ */
 
