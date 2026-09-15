@@ -2504,19 +2504,64 @@ a { color: inherit; }
 
 .heat {
   display: grid;
-  grid-template-columns: repeat(18, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
   margin: 16px 0;
 }
-.heat .cell {
-  aspect-ratio: 1;
-  border-radius: 3px;
+
+.day-card {
+  position: relative;
+  min-height: 84px;
+  padding: 8px 8px 10px;
+  border-radius: var(--r);
   background: var(--mist);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow: hidden;
 }
-.heat .lv1 { background: rgba(27,160,136,0.28); }
-.heat .lv2 { background: rgba(27,160,136,0.52); }
-.heat .lv3 { background: rgba(27,160,136,0.76); }
-.heat .lv4 { background: var(--teal); }
+.day-card.is-today { outline: 2px solid var(--teal); outline-offset: -2px; }
+.day-card.is-empty { opacity: .55; }
+
+.day-date { font-size: 0.78rem; font-weight: 700; color: #4A635E; }
+
+.day-acts { display: flex; flex-wrap: wrap; gap: 3px; }
+.day-act {
+  font-size: 0.66rem;
+  padding: 2px 6px;
+  border-radius: 100px;
+  background: rgba(42,127,118,0.14);
+  color: var(--teal);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.day-acts-empty { font-size: 0.72rem; color: #9CB3AD; }
+
+.day-stamp {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: var(--danger);
+  border: 1.5px solid var(--danger);
+  border-radius: 6px;
+  padding: 2px 5px;
+  transform: rotate(-9deg);
+  opacity: .85;
+  text-transform: uppercase;
+  background: rgba(180, 67, 46, 0.06);
+}
+
+@media (max-width: 560px) {
+  .heat { gap: 5px; }
+  .day-card { min-height: 66px; padding: 6px; gap: 3px; }
+  .day-date { font-size: 0.7rem; }
+  .day-act { font-size: 0.58rem; padding: 1px 4px; }
+  .day-acts-empty { font-size: 0.62rem; }
+  .day-stamp { font-size: 0.5rem; padding: 1px 4px; right: 4px; bottom: 4px; }
+}
 
 .goal-edit { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 

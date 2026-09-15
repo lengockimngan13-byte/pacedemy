@@ -806,19 +806,27 @@ async function loadStreak() {
   const best   = (prof && prof.best_streak) || 0;
   const goal   = (prof && prof.daily_goal) || 20;
 
-  // 35 ngày gần nhất
-  const since = new Date(Date.now() - 34 * 86400000);
+  // 14 ngày gần nhất
+  const since = new Date(Date.now() - 13 * 86400000);
   since.setHours(0, 0, 0, 0);
 
   const { data: atts } = await db
-    .from('attempts').select('total_questions, correct_count, submitted_at')
+    .from('attempts').select('mode, part, total_questions, submitted_at')
     .eq('user_id', me.id).not('submitted_at', 'is', null)
     .gte('submitted_at', since.toISOString());
 
-  const byDay = {};
+  const byDay = {};     // ngày → tổng câu
+  const actsByDay = {}; // ngày → { 'Từ vựng': n, 'Đọc': n, ... }
+
   for (const a of (atts || [])) {
     const k = dayKey(new Date(a.submitted_at));
     byDay[k] = (byDay[k] || 0) + (a.total_questions || 0);
+
+    const cat = activityCat(a);
+    if (cat) {
+      actsByDay[k] = actsByDay[k] || {};
+      actsByDay[k][cat] = (actsByDay[k][cat] || 0) + (a.total_questions || 0);
+    }
   }
 
   const today = dayKey(new Date());
@@ -851,10 +859,10 @@ async function loadStreak() {
           : '<span class="stat-lab">còn ' + (goal - doneToday) + ' câu</span>') +
       '</div>' +
 
-      '<div class="heat" id="heat">' + heatCells(byDay) + '</div>' +
+      '<div class="heat" id="heat">' + dayCards(byDay, actsByDay, goal) + '</div>' +
 
       '<div class="goal-edit">' +
-        '<span class="stat-lab">Mục tiêu mỗi ngày</span>' +
+        '<span class="stat-lab">Mục tiêu mỗi ngày (tổng số câu, gộp mọi phần luyện)</span>' +
         [10, 20, 30, 50].map(function (n) {
           return '<button class="btn-sm' + (n === goal ? ' test' : '') +
                  '" data-goal="' + n + '">' + n + ' câu</button>';
@@ -893,16 +901,57 @@ function dayKey(d) {
   return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
 }
 
-function heatCells(byDay) {
+// Gom mode/part của một lượt luyện thành nhãn ngắn để hiện trong ô ngày
+function activityCat(a) {
+  if (a.mode === 'vocab' || a.mode === 'vocab_colloc' || a.mode === 'vocab_synonym') return 'Từ vựng';
+  if (a.mode === 'flashcard') return 'Học thẻ';
+  if (a.mode === 'mock') return 'Thi thử';
+  if (a.mode === 'practice') {
+    if (a.part >= 1 && a.part <= 4) return 'Nghe';
+    if (a.part >= 5 && a.part <= 7) return 'Đọc';
+  }
+  return null;
+}
+
+// Con dấu đỏ khi giữ được chuỗi ngày đó — 3 cấp theo số câu vượt mục tiêu
+// bao nhiêu lần. Ngưỡng tạm đặt vậy, Ngân thấy không hợp thì báo mình đổi.
+const STAMP_LEVELS = [
+  { mult: 2,   label: 'EXCELLENT' },
+  { mult: 1.5, label: 'GREAT' },
+  { mult: 1,   label: 'GOOD' }
+];
+
+function stampFor(n, goal) {
+  if (!goal || n < goal) return null;
+  for (const s of STAMP_LEVELS) if (n >= goal * s.mult) return s.label;
+  return null;
+}
+
+// Lưới 14 ngày gần nhất, mỗi ô là một ngày cụ thể — ghi ngày/tháng,
+// những hoạt động đã làm hôm đó, và đóng dấu đỏ nếu giữ được chuỗi.
+function dayCards(byDay, actsByDay, goal) {
   let out = '';
+  const todayKey = dayKey(new Date());
 
-  for (let i = 34; i >= 0; i--) {
+  for (let i = 13; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000);
-    const n = byDay[dayKey(d)] || 0;
-    const lv = n === 0 ? 0 : (n < 10 ? 1 : (n < 25 ? 2 : (n < 50 ? 3 : 4)));
+    const k = dayKey(d);
+    const n = byDay[k] || 0;
+    const acts = actsByDay[k] || {};
+    const labels = Object.keys(acts);
+    const stamp = stampFor(n, goal);
+    const isToday = k === todayKey;
 
-    out += '<span class="cell lv' + lv + '" title="' +
-           d.getDate() + '/' + (d.getMonth() + 1) + ' · ' + n + ' câu"></span>';
+    out +=
+      '<div class="day-card' + (isToday ? ' is-today' : '') + (n === 0 ? ' is-empty' : '') + '">' +
+        '<div class="day-date">' + d.getDate() + '/' + (d.getMonth() + 1) + '</div>' +
+        (labels.length
+          ? '<div class="day-acts">' + labels.map(function (l) {
+              return '<span class="day-act">' + l + '</span>';
+            }).join('') + '</div>'
+          : '<div class="day-acts day-acts-empty">Chưa học</div>') +
+        (stamp ? '<div class="day-stamp">' + stamp + '</div>' : '') +
+      '</div>';
   }
 
   return out;
