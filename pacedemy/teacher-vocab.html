@@ -68,15 +68,29 @@
     <div class="hidden" id="pane-single">
 
       <div class="tbox">
-        <div class="field" style="margin-bottom:0">
-          <label for="sv-topic">Chọn chủ đề để sửa</label>
-          <select id="sv-topic"></select>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <div class="field" style="margin-bottom:0;flex:1;min-width:220px">
+            <label for="sv-topic">Chọn chủ đề để sửa</label>
+            <select id="sv-topic"></select>
+          </div>
+          <button class="btn-sm test" id="btn-new-topic" type="button" style="height:44px">+ Chủ đề mới</button>
+        </div>
+
+        <div class="hidden" id="new-topic-box" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="field" style="margin-bottom:0;flex:1;min-width:220px">
+              <label for="new-topic-name">Tên chủ đề (tiếng Việt)</label>
+              <input id="new-topic-name" type="text" placeholder="Ví dụ: Du lịch công tác">
+            </div>
+            <button class="btn btn-gold" id="btn-create-topic" style="height:44px">Tạo chủ đề</button>
+            <button class="btn-sm" id="btn-cancel-topic" type="button" style="height:44px">Huỷ</button>
+          </div>
         </div>
       </div>
 
       <div id="sv-list"></div>
 
-      <button class="btn btn-gold" id="btn-add-word">+ Thêm từ mới</button>
+      <button class="qz-add-btn" id="btn-add-word">+ Thêm thẻ</button>
     </div>
 
     <div id="note" class="note hidden"></div>

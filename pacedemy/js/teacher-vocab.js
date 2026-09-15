@@ -449,20 +449,35 @@ async function loadWordsForTopic(topicId) {
     return;
   }
 
-  ws.forEach(function (w) { box.appendChild(svRow(w)); });
+  ws.forEach(function (w, i) { box.appendChild(svRow(w, i + 1)); });
 }
 
-function svRow(w) {
+function svRow(w, index) {
   const row = document.createElement('div');
-  row.className = 'sv-row';
+  row.className = 'qz-card';
   row.dataset.id = w.id;
 
   row.innerHTML =
-    '<div class="sv-main">' +
-      '<input type="text" class="sv-word" placeholder="từ tiếng Anh" value="' + esc(w.word) + '">' +
-      '<input type="text" class="sv-meaning" placeholder="nghĩa tiếng Việt" value="' + esc(w.meaning_vi || '') + '">' +
-      '<button class="btn-sm" type="button" data-toggle>Chi tiết</button>' +
-      '<button class="btn-sm" type="button" data-del>Xoá</button>' +
+    '<div class="qz-card-head">' +
+      '<span class="qz-num">' + index + '</span>' +
+      '<div class="qz-card-actions">' +
+        '<button class="qz-icon-btn" type="button" data-toggle title="Chi tiết">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>' +
+        '</button>' +
+        '<button class="qz-icon-btn qz-icon-del" type="button" data-del title="Xoá">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7"/></svg>' +
+        '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="qz-card-body">' +
+      '<div class="qz-field">' +
+        '<input type="text" class="sv-word" value="' + esc(w.word) + '">' +
+        '<label>Thuật ngữ</label>' +
+      '</div>' +
+      '<div class="qz-field">' +
+        '<input type="text" class="sv-meaning" value="' + esc(w.meaning_vi || '') + '">' +
+        '<label>Định nghĩa</label>' +
+      '</div>' +
     '</div>' +
     '<div class="sv-detail hidden">' +
       '<div class="sv-detail-grid">' +
@@ -503,9 +518,16 @@ function svRow(w) {
     if (error) { toast('Không xoá được: ' + error.message, 'bad'); return; }
     toast('Đã xoá từ.', 'good');
     row.remove();
+    renumberCards();
   });
 
   return row;
+}
+
+function renumberCards() {
+  $('sv-list').querySelectorAll('.qz-num').forEach(function (el, i) {
+    el.textContent = i + 1;
+  });
 }
 
 function bindSave(el, id, field, transform) {
@@ -520,6 +542,59 @@ async function saveField(id, field, value) {
   const { error } = await db.from('vocabulary').update(patch).eq('id', id);
   if (error) toast('Không lưu được: ' + error.message, 'bad');
 }
+
+// ---------- Tạo chủ đề mới ngay trong tab Sửa từng từ ----------
+
+$('btn-new-topic').addEventListener('click', function () {
+  $('new-topic-box').classList.remove('hidden');
+  $('new-topic-name').focus();
+});
+
+$('btn-cancel-topic').addEventListener('click', function () {
+  $('new-topic-box').classList.add('hidden');
+  $('new-topic-name').value = '';
+});
+
+function slugify(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/gi, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+$('btn-create-topic').addEventListener('click', async function () {
+  const name = $('new-topic-name').value.trim();
+  if (!name) { toast('Đặt tên chủ đề đã nhé.', 'bad'); return; }
+
+  const slug = slugify(name);
+  if (!slug) { toast('Tên chủ đề cần có ít nhất một chữ hoặc số.', 'bad'); return; }
+
+  this.disabled = true;
+
+  const maxOrder = topicsNow.reduce(function (m, t) { return Math.max(m, t.order_index || 0); }, 0);
+
+  const { data: t, error } = await db.from('topics').insert({
+    slug: slug,
+    name_vi: name,
+    name_en: name,
+    order_index: maxOrder + 1
+  }).select('id, slug, name_vi, order_index').single();
+
+  this.disabled = false;
+
+  if (error || !t) { toast('Không tạo được: ' + (error ? error.message : 'lỗi không rõ'), 'bad'); return; }
+
+  toast('Đã tạo chủ đề "' + name + '".', 'good');
+  topicsNow.push(t);
+  $('new-topic-name').value = '';
+  $('new-topic-box').classList.add('hidden');
+
+  fillTopicSelect();
+  $('sv-topic').value = t.id;
+  svTopicId = t.id;
+  loadWordsForTopic(t.id);
+});
 
 $('btn-add-word').addEventListener('click', async function () {
   if (!svTopicId) { toast('Chọn một chủ đề trước đã.', 'bad'); return; }
@@ -545,7 +620,7 @@ $('btn-add-word').addEventListener('click', async function () {
   const empty = $('sv-list').querySelector('.empty');
   if (empty) empty.remove();
 
-  const row = svRow(w);
+  const row = svRow(w, $('sv-list').querySelectorAll('.qz-card').length + 1);
   $('sv-list').appendChild(row);
   row.querySelector('.sv-word').focus();
   row.scrollIntoView({ behavior: 'smooth', block: 'center' });

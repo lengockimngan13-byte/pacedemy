@@ -2791,37 +2791,84 @@ body.focus-mode .side-toggle { display: none; }
    SỬA TỪNG TỪ — danh sách từ vựng kiểu Quizlet trong Nhập từ vựng
    ============================================================ */
 
-.sv-row {
+.qz-card {
   border: 1.5px solid var(--line);
   border-radius: var(--r);
-  padding: 12px 14px;
-  margin-bottom: 8px;
+  padding: 18px 20px 20px;
+  margin-bottom: 16px;
+  background: var(--paper);
 }
 
-.sv-main {
+.qz-card-head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 14px;
 }
 
-.sv-main input {
+.qz-num { font-weight: 700; color: #6C837E; }
+
+.qz-card-actions { display: flex; gap: 4px; }
+
+.qz-icon-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none;
+  border-radius: 100px;
+  background: none;
+  color: #6C837E;
+  cursor: pointer;
+}
+.qz-icon-btn:hover { background: var(--mist); color: var(--ink); }
+.qz-icon-btn svg { width: 18px; height: 18px; }
+.qz-icon-del:hover { background: #FBEAE5; color: var(--danger); }
+
+.qz-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.qz-field { display: flex; flex-direction: column; }
+
+.qz-field input {
   font-family: var(--ui);
-  font-size: 0.96rem;
+  font-size: 1.02rem;
   color: var(--ink);
-  padding: 9px 12px;
-  border: 1.5px solid transparent;
-  border-radius: var(--r);
-  background: var(--mist);
+  padding: 12px 4px;
+  border: none;
+  border-bottom: 1.5px solid var(--line);
+  background: none;
 }
-.sv-main input:focus { border-color: var(--teal); outline: none; background: var(--paper); }
+.qz-field input:focus { outline: none; border-bottom-color: var(--teal); }
 
-.sv-word { flex: 1; min-width: 140px; font-weight: 600; }
-.sv-meaning { flex: 2; min-width: 180px; }
+.qz-field label {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8DA39D;
+}
+
+.qz-add-btn {
+  display: block;
+  margin: 6px auto 0;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 999px;
+  background: var(--mist);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-weight: 600;
+  font-size: 0.94rem;
+  cursor: pointer;
+}
+.qz-add-btn:hover { background: var(--gold-dim); }
 
 .sv-detail {
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--line);
   display: flex;
   flex-direction: column;
@@ -2848,6 +2895,7 @@ body.focus-mode .side-toggle { display: none; }
 }
 
 @media (max-width: 620px) {
+  .qz-card-body { grid-template-columns: 1fr; gap: 6px; }
   .sv-detail-grid { grid-template-columns: 1fr; }
 }
 
