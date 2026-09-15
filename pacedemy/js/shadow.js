@@ -1,27 +1,31 @@
 // ============================================================
 // Pacedemy — Luyện nói theo (Shadowing), bản miễn phí.
-// Nguồn câu: câu ví dụ (example_en) có sẵn trong kho từ vựng của
-// chủ đề, HOẶC tự gõ câu bất kỳ. Nghe mẫu dùng giọng đọc trình
-// duyệt. Ghi âm + chấm điểm dùng Web Speech API của Chrome —
-// chuyển giọng nói thành chữ rồi so từ với câu mẫu, ra % từ khớp.
-// Đây CHỈ LÀ ước lượng thô theo từ nhận diện được, không phải
-// chấm phát âm thật (không đánh giá ngữ điệu/trọng âm).
+// Nguồn: audio + transcript THẬT đã tải lên — Part 1-4 (bảng
+// listening_sets) hoặc Đề thi thử (bảng exam_listening). Chỉ giáo
+// viên mới thêm/sửa được các bài này (qua Nhập bài nghe / Ngân
+// hàng đề thi thử) — học viên chỉ chọn và luyện, không tự thêm bài.
+// Ngoài ra vẫn có ô tự gõ câu bất kỳ để luyện độc lập.
+//
+// Nghe mẫu: có audio thật thì phát audio thật; câu tự gõ thì dùng
+// giọng đọc trình duyệt (không có file thật để phát).
+//
+// Ghi âm + chấm điểm dùng Web Speech API của Chrome — chuyển giọng
+// nói thành chữ rồi so từ với transcript, ra % từ khớp. Đây CHỈ LÀ
+// ước lượng thô theo từ nhận diện được, không phải chấm phát âm
+// thật (không đánh giá ngữ điệu/trọng âm).
 //
 // Không lưu ghi âm lên server — mọi thứ chạy trong trình duyệt,
 // rời trang là mất, không tốn dung lượng Supabase.
 // ============================================================
 
 let me = null;
-let topicSlug = null;
+let src = '1';   // '1' | '2' | '3' | '4' | 'exam'
 let deck = [];
 let at = 0;
 let recognizing = false;
 let recordedUrl = null;
 
-// Câu đang luyện — lấy từ bộ đề, hoặc tự nhập (custom = true thì ưu
-// tiên dùng current thay vì deck[at]).
-let current = { en: '', vi: '' };
-let customMode = false;
+let current = { en: '', vi: '', audioUrl: null };
 
 const $ = function (id) { return document.getElementById(id); };
 
@@ -31,51 +35,84 @@ const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   me = await requireLogin();
   if (!me) return;
 
-  topicSlug = new URLSearchParams(location.search).get('chu-de');
-  if (!topicSlug) { location.replace('vocab.html'); return; }
-
-  $('crumb-back').href = 'topic.html?chu-de=' + encodeURIComponent(topicSlug);
-
-  await loadDeck();
-
   if (!SpeechRec) {
     $('view-unsupported').classList.remove('hidden');
   }
 
-  $('view-shadow').classList.remove('hidden');
   bindStaticButtons();
+  bindSourceTabs();
+  await loadDeck(src);
+})();
+
+function bindSourceTabs() {
+  document.querySelectorAll('#src-tabs .test-tab').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      document.querySelectorAll('#src-tabs .test-tab').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      src = b.dataset.part;
+      await loadDeck(src);
+    });
+  });
+}
+
+async function loadDeck(which) {
+  at = 0;
+  $('src-count').textContent = 'Đang tải…';
+
+  let rows = [];
+
+  if (which === 'exam') {
+    const { data } = await db.from('exam_listening')
+      .select('id, part, title, audio_url, transcript, transcript_vi')
+      .not('audio_url', 'is', null)
+      .not('transcript', 'is', null)
+      .order('id');
+    rows = data || [];
+  } else {
+    const { data } = await db.from('listening_sets')
+      .select('id, part, title, audio_url, transcript, transcript_vi')
+      .eq('part', parseInt(which, 10))
+      .eq('is_active', true)
+      .not('audio_url', 'is', null)
+      .not('transcript', 'is', null)
+      .order('id');
+    rows = data || [];
+  }
+
+  deck = rows;
+
+  const label = which === 'exam' ? 'đề thi thử' : 'Part ' + which;
+  $('src-count').textContent = deck.length + ' bài có sẵn audio + script ở ' + label + '.';
 
   if (deck.length) {
+    $('deck-empty-note').classList.add('hidden');
+    $('deck-nav-top').classList.remove('hidden');
+    $('deck-nav-bottom').classList.remove('hidden');
     renderDeckCard();
   } else {
     $('deck-empty-note').classList.remove('hidden');
     $('deck-nav-top').classList.add('hidden');
     $('deck-nav-bottom').classList.add('hidden');
-    showCard({ en: '', vi: '' });
+    showCard({ en: '', vi: '', audioUrl: null });
   }
-})();
-
-async function loadDeck() {
-  const { data: t } = await db.from('topics').select('id, name_vi').eq('slug', topicSlug).single();
-  if (!t) return;
-
-  const { data: words } = await db.from('vocabulary')
-    .select('id, word, example_en, example_vi')
-    .eq('topic_id', t.id)
-    .order('level').order('order_index').order('id');
-
-  deck = (words || []).filter(function (w) { return w.example_en && w.example_en.trim(); });
-
-  if (t) $('sh-sub').textContent = t.name_vi + ' · ' + deck.length + ' câu có ví dụ trong kho';
 }
 
-// ---------- Hiển thị 1 câu (dùng chung cho cả bộ đề lẫn tự nhập) ----------
+// ---------- Hiển thị 1 bài (dùng chung cho cả bộ đề lẫn tự nhập) ----------
 
 function showCard(c) {
   current = c;
   $('sh-en').textContent = c.en || '—';
   $('sh-vi').textContent = c.vi || '';
   $('sh-result').classList.add('hidden');
+
+  const modelAudio = $('sh-model-audio');
+  if (c.audioUrl) {
+    modelAudio.src = c.audioUrl;
+    modelAudio.classList.remove('hidden');
+  } else {
+    modelAudio.removeAttribute('src');
+    modelAudio.classList.add('hidden');
+  }
 
   if (recordedUrl) { URL.revokeObjectURL(recordedUrl); recordedUrl = null; }
   $('sh-playback').removeAttribute('src');
@@ -84,16 +121,21 @@ function showCard(c) {
 }
 
 function renderDeckCard() {
-  customMode = false;
   const w = deck[at];
-  $('sh-counter').textContent = 'Câu ' + (at + 1) + ' / ' + deck.length;
+  $('sh-counter').textContent = 'Bài ' + (at + 1) + ' / ' + deck.length + (w.title ? ' · ' + w.title : '');
   $('sh-progress').style.width = (at / deck.length * 100) + '%';
-  showCard({ en: w.example_en, vi: w.example_vi || '' });
+  showCard({ en: w.transcript, vi: w.transcript_vi || '', audioUrl: w.audio_url });
 }
 
 function bindStaticButtons() {
   $('btn-listen').addEventListener('click', function () {
-    if (current.en) speak(current.en);
+    if (current.audioUrl) {
+      const a = $('sh-model-audio');
+      a.currentTime = 0;
+      a.play();
+    } else if (current.en) {
+      speak(current.en);
+    }
   });
 
   $('btn-retry').addEventListener('click', function () {
@@ -101,6 +143,7 @@ function bindStaticButtons() {
   });
 
   $('btn-next').addEventListener('click', function () {
+    if (!deck.length) return;
     at = (at + 1) % deck.length;
     renderDeckCard();
   });
@@ -108,8 +151,7 @@ function bindStaticButtons() {
   $('btn-use-custom').addEventListener('click', function () {
     const text = $('sh-custom-text').value.trim();
     if (!text) { toast('Gõ một câu trước đã nhé.', 'bad'); return; }
-    customMode = true;
-    showCard({ en: text, vi: '' });
+    showCard({ en: text, vi: '', audioUrl: null });
     $('sh-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 }
@@ -183,8 +225,8 @@ async function startRecording() {
   rec.start();
   btn.onclick = function () { rec.stop(); };
 
-  // Tự dừng sau 12 giây phòng khi quên bấm dừng
-  setTimeout(function () { if (recognizing) rec.stop(); }, 12000);
+  // Tự dừng sau 15 giây phòng khi quên bấm dừng (script Part 3/4 dài hơn câu đơn)
+  setTimeout(function () { if (recognizing) rec.stop(); }, 15000);
 }
 
 function showResult(heard) {
@@ -194,7 +236,7 @@ function showResult(heard) {
   $('sh-score-num').textContent = pct + '%';
 
   let lab, cls;
-  if (pct >= 85) { lab = 'Khá sát câu mẫu'; cls = 'sh-good'; }
+  if (pct >= 85) { lab = 'Khá sát script'; cls = 'sh-good'; }
   else if (pct >= 55) { lab = 'Tạm ổn, nghe lại mẫu rồi thử lại'; cls = 'sh-mid'; }
   else { lab = 'Còn lệch nhiều, thử lại nhé'; cls = 'sh-low'; }
 
@@ -210,6 +252,7 @@ function showResult(heard) {
 function normWords(s) {
   return (s || '')
     .toLowerCase()
+    .replace(/^[wm]:\s*/gim, '')          // bỏ nhãn người nói "W:"/"M:" đầu dòng
     .replace(/[.,!?;:"'()]/g, '')
     .split(/\s+/)
     .filter(Boolean);

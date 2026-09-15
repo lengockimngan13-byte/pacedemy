@@ -5,8 +5,7 @@
 let me = null;
 let masteredCount = 0;
 let statsRange = 'today';
-let heatYear = null;   // null = chưa mở, sẽ lấy tháng hiện tại khi loadStreak() chạy lần đầu
-let heatMonth = null;  // 0-11
+let heatWindow = 14;   // 7 | 14 | 30 — số ngày gần nhất hiện trong lưới tiến độ
 
 function el(id) { return document.getElementById(id); }
 
@@ -472,6 +471,7 @@ function escapeHtml(s) {
 
   safely(loadStats);
   safely(loadStreak);
+  safely(loadGoalBox);
   safely(loadReminders);
   loadBoard();
   loadFeedback();
@@ -808,13 +808,7 @@ async function loadStreak() {
   const best   = (prof && prof.best_streak) || 0;
   const goal   = (prof && prof.daily_goal) || 20;
 
-  if (heatYear === null) {
-    const now = new Date();
-    heatYear = now.getFullYear();
-    heatMonth = now.getMonth();
-  }
-
-  // Hôm nay — luôn lấy đúng ngày thật, không phụ thuộc tháng đang xem trong lịch
+  // Hôm nay — luôn tính riêng, không phụ thuộc số ngày đang chọn xem bên dưới
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
@@ -827,15 +821,15 @@ async function loadStreak() {
   for (const a of (todayAtts || [])) doneToday += a.total_questions || 0;
   const pct = Math.min(100, Math.round(doneToday / goal * 100));
 
-  // Dữ liệu cho đúng tháng đang xem trong lịch (có thể là tháng trước/sau)
-  const monthStart = new Date(heatYear, heatMonth, 1);
-  const monthEnd = new Date(heatYear, heatMonth + 1, 0, 23, 59, 59);
+  // Dữ liệu cho đúng số ngày đang chọn xem (7 / 14 / 30)
+  const since = new Date();
+  since.setDate(since.getDate() - (heatWindow - 1));
+  since.setHours(0, 0, 0, 0);
 
   const { data: atts } = await db
     .from('attempts').select('mode, part, total_questions, submitted_at')
     .eq('user_id', me.id).not('submitted_at', 'is', null)
-    .gte('submitted_at', monthStart.toISOString())
-    .lte('submitted_at', monthEnd.toISOString());
+    .gte('submitted_at', since.toISOString());
 
   const byDay = {};     // ngày → tổng câu
   const actsByDay = {}; // ngày → { 'Từ vựng': n, 'Đọc': n, ... }
@@ -853,9 +847,6 @@ async function loadStreak() {
 
   // Chuỗi mới nhất so với mốc
   const next = MOC.find(function (m) { return m > streak; }) || null;
-
-  const now = new Date();
-  const isCurrentMonth = (heatYear === now.getFullYear() && heatMonth === now.getMonth());
 
   let html =
     '<div class="tbox streak-card">' +
@@ -880,51 +871,21 @@ async function loadStreak() {
           : '<span class="stat-lab">còn ' + (goal - doneToday) + ' câu</span>') +
       '</div>' +
 
-      '<div class="heat-nav">' +
-        '<button class="btn-sm" id="heat-prev" type="button">‹ Tháng trước</button>' +
-        '<span class="heat-month-label">Tháng ' + (heatMonth + 1) + '/' + heatYear + '</span>' +
-        '<button class="btn-sm" id="heat-next" type="button"' + (isCurrentMonth ? ' disabled' : '') + '>Tháng sau ›</button>' +
-      '</div>' +
-
-      '<div class="heat-weekdays">' +
-        ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(function (w) {
-          return '<span>' + w + '</span>';
+      '<div class="test-tabs heat-tabs" id="heat-tabs">' +
+        [7, 14, 30].map(function (n) {
+          return '<button class="test-tab' + (n === heatWindow ? ' on' : '') +
+                 '" data-win="' + n + '">' + n + ' ngày</button>';
         }).join('') +
       '</div>' +
 
-      '<div class="heat" id="heat">' + monthCalendar(heatYear, heatMonth, byDay, actsByDay, goal) + '</div>' +
-
-      '<div class="goal-edit">' +
-        '<span class="stat-lab">Mục tiêu mỗi ngày (tổng số câu, gộp mọi phần luyện)</span>' +
-        [10, 20, 30, 50].map(function (n) {
-          return '<button class="btn-sm' + (n === goal ? ' test' : '') +
-                 '" data-goal="' + n + '">' + n + ' câu</button>';
-        }).join('') +
-      '</div>' +
+      '<div class="heat" id="heat">' + dayCards(byDay, actsByDay, goal, heatWindow) + '</div>' +
     '</div>';
 
   box.innerHTML = html;
 
-  el('heat-prev').addEventListener('click', function () {
-    heatMonth--;
-    if (heatMonth < 0) { heatMonth = 11; heatYear--; }
-    loadStreak();
-  });
-
-  const nextBtn = el('heat-next');
-  nextBtn.addEventListener('click', function () {
-    if (nextBtn.disabled) return;
-    heatMonth++;
-    if (heatMonth > 11) { heatMonth = 0; heatYear++; }
-    loadStreak();
-  });
-
-  box.querySelectorAll('button[data-goal]').forEach(function (b) {
-    b.addEventListener('click', async function () {
-      const { error } = await db.from('profiles')
-        .update({ daily_goal: parseInt(b.dataset.goal, 10) }).eq('id', me.id);
-      if (error) toast('Không lưu được: ' + error.message, 'bad');
-      else toast('Đã đổi mục tiêu mỗi ngày.', 'good');
+  box.querySelectorAll('#heat-tabs .test-tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      heatWindow = parseInt(b.dataset.win, 10);
       loadStreak();
     });
   });
@@ -974,34 +935,69 @@ function stampFor(n, goal) {
   return null;
 }
 
-// Lịch tháng — canh ô trống đầu tháng theo đúng thứ, mỗi ô là một ngày
-// cụ thể: ghi ngày, những hoạt động đã làm hôm đó, và đóng dấu đỏ nếu
-// giữ được chuỗi. Ngày trong tương lai không hiện "Chưa học" (chưa tới mà).
-function monthCalendar(year, month, byDay, actsByDay, goal) {
-  const first = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const leadBlank = (first.getDay() + 6) % 7; // Thứ 2 làm ngày đầu tuần
+// ============================================================
+// Mục tiêu luyện tập mỗi ngày — tách riêng khỏi khối chuỗi ngày học
+// ============================================================
 
+async function loadGoalBox() {
+  const box = el('goal-box');
+  if (!box) return;
+
+  const { data: prof } = await db
+    .from('profiles').select('daily_goal').eq('id', me.id).single();
+
+  const goal = (prof && prof.daily_goal) || 20;
+
+  box.innerHTML =
+    '<div class="tbox">' +
+      '<h3>Mục tiêu luyện tập mỗi ngày</h3>' +
+      '<p style="margin:0 0 14px;font-size:0.94rem;line-height:1.65;color:#4A635E">' +
+        'Tính theo tổng số câu, gộp mọi phần luyện — Từ vựng, Đọc, Nghe, Thi thử đều tính chung, ' +
+        'không phải riêng số từ vựng mới.' +
+      '</p>' +
+      '<div class="goal-edit">' +
+        [10, 20, 30, 50].map(function (n) {
+          return '<button class="btn-sm' + (n === goal ? ' test' : '') +
+                 '" data-goal="' + n + '">' + n + ' câu</button>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+
+  box.querySelectorAll('button[data-goal]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      const { error } = await db.from('profiles')
+        .update({ daily_goal: parseInt(b.dataset.goal, 10) }).eq('id', me.id);
+      if (error) toast('Không lưu được: ' + error.message, 'bad');
+      else toast('Đã đổi mục tiêu mỗi ngày.', 'good');
+      loadGoalBox();
+      loadStreak();
+    });
+  });
+}
+
+// Lưới N ngày gần nhất (N = heatWindow: 7 / 14 / 30) — mỗi ô là một
+// ngày cụ thể: ghi ngày, những hoạt động đã làm hôm đó, và đóng dấu
+// đỏ nếu giữ được chuỗi hôm đó.
+function dayCards(byDay, actsByDay, goal, n) {
   let out = '';
-  for (let i = 0; i < leadBlank; i++) out += '<div class="day-card day-blank"></div>';
-
   const todayKey = dayKey(new Date());
   const nowMs = Date.now();
 
-  for (let day = 1; day <= daysInMonth; day++) {
-    const d = new Date(year, month, day);
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
     const k = dayKey(d);
-    const n = byDay[k] || 0;
+    const cnt = byDay[k] || 0;
     const acts = actsByDay[k] || {};
     const labels = Object.keys(acts);
-    const stamp = stampFor(n, goal);
+    const stamp = stampFor(cnt, goal);
     const isToday = k === todayKey;
     const isFuture = d.getTime() > nowMs;
 
     out +=
       '<div class="day-card' + (isToday ? ' is-today' : '') +
-        (n === 0 ? ' is-empty' : '') + (isFuture ? ' is-future' : '') + '">' +
-        '<div class="day-date">' + day + '</div>' +
+        (cnt === 0 ? ' is-empty' : '') + (isFuture ? ' is-future' : '') + '">' +
+        '<div class="day-date">' + d.getDate() + '/' + (d.getMonth() + 1) + '</div>' +
         (isFuture ? '' :
           labels.length
             ? '<div class="day-acts">' + labels.map(function (l) {

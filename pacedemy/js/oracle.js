@@ -100,6 +100,33 @@ const SLIPS = [
       'Không thi thử thì sao biết mình đang đứng ở đâu so với mục tiêu.',
     ],
   },
+  {
+    module: 'Động lực cá nhân',
+    personal: true,
+    href: null,
+    cta: null,
+    // 18 câu chung, không cần dữ liệu riêng — luôn dùng được
+    lines: [
+      'Điểm số không tự nhiên tăng. Nó tăng vì có người ngồi xuống làm thêm một đề mỗi ngày.',
+      'Hôm nay chưa chắc là ngày giỏi nhất, nhưng chắc chắn là ngày sớm nhất để bắt đầu.',
+      '999 câu đã làm không quan trọng bằng câu tiếp theo bạn sắp làm.',
+      'So với hôm qua của chính mình, đừng so với ai khác.',
+      'Mỗi câu sai hôm nay là một câu ít sai hơn lúc đi thi thật.',
+      'Không ai giỏi tiếng Anh sau một đêm. Nhưng có người giỏi hơn sau một tháng kiên trì.',
+      'Bạn không cần hoàn hảo, chỉ cần đều đặn.',
+      'Ngày thi thật không đợi bạn sẵn sàng. Nó chỉ đến đúng hẹn.',
+      '10 phút hôm nay cộng dồn lại thành một kỳ thi tốt hơn.',
+      'Việc khó không làm hôm nay thì mai vẫn khó y vậy, chỉ có ít thời gian hơn để luyện.',
+      'Quẻ này không đoán tương lai, chỉ nhắc bạn tương lai đang được quyết định ngay lúc này.',
+      'Sự tiến bộ đôi khi im lặng. Không thấy điểm tăng không có nghĩa là không có gì thay đổi.',
+      'Mục tiêu càng xa, càng cần bắt đầu càng sớm.',
+      'Không có quẻ nào thay bạn học được. Chỉ có bạn.',
+      'Cứ làm đủ số câu hôm nay, điểm số sẽ tự lo phần còn lại.',
+      'Ai cũng có ngày lười. Quan trọng là ngày lười có kéo dài thành tuần lười không.',
+      'Ôn từ vựng hôm nay, đỡ phải đoán mò lúc đi thi.',
+      'Ngày thi TOEIC không hỏi bạn đã cố gắng bao nhiêu, chỉ hỏi bạn làm đúng bao nhiêu câu.',
+    ],
+  },
 ];
 
 // Quẻ hiếm: thỉnh thoảng phán "nghỉ", tỉ lệ thấp cho vui, không có
@@ -114,6 +141,102 @@ const REST_SLIP = {
 const REST_CHANCE = 1 / 12; // khoảng 1 trong 12 lần bốc
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// ---------- Dữ liệu thật của học viên, cho quẻ "Động lực cá nhân" ----------
+// Chỉ gọi khi quẻ này thật sự được bốc trúng, không tốn truy vấn oan uổng
+// mỗi lần bốc quẻ khác.
+
+async function fetchOracleContext() {
+  const ctx = { target: null, estimate: null, doneToday: 0, goal: 20, streak: 0 };
+  if (typeof db === 'undefined' || typeof me === 'undefined' || !me) return ctx;
+
+  try {
+    const { data: prof } = await db
+      .from('profiles').select('target_score, daily_goal, streak_days').eq('id', me.id).single();
+
+    if (prof) {
+      ctx.target = prof.target_score || null;
+      ctx.goal = prof.daily_goal || 20;
+      ctx.streak = prof.streak_days || 0;
+    }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const { data: atts } = await db
+      .from('attempts').select('total_questions')
+      .eq('user_id', me.id).not('submitted_at', 'is', null)
+      .gte('submitted_at', todayStart.toISOString());
+    for (const a of (atts || [])) ctx.doneToday += a.total_questions || 0;
+
+    const { data: mock } = await db
+      .from('mock_tests')
+      .select('listening_correct, reading_correct, payload')
+      .eq('user_id', me.id).not('submitted_at', 'is', null)
+      .order('submitted_at', { ascending: false }).limit(1).maybeSingle();
+
+    if (mock && mock.payload) {
+      const [{ data: lScore }, { data: rScore }] = await Promise.all([
+        db.rpc('toeic_estimate', { p_section: 'listening', p_correct: mock.listening_correct, p_total: mock.payload.listening_total }),
+        db.rpc('toeic_estimate', { p_section: 'reading', p_correct: mock.reading_correct, p_total: mock.payload.reading_total })
+      ]);
+      if (lScore != null && rScore != null) ctx.estimate = lScore + rScore;
+    }
+  } catch (e) {
+    // Không lấy được thì thôi, dùng câu chung là đủ.
+  }
+
+  return ctx;
+}
+
+// Ghép các dòng cá nhân hoá — chỉ đưa vào những dòng có đủ dữ liệu để
+// điền, tránh hiện câu cụt hoặc số rỗng.
+function personalLines(ctx) {
+  const out = [];
+
+  if (ctx.target && ctx.estimate != null) {
+    const gap = ctx.target - ctx.estimate;
+    if (gap > 0) {
+      out.push('Bạn đang cách mục tiêu ' + ctx.target + ' điểm còn ' + gap +
+        ' điểm, tính theo lần thi thử gần nhất. Làm thêm vài đề là rút ngắn khoảng cách đó.');
+      out.push('Quẻ này tính thử rồi: còn ' + gap + ' điểm nữa là bạn chạm mục tiêu ' +
+        ctx.target + '. Không xa như bạn nghĩ đâu.');
+    } else {
+      out.push('Điểm ước lượng gần nhất của bạn đã chạm mục tiêu ' + ctx.target +
+        ' điểm rồi. Giờ là lúc giữ phong độ, đừng để tụt lại.');
+    }
+  } else if (ctx.target && ctx.estimate == null) {
+    out.push('Bạn đặt mục tiêu ' + ctx.target +
+      ' điểm rồi đó, nhưng chưa thi thử lần nào để biết mình đang ở đâu. Thi thử một lần đi.');
+  } else if (!ctx.target) {
+    out.push('Bạn chưa đặt mục tiêu điểm. Vào trang Tài khoản đặt một con số cụ thể, ' +
+      'có đích mới nhắm đúng hướng được.');
+  }
+
+  if (ctx.doneToday < ctx.goal) {
+    const left = ctx.goal - ctx.doneToday;
+    out.push('Hôm nay bạn mới làm ' + ctx.doneToday + '/' + ctx.goal +
+      ' câu. Còn ' + left + ' câu nữa là xong mục tiêu hôm nay.');
+    out.push('Quẻ nhắc khéo: còn ' + left + ' câu nữa thôi là hôm nay coi như trọn vẹn.');
+  } else {
+    out.push('Hôm nay bạn đã xong mục tiêu ' + ctx.goal +
+      ' câu rồi. Dư sức thì làm thêm, không thì nghỉ ngơi cũng xứng đáng.');
+  }
+
+  if (ctx.streak > 0) {
+    out.push('Đang giữ chuỗi ' + ctx.streak + ' ngày liên tiếp. Đừng để hôm nay là ngày làm đứt chuỗi.');
+    out.push('Chuỗi ' + ctx.streak + ' ngày không tự nhiên mà có. Giữ tiếp đi, sắp tới mốc rồi.');
+  } else {
+    out.push('Chưa có chuỗi ngày nào đang giữ. Học hôm nay là bắt đầu một chuỗi mới, ' +
+      'ngày đầu luôn là ngày khó nhất.');
+  }
+
+  if (ctx.target && ctx.goal) {
+    out.push('Mục tiêu ' + ctx.target + ' điểm không xa nếu mỗi ngày đều làm đủ ' +
+      ctx.goal + ' câu như hôm nay đang làm.');
+  }
+
+  return out;
+}
 
 // ---------- Âm thanh tự tổng hợp (Web Audio, không cần file) ----------
 
@@ -170,7 +293,7 @@ function playSparkleVisual() {
 
 // ---------- Nội dung quẻ (không đổi so với trước) ----------
 
-function drawSlip() {
+async function drawSlip() {
   const body = document.getElementById('oracle-body');
   if (!body) return;
 
@@ -188,15 +311,29 @@ function drawSlip() {
       '</div>';
   } else {
     const slip = pick(SLIPS);
-    html =
-      '<div class="oracle-result">' +
-        '<p class="oracle-title">📿 ' + slip.module + '</p>' +
-        '<p class="oracle-text">' + pick(slip.lines) + '</p>' +
-        '<div class="oracle-actions">' +
-          '<a class="btn btn-gold" href="' + slip.href + '">' + slip.cta + '</a>' +
-          '<button class="btn-sm" id="btn-oracle-again">Bốc lại</button>' +
-        '</div>' +
-      '</div>';
+
+    if (slip.personal) {
+      const ctx = await fetchOracleContext();
+      const lines = slip.lines.concat(personalLines(ctx));
+      html =
+        '<div class="oracle-result">' +
+          '<p class="oracle-title">🎯 ' + slip.module + '</p>' +
+          '<p class="oracle-text">' + pick(lines) + '</p>' +
+          '<div class="oracle-actions">' +
+            '<button class="btn-sm" id="btn-oracle-again">Bốc lại</button>' +
+          '</div>' +
+        '</div>';
+    } else {
+      html =
+        '<div class="oracle-result">' +
+          '<p class="oracle-title">📿 ' + slip.module + '</p>' +
+          '<p class="oracle-text">' + pick(slip.lines) + '</p>' +
+          '<div class="oracle-actions">' +
+            '<a class="btn btn-gold" href="' + slip.href + '">' + slip.cta + '</a>' +
+            '<button class="btn-sm" id="btn-oracle-again">Bốc lại</button>' +
+          '</div>' +
+        '</div>';
+    }
   }
 
   body.innerHTML = html;

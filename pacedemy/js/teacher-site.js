@@ -11,6 +11,7 @@ const $ = function (id) { return document.getElementById(id); };
 const FEATURES = [
   { key: 'vocab',       label: 'Từ vựng' },
   { key: 'listen',      label: 'Luyện nghe' },
+  { key: 'shadow',      label: 'Luyện nói theo (Shadowing)' },
   { key: 'read',        label: 'Luyện đọc' },
   { key: 'mock',        label: 'Thi thử' },
   { key: 'leaderboard', label: 'Xếp hạng / Lớp học' },

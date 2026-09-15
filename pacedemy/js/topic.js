@@ -46,7 +46,6 @@ async function build() {
   if (!t) { $('levels').innerHTML = '<p class="empty">Không tìm thấy chủ đề này.</p>'; return; }
 
   $('t-name').textContent = t.name_vi;
-  $('link-shadow').href = 'shadow.html?chu-de=' + encodeURIComponent(slug);
 
   const { data: words } = await db
     .from('vocabulary')
