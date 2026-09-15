@@ -22,5 +22,5 @@ function toast(message, kind) {
   clearTimeout(_paceToastTimer);
   _paceToastTimer = setTimeout(function () {
     box.classList.remove('show');
-  }, 3200);
+  }, 1800);
 }
