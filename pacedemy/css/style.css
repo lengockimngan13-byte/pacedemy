@@ -3105,6 +3105,63 @@ body.focus-mode .side-toggle { display: none; }
 
 
 /* ============================================================
+   LUYỆN NÓI THEO (SHADOWING)
+   ============================================================ */
+
+.sh-sentence {
+  font-family: var(--disp);
+  font-size: clamp(1.3rem, 4.5vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+.sh-vi { margin: 0 0 20px; color: #4A635E; font-style: italic; }
+
+.sh-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+
+#btn-record.recording {
+  background: var(--danger);
+  color: var(--paper);
+  border-color: var(--danger);
+  animation: shPulse 1.2s ease-in-out infinite;
+}
+@keyframes shPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .7; }
+}
+
+.sh-score {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--line);
+}
+.sh-score-num { font-family: var(--disp); font-size: 1.8rem; font-weight: 700; }
+.sh-score-lab { font-size: 0.92rem; color: #4A635E; }
+
+.sh-score.sh-good { background: var(--mist); border-color: var(--teal-dim); }
+.sh-score.sh-good .sh-score-num { color: var(--teal); }
+.sh-score.sh-mid  { background: #FBF4E4; border-color: var(--gold); }
+.sh-score.sh-mid  .sh-score-num { color: #6B4A05; }
+.sh-score.sh-low  { background: #FBEAE5; border-color: var(--danger); }
+.sh-score.sh-low  .sh-score-num { color: var(--danger); }
+
+.sh-heard { margin: 12px 0 0; font-size: 0.9rem; color: #4A635E; }
+.sh-heard i { color: var(--ink); font-style: normal; font-weight: 600; }
+
+.sh-nav { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+@media (max-width: 560px) {
+  .sh-nav { justify-content: stretch; }
+  .sh-nav button { flex: 1; }
+}
+
+
+/* ============================================================
    TOAST — thông báo nổi dùng chung cho mọi trang
    ============================================================ */
 
