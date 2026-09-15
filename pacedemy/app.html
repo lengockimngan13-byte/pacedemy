@@ -61,11 +61,22 @@
   <section class="oracle" id="oracle">
     <div class="oracle-head">
       <h2>Bốc quẻ ôn gì hôm nay</h2>
-      <p>Không biết học gì thì để duyên số quyết định.</p>
+      <p id="oracle-hint">Nhấn giữ vào hũ rồi kéo lên xuống để lắc, quẻ rớt ra là mở liền.</p>
     </div>
-    <div id="oracle-body">
-      <button class="btn btn-gold" id="btn-oracle">🔮 Bốc quẻ</button>
+
+    <div class="oracle-jar-wrap" id="oracle-jar-wrap">
+      <div class="oracle-sticks">
+        <div class="oracle-stick lucky" style="left:47%;height:132px;--r:-3deg"></div>
+        <div class="oracle-stick" style="left:38%;height:120px;--r:-13deg"></div>
+        <div class="oracle-stick" style="left:57%;height:122px;--r:7deg"></div>
+        <div class="oracle-stick" style="left:30%;height:104px;--r:-20deg"></div>
+        <div class="oracle-stick" style="left:65%;height:108px;--r:16deg"></div>
+      </div>
+      <div class="oracle-jar-rim"></div>
+      <div class="oracle-jar-body"></div>
     </div>
+
+    <div id="oracle-body" class="hidden"></div>
   </section>
 
   <section id="modules-section">

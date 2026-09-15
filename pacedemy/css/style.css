@@ -474,6 +474,71 @@ a { color: inherit; }
 
 .oracle-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
+/* ---------- Hũ xăm — nhấn giữ, kéo lên xuống để lắc ---------- */
+
+.oracle-jar-wrap {
+  position: relative;
+  width: 170px;
+  height: 210px;
+  margin: 4px auto 18px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.oracle-jar-wrap:active { cursor: grabbing; }
+.oracle-jar-wrap.drawn { cursor: default; }
+
+.oracle-sticks {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 140px;
+}
+
+.oracle-stick {
+  position: absolute;
+  bottom: 0;
+  width: 9px;
+  border-radius: 5px 5px 2px 2px;
+  background: linear-gradient(180deg, #F3D9A0, #D9B26A);
+  border: 1.5px solid var(--ink);
+  transform: rotate(var(--r, 0deg));
+  transform-origin: 50% 100%;
+}
+
+.oracle-stick.lucky.falling {
+  animation: oracleStickFall .68s cubic-bezier(.32,.62,.32,1) forwards;
+}
+
+@keyframes oracleStickFall {
+  0%   { transform: rotate(var(--r, 0deg)) translateY(0); opacity: 1; }
+  50%  { transform: rotate(calc(var(--r, 0deg) + 30deg)) translateY(60px); opacity: 1; }
+  100% { transform: rotate(calc(var(--r, 0deg) + 55deg)) translateY(150px); opacity: 0; }
+}
+
+.oracle-jar-rim {
+  position: absolute;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 20px;
+  background: var(--gold-dim);
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+}
+
+.oracle-jar-body {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 112px;
+  background: var(--gold);
+  border: 3px solid var(--ink);
+  border-radius: 14px 14px 46px 46px / 14px 14px 60px 60px;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

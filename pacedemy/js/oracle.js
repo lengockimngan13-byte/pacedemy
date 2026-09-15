@@ -1,7 +1,6 @@
 // ============================================================
-// Pacedemy — "Bốc quẻ ôn gì hôm nay": chọn ngẫu nhiên một module
-// để gợi ý học viên, kèm lời phán vui kiểu thầy bói. Bốc lại
-// bao nhiêu lần cũng được, không giới hạn.
+// Pacedemy — "Bốc quẻ ôn gì hôm nay": nhấn giữ vào hũ, kéo lên
+// xuống để lắc. Lắc đủ thì một que xăm rớt ra, quẻ tự mở.
 //
 // Ngân muốn thêm module mới hoặc đổi lời phán: sửa mảng SLIPS
 // bên dưới, mỗi phần tử là 1 module với danh sách lines (chọn
@@ -64,6 +63,8 @@ const REST_CHANCE = 1 / 12; // khoảng 1 trong 12 lần bốc
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
+// ---------- Nội dung quẻ (không đổi so với trước) ----------
+
 function drawSlip() {
   const body = document.getElementById('oracle-body');
   if (!body) return;
@@ -77,7 +78,7 @@ function drawSlip() {
         '<p class="oracle-title">😴 Nghỉ ngơi</p>' +
         '<p class="oracle-text">' + pick(REST_SLIP.lines) + '</p>' +
         '<div class="oracle-actions">' +
-          '<button class="btn btn-line" id="btn-oracle-again">Bốc lại</button>' +
+          '<button class="btn-sm" id="btn-oracle-again">Bốc lại</button>' +
         '</div>' +
       '</div>';
   } else {
@@ -88,17 +89,111 @@ function drawSlip() {
         '<p class="oracle-text">' + pick(slip.lines) + '</p>' +
         '<div class="oracle-actions">' +
           '<a class="btn btn-gold" href="' + slip.href + '">' + slip.cta + '</a>' +
-          '<button class="btn btn-line" id="btn-oracle-again">Bốc lại</button>' +
+          '<button class="btn-sm" id="btn-oracle-again">Bốc lại</button>' +
         '</div>' +
       '</div>';
   }
 
   body.innerHTML = html;
+  body.classList.remove('hidden');
+
   const again = document.getElementById('btn-oracle-again');
-  if (again) again.addEventListener('click', drawSlip);
+  if (again) again.addEventListener('click', resetJar);
 }
 
+// ---------- Hũ xăm: nhấn giữ, kéo lên xuống để lắc ----------
+
 (function () {
-  const btn = document.getElementById('btn-oracle');
-  if (btn) btn.addEventListener('click', drawSlip);
+  const wrap = document.getElementById('oracle-jar-wrap');
+  if (!wrap) return;
+
+  const REVERSALS_NEEDED = 5;  // đổi hướng đủ 5 lần thì rớt quẻ
+  const MIN_STEP = 9;          // mỗi lần đổi hướng phải kéo ít nhất chừng này (px) mới tính
+
+  let dragging = false;
+  let lastY = 0;
+  let dir = 0;
+  let reversals = 0;
+
+  function pointY(e) {
+    return e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY;
+  }
+
+  function onDown(e) {
+    if (wrap.classList.contains('drawn')) return; // đã rớt quẻ rồi, chờ bốc lại
+    dragging = true;
+    lastY = pointY(e);
+    wrap.style.transition = 'none';
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const y = pointY(e);
+    const dy = y - lastY;
+    if (Math.abs(dy) < 2) return;
+    lastY = y;
+
+    const wobble = Math.max(-16, Math.min(16, dy * 1.6));
+    const shift = Math.max(-7, Math.min(7, dy * 0.6));
+    wrap.style.transform = 'rotate(' + wobble + 'deg) translateY(' + shift + 'px)';
+
+    const newDir = dy > 0 ? 1 : -1;
+    if (newDir !== dir && Math.abs(dy) >= MIN_STEP) {
+      reversals++;
+      dir = newDir;
+    }
+
+    if (reversals >= REVERSALS_NEEDED) {
+      dragging = false;
+      dropStick();
+    }
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    reversals = 0;
+    dir = 0;
+    wrap.style.transition = 'transform .3s ease';
+    wrap.style.transform = '';
+  }
+
+  wrap.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+
+  wrap.addEventListener('touchstart', onDown, { passive: true });
+  window.addEventListener('touchmove', onMove, { passive: true });
+  window.addEventListener('touchend', onUp);
+  window.addEventListener('touchcancel', onUp);
+
+  function dropStick() {
+    reversals = 0;
+    dir = 0;
+    wrap.classList.add('drawn');
+    wrap.style.transition = 'transform .2s ease';
+    wrap.style.transform = '';
+    document.getElementById('oracle-hint').textContent = 'Quẻ rớt rồi…';
+
+    const stick = wrap.querySelector('.oracle-stick.lucky');
+    if (stick) stick.classList.add('falling');
+
+    setTimeout(function () {
+      drawSlip();
+      document.getElementById('oracle-hint').textContent = 'Quẻ đã mở. Bấm "Bốc lại" muốn xin quẻ khác.';
+    }, 650);
+  }
+
+  window.resetOracleJar = function () {
+    wrap.classList.remove('drawn');
+    const stick = wrap.querySelector('.oracle-stick.lucky');
+    if (stick) stick.classList.remove('falling');
+    document.getElementById('oracle-hint').textContent =
+      'Nhấn giữ vào hũ rồi kéo lên xuống để lắc, quẻ rớt ra là mở liền.';
+  };
 })();
+
+function resetJar() {
+  document.getElementById('oracle-body').classList.add('hidden');
+  if (window.resetOracleJar) window.resetOracleJar();
+}
