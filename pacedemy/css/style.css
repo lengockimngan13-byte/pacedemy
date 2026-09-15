@@ -479,7 +479,7 @@ a { color: inherit; }
 .oracle-jar-wrap {
   position: relative;
   width: 170px;
-  height: 210px;
+  height: 187px;
   margin: 4px auto 18px;
   cursor: grab;
   touch-action: none;
@@ -488,16 +488,23 @@ a { color: inherit; }
 .oracle-jar-wrap:active { cursor: grabbing; }
 .oracle-jar-wrap.drawn { cursor: default; }
 
+.oracle-jar-emoji {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 6px 10px rgba(12, 36, 34, .18));
+}
+
 .oracle-sticks {
   position: absolute;
-  left: 0; right: 0; top: 0;
-  height: 140px;
+  left: 0; right: 0;
+  bottom: 68%;
+  height: 100px;
 }
 
 .oracle-stick {
   position: absolute;
   bottom: 0;
-  width: 9px;
+  width: 8px;
   border-radius: 5px 5px 2px 2px;
   background: linear-gradient(180deg, #F3D9A0, #D9B26A);
   border: 1.5px solid var(--ink);
@@ -515,28 +522,33 @@ a { color: inherit; }
   100% { transform: rotate(calc(var(--r, 0deg) + 55deg)) translateY(150px); opacity: 0; }
 }
 
-.oracle-jar-rim {
+.oracle-sparkles {
   position: absolute;
-  left: 50%;
-  bottom: 100px;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 20px;
-  background: var(--gold-dim);
-  border: 3px solid var(--ink);
-  border-radius: 50%;
+  inset: -10px;
+  pointer-events: none;
+  z-index: 2;
 }
-
-.oracle-jar-body {
+.oracle-sparkles span {
   position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 140px;
-  height: 112px;
-  background: var(--gold);
-  border: 3px solid var(--ink);
-  border-radius: 14px 14px 46px 46px / 14px 14px 60px 60px;
+  font-size: 22px;
+  opacity: 0;
+}
+.oracle-sparkles span:nth-child(1) { left: 6%;  top: 30%; }
+.oracle-sparkles span:nth-child(2) { right: 4%; top: 18%; }
+.oracle-sparkles span:nth-child(3) { left: 14%; top: 70%; }
+.oracle-sparkles span:nth-child(4) { right: 10%; top: 64%; }
+
+.oracle-sparkles.burst span {
+  animation: oracleSparkle .9s ease-out forwards;
+}
+.oracle-sparkles.burst span:nth-child(2) { animation-delay: .08s; }
+.oracle-sparkles.burst span:nth-child(3) { animation-delay: .16s; }
+.oracle-sparkles.burst span:nth-child(4) { animation-delay: .24s; }
+
+@keyframes oracleSparkle {
+  0%   { opacity: 0; transform: scale(.3) rotate(0deg); }
+  35%  { opacity: 1; transform: scale(1.15) rotate(12deg); }
+  100% { opacity: 0; transform: scale(.6) rotate(24deg) translateY(-14px); }
 }
 
 .stats {
