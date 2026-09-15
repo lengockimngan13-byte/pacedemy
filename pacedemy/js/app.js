@@ -5,6 +5,8 @@
 let me = null;
 let masteredCount = 0;
 let statsRange = 'today';
+let heatYear = null;   // null = chưa mở, sẽ lấy tháng hiện tại khi loadStreak() chạy lần đầu
+let heatMonth = null;  // 0-11
 
 function el(id) { return document.getElementById(id); }
 
@@ -806,14 +808,34 @@ async function loadStreak() {
   const best   = (prof && prof.best_streak) || 0;
   const goal   = (prof && prof.daily_goal) || 20;
 
-  // 14 ngày gần nhất
-  const since = new Date(Date.now() - 13 * 86400000);
-  since.setHours(0, 0, 0, 0);
+  if (heatYear === null) {
+    const now = new Date();
+    heatYear = now.getFullYear();
+    heatMonth = now.getMonth();
+  }
+
+  // Hôm nay — luôn lấy đúng ngày thật, không phụ thuộc tháng đang xem trong lịch
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const { data: todayAtts } = await db
+    .from('attempts').select('total_questions')
+    .eq('user_id', me.id).not('submitted_at', 'is', null)
+    .gte('submitted_at', todayStart.toISOString());
+
+  let doneToday = 0;
+  for (const a of (todayAtts || [])) doneToday += a.total_questions || 0;
+  const pct = Math.min(100, Math.round(doneToday / goal * 100));
+
+  // Dữ liệu cho đúng tháng đang xem trong lịch (có thể là tháng trước/sau)
+  const monthStart = new Date(heatYear, heatMonth, 1);
+  const monthEnd = new Date(heatYear, heatMonth + 1, 0, 23, 59, 59);
 
   const { data: atts } = await db
     .from('attempts').select('mode, part, total_questions, submitted_at')
     .eq('user_id', me.id).not('submitted_at', 'is', null)
-    .gte('submitted_at', since.toISOString());
+    .gte('submitted_at', monthStart.toISOString())
+    .lte('submitted_at', monthEnd.toISOString());
 
   const byDay = {};     // ngày → tổng câu
   const actsByDay = {}; // ngày → { 'Từ vựng': n, 'Đọc': n, ... }
@@ -829,12 +851,11 @@ async function loadStreak() {
     }
   }
 
-  const today = dayKey(new Date());
-  const doneToday = byDay[today] || 0;
-  const pct = Math.min(100, Math.round(doneToday / goal * 100));
-
   // Chuỗi mới nhất so với mốc
   const next = MOC.find(function (m) { return m > streak; }) || null;
+
+  const now = new Date();
+  const isCurrentMonth = (heatYear === now.getFullYear() && heatMonth === now.getMonth());
 
   let html =
     '<div class="tbox streak-card">' +
@@ -859,7 +880,19 @@ async function loadStreak() {
           : '<span class="stat-lab">còn ' + (goal - doneToday) + ' câu</span>') +
       '</div>' +
 
-      '<div class="heat" id="heat">' + dayCards(byDay, actsByDay, goal) + '</div>' +
+      '<div class="heat-nav">' +
+        '<button class="btn-sm" id="heat-prev" type="button">‹ Tháng trước</button>' +
+        '<span class="heat-month-label">Tháng ' + (heatMonth + 1) + '/' + heatYear + '</span>' +
+        '<button class="btn-sm" id="heat-next" type="button"' + (isCurrentMonth ? ' disabled' : '') + '>Tháng sau ›</button>' +
+      '</div>' +
+
+      '<div class="heat-weekdays">' +
+        ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(function (w) {
+          return '<span>' + w + '</span>';
+        }).join('') +
+      '</div>' +
+
+      '<div class="heat" id="heat">' + monthCalendar(heatYear, heatMonth, byDay, actsByDay, goal) + '</div>' +
 
       '<div class="goal-edit">' +
         '<span class="stat-lab">Mục tiêu mỗi ngày (tổng số câu, gộp mọi phần luyện)</span>' +
@@ -871,6 +904,20 @@ async function loadStreak() {
     '</div>';
 
   box.innerHTML = html;
+
+  el('heat-prev').addEventListener('click', function () {
+    heatMonth--;
+    if (heatMonth < 0) { heatMonth = 11; heatYear--; }
+    loadStreak();
+  });
+
+  const nextBtn = el('heat-next');
+  nextBtn.addEventListener('click', function () {
+    if (nextBtn.disabled) return;
+    heatMonth++;
+    if (heatMonth > 11) { heatMonth = 0; heatYear++; }
+    loadStreak();
+  });
 
   box.querySelectorAll('button[data-goal]').forEach(function (b) {
     b.addEventListener('click', async function () {
@@ -927,29 +974,40 @@ function stampFor(n, goal) {
   return null;
 }
 
-// Lưới 14 ngày gần nhất, mỗi ô là một ngày cụ thể — ghi ngày/tháng,
-// những hoạt động đã làm hôm đó, và đóng dấu đỏ nếu giữ được chuỗi.
-function dayCards(byDay, actsByDay, goal) {
-  let out = '';
-  const todayKey = dayKey(new Date());
+// Lịch tháng — canh ô trống đầu tháng theo đúng thứ, mỗi ô là một ngày
+// cụ thể: ghi ngày, những hoạt động đã làm hôm đó, và đóng dấu đỏ nếu
+// giữ được chuỗi. Ngày trong tương lai không hiện "Chưa học" (chưa tới mà).
+function monthCalendar(year, month, byDay, actsByDay, goal) {
+  const first = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const leadBlank = (first.getDay() + 6) % 7; // Thứ 2 làm ngày đầu tuần
 
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400000);
+  let out = '';
+  for (let i = 0; i < leadBlank; i++) out += '<div class="day-card day-blank"></div>';
+
+  const todayKey = dayKey(new Date());
+  const nowMs = Date.now();
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = new Date(year, month, day);
     const k = dayKey(d);
     const n = byDay[k] || 0;
     const acts = actsByDay[k] || {};
     const labels = Object.keys(acts);
     const stamp = stampFor(n, goal);
     const isToday = k === todayKey;
+    const isFuture = d.getTime() > nowMs;
 
     out +=
-      '<div class="day-card' + (isToday ? ' is-today' : '') + (n === 0 ? ' is-empty' : '') + '">' +
-        '<div class="day-date">' + d.getDate() + '/' + (d.getMonth() + 1) + '</div>' +
-        (labels.length
-          ? '<div class="day-acts">' + labels.map(function (l) {
-              return '<span class="day-act">' + l + '</span>';
-            }).join('') + '</div>'
-          : '<div class="day-acts day-acts-empty">Chưa học</div>') +
+      '<div class="day-card' + (isToday ? ' is-today' : '') +
+        (n === 0 ? ' is-empty' : '') + (isFuture ? ' is-future' : '') + '">' +
+        '<div class="day-date">' + day + '</div>' +
+        (isFuture ? '' :
+          labels.length
+            ? '<div class="day-acts">' + labels.map(function (l) {
+                return '<span class="day-act">' + l + '</span>';
+              }).join('') + '</div>'
+            : '<div class="day-acts day-acts-empty">Chưa học</div>') +
         (stamp ? '<div class="day-stamp">' + stamp + '</div>' : '') +
       '</div>';
   }
