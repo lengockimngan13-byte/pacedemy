@@ -230,46 +230,82 @@ async function startRecording() {
 }
 
 function showResult(heard) {
-  const pct = matchScore(current.en, heard);
+  const detail = scoreDetail(current.en, heard);
 
   $('sh-heard-text').textContent = heard || '(không nghe được gì, thử lại gần micro hơn)';
-  $('sh-score-num').textContent = pct + '%';
+  $('sh-score-num').textContent = detail.pct + '%';
 
   let lab, cls;
-  if (pct >= 85) { lab = 'Khá sát script'; cls = 'sh-good'; }
-  else if (pct >= 55) { lab = 'Tạm ổn, nghe lại mẫu rồi thử lại'; cls = 'sh-mid'; }
+  if (detail.pct >= 85) { lab = 'Khá sát script'; cls = 'sh-good'; }
+  else if (detail.pct >= 55) { lab = 'Tạm ổn, nghe lại mẫu rồi thử lại'; cls = 'sh-mid'; }
   else { lab = 'Còn lệch nhiều, thử lại nhé'; cls = 'sh-low'; }
 
   $('sh-score-lab').textContent = lab;
   $('sh-score-box').className = 'sh-score ' + cls;
+
+  // Tô màu trực tiếp câu mẫu: từ nói đúng và từ còn thiếu
+  $('sh-en').innerHTML = detail.marked.map(function (m) {
+    return '<span class="' + (m.ok ? 'sh-word-ok' : 'sh-word-miss') + '">' + escHtml(m.text) + '</span>';
+  }).join(' ');
+
+  const missBox = $('sh-missed');
+  missBox.classList.remove('hidden');
+  if (detail.missed.length) {
+    missBox.className = 'sh-missed sh-missed-some';
+    missBox.textContent = 'Từ chưa nói đúng: ' + detail.missed.join(', ');
+  } else {
+    missBox.className = 'sh-missed sh-missed-none';
+    missBox.textContent = 'Không thiếu từ nào trong script — bạn nói đủ hết!';
+  }
+
   $('sh-result').classList.remove('hidden');
 
   resetRecordButton();
 }
 
-// ---------- So khớp từ (ước lượng thô) ----------
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
-function normWords(s) {
+// ---------- So khớp từ (ước lượng thô) + phân tích từng từ ----------
+
+function tokenize(s) {
   return (s || '')
-    .toLowerCase()
-    .replace(/^[wm]:\s*/gim, '')          // bỏ nhãn người nói "W:"/"M:" đầu dòng
-    .replace(/[.,!?;:"'()]/g, '')
+    .replace(/^[WM]:\s*/gim, '')   // bỏ nhãn người nói "W:"/"M:" đầu dòng
     .split(/\s+/)
     .filter(Boolean);
 }
 
-function matchScore(target, heard) {
-  const tWords = normWords(target);
-  const hWords = normWords(heard);
-  if (!tWords.length) return 0;
+function normOne(w) {
+  return (w || '').toLowerCase().replace(/[.,!?;:"'()]/g, '');
+}
+
+// Trả về { pct, marked, missed } — marked giữ đúng chữ gốc của từng
+// từ trong script, đánh dấu ok/không theo có nghe ra hay không.
+// Không quan tâm thứ tự nói trước sau, chỉ quan tâm có nói ra từ đó
+// hay không (đúng tinh thần "ước lượng thô").
+function scoreDetail(target, heard) {
+  const tTokens = tokenize(target);
+  const hWordsNorm = tokenize(heard).map(normOne);
 
   const hCount = {};
-  hWords.forEach(function (w) { hCount[w] = (hCount[w] || 0) + 1; });
+  hWordsNorm.forEach(function (w) { if (w) hCount[w] = (hCount[w] || 0) + 1; });
 
   let hit = 0;
-  tWords.forEach(function (w) {
-    if (hCount[w] > 0) { hit++; hCount[w]--; }
+  const marked = tTokens.map(function (tok) {
+    const n = normOne(tok);
+    if (n && hCount[n] > 0) {
+      hCount[n]--;
+      hit++;
+      return { text: tok, ok: true };
+    }
+    return { text: tok, ok: false };
   });
 
-  return Math.round(hit / tWords.length * 100);
+  const pct = tTokens.length ? Math.round(hit / tTokens.length * 100) : 0;
+  const missed = marked.filter(function (m) { return !m.ok; }).map(function (m) { return m.text; });
+
+  return { pct: pct, marked: marked, missed: missed };
 }

@@ -3140,6 +3140,19 @@ body.focus-mode .side-toggle { display: none; }
 .sh-heard { margin: 12px 0 0; font-size: 0.9rem; color: #4A635E; }
 .sh-heard i { color: var(--ink); font-style: normal; font-weight: 600; }
 
+.sh-word-ok { color: var(--teal); }
+.sh-word-miss { color: var(--danger); text-decoration: underline; text-decoration-style: wavy; text-decoration-color: rgba(180,67,46,.5); }
+
+.sh-missed {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--r);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+.sh-missed.sh-missed-some { background: #FBEAE5; color: var(--danger); }
+.sh-missed.sh-missed-none { background: var(--mist); color: var(--teal); }
+
 .sh-nav { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
 
 @media (max-width: 560px) {
