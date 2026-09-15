@@ -1026,6 +1026,17 @@ a { color: inherit; }
 
 /* ---- Mặt trước ---- */
 
+.f-image {
+  display: block;
+  max-width: 200px;
+  max-height: 140px;
+  width: auto;
+  height: auto;
+  margin: 0 auto 16px;
+  border-radius: var(--r);
+  object-fit: cover;
+}
+
 .card-front .w {
   font-family: var(--disp);
   font-size: clamp(2.2rem, 8vw, 3.1rem);
@@ -2902,9 +2913,54 @@ body.focus-mode .side-toggle { display: none; }
 
 .qz-card-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 96px;
   gap: 20px;
+  align-items: start;
 }
+
+.qz-image-box {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #8DA39D;
+  font-size: 0.72rem;
+  cursor: pointer;
+  overflow: hidden;
+  background: var(--mist);
+}
+.qz-image-box:hover { border-color: var(--teal); color: var(--teal); }
+.qz-image-box svg { width: 22px; height: 22px; }
+.qz-image-box.uploading { opacity: .5; pointer-events: none; }
+
+.qz-image-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qz-image-remove {
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 20px; height: 20px;
+  border: none;
+  border-radius: 100px;
+  background: rgba(12,36,34,.7);
+  color: var(--paper);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+.qz-image-remove:hover { background: var(--danger); }
 
 .qz-field { display: flex; flex-direction: column; }
 

@@ -102,7 +102,7 @@ async function loadDeck(onlyIds) {
   $('topic-name').textContent = t.name_vi;
 
   const { data: words } = await db.from('vocabulary')
-    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level')
+    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, image_url')
     .eq('topic_id', t.id)
     .order('level')
     .order('order_index')
@@ -142,6 +142,13 @@ function render(speakIt) {
   $('progress').style.width = ((at + 1) / deck.length * 100) + '%';
 
   // Mặt trước
+  if (w.image_url) {
+    $('f-image').src = w.image_url;
+    $('f-image').classList.remove('hidden');
+  } else {
+    $('f-image').classList.add('hidden');
+    $('f-image').removeAttribute('src');
+  }
   $('f-word').textContent = w.word;
   $('f-pos').textContent = w.pos || '';
   $('f-pos').style.display = w.pos ? '' : 'none';

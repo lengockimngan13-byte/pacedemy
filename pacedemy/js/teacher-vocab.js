@@ -10,6 +10,10 @@ let topicsNow = [];    // chủ đề đang có trong kho
 
 const POS = ['n', 'v', 'adj', 'adv', 'phr'];
 
+// Bucket dùng chung với ảnh/audio Part 1 (đã có sẵn quyền upload từ trước,
+// không cần tạo bucket mới hay xin quyền lại trong Supabase).
+const IMG_BUCKET = 'audio';
+
 const $ = function (id) { return document.getElementById(id); };
 
 const PROMPT =
@@ -436,7 +440,7 @@ async function loadWordsForTopic(topicId) {
   box.innerHTML = '<p class="empty" style="text-align:left">Đang tải…</p>';
 
   const { data: ws, error } = await db.from('vocabulary')
-    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, order_index')
+    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, order_index, image_url')
     .eq('topic_id', topicId)
     .order('level').order('order_index').order('id');
 
@@ -478,6 +482,14 @@ function svRow(w, index) {
         '<input type="text" class="sv-meaning" value="' + esc(w.meaning_vi || '') + '">' +
         '<label>Định nghĩa</label>' +
       '</div>' +
+      '<div class="qz-image-box" data-has="' + (w.image_url ? '1' : '0') + '">' +
+        (w.image_url
+          ? '<img class="qz-image-preview" src="' + esc(w.image_url) + '" alt="">' +
+            '<button class="qz-image-remove" type="button" data-img-remove title="Bỏ ảnh">&times;</button>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5.5-5.5L4 21"/></svg>' +
+            '<span>Hình ảnh</span>') +
+        '<input type="file" accept="image/*" class="qz-image-input" data-img-input hidden>' +
+      '</div>' +
     '</div>' +
     '<div class="sv-detail hidden">' +
       '<div class="sv-detail-grid">' +
@@ -508,6 +520,8 @@ function svRow(w, index) {
     saveField(id, 'pos', this.value);
   });
 
+  bindImageBox(row.querySelector('.qz-image-box'), id);
+
   row.querySelector('[data-toggle]').addEventListener('click', function () {
     row.querySelector('.sv-detail').classList.toggle('hidden');
   });
@@ -528,6 +542,115 @@ function renumberCards() {
   $('sv-list').querySelectorAll('.qz-num').forEach(function (el, i) {
     el.textContent = i + 1;
   });
+}
+
+// ---------- Ô hình ảnh trong mỗi thẻ ----------
+
+function bindImageBox(imgBox, id) {
+  if (!imgBox) return;
+
+  const input = imgBox.querySelector('[data-img-input]');
+
+  imgBox.addEventListener('click', function (e) {
+    if (e.target.closest('[data-img-remove]')) return;
+    if (imgBox.dataset.has !== '1') input.click();
+  });
+
+  input.addEventListener('change', function () {
+    const file = input.files && input.files[0];
+    if (file) uploadImage(imgBox, id, file);
+  });
+
+  const removeBtn = imgBox.querySelector('[data-img-remove]');
+  if (removeBtn) {
+    removeBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      removeImage(imgBox, id);
+    });
+  }
+}
+
+// Nén ảnh trước khi tải lên — giữ nguyên tỷ lệ khung hình (không cắt
+// vuông như avatar), chỉ giới hạn cạnh dài nhất và nén JPEG chất lượng 82%.
+// Cùng nguyên lý với shrink() ở trang Tài khoản, chỉ khác là không crop.
+function shrinkKeepRatio(file, maxSide) {
+  return new Promise(function (resolve, reject) {
+    const img = new Image();
+    img.onload = function () {
+      let w = img.width;
+      let h = img.height;
+
+      if (w > maxSide || h > maxSide) {
+        if (w >= h) { h = Math.round(h * maxSide / w); w = maxSide; }
+        else { w = Math.round(w * maxSide / h); h = maxSide; }
+      }
+
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+
+      c.toBlob(function (b) {
+        b ? resolve(b) : reject(new Error('Không xử lý được ảnh'));
+      }, 'image/jpeg', 0.82);
+    };
+    img.onerror = function () { reject(new Error('Không đọc được file ảnh')); };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function uploadImage(imgBox, id, file) {
+  if (!file.type.startsWith('image/')) { toast('Bạn chọn một file ảnh nhé.', 'bad'); return; }
+  if (file.size > 8 * 1024 * 1024) { toast('Ảnh lớn quá, bạn chọn ảnh dưới 8MB.', 'bad'); return; }
+
+  imgBox.classList.add('uploading');
+
+  let blob;
+  try {
+    blob = await shrinkKeepRatio(file, 640);
+  } catch (e) {
+    imgBox.classList.remove('uploading');
+    toast('Không xử lý được ảnh: ' + e.message, 'bad');
+    return;
+  }
+
+  const key = 'vocab/' + id + '-' + Date.now() + '.jpg';
+
+  const { error: upErr } = await db.storage.from(IMG_BUCKET).upload(key, blob, {
+    upsert: true,
+    contentType: 'image/jpeg'
+  });
+
+  imgBox.classList.remove('uploading');
+
+  if (upErr) { toast('Không tải ảnh lên được: ' + upErr.message, 'bad'); return; }
+
+  const { data: pub } = db.storage.from(IMG_BUCKET).getPublicUrl(key);
+  const url = pub.publicUrl;
+
+  await saveField(id, 'image_url', url);
+  toast('Đã thêm ảnh.', 'good');
+
+  imgBox.dataset.has = '1';
+  imgBox.innerHTML =
+    '<img class="qz-image-preview" src="' + esc(url) + '" alt="">' +
+    '<button class="qz-image-remove" type="button" data-img-remove title="Bỏ ảnh">&times;</button>' +
+    '<input type="file" accept="image/*" class="qz-image-input" data-img-input hidden>';
+
+  bindImageBox(imgBox, id);
+}
+
+async function removeImage(imgBox, id) {
+  await saveField(id, 'image_url', null);
+  toast('Đã bỏ ảnh.', 'good');
+
+  imgBox.dataset.has = '0';
+  imgBox.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5.5-5.5L4 21"/></svg>' +
+    '<span>Hình ảnh</span>' +
+    '<input type="file" accept="image/*" class="qz-image-input" data-img-input hidden>';
+
+  bindImageBox(imgBox, id);
 }
 
 function bindSave(el, id, field, transform) {
@@ -611,7 +734,7 @@ $('btn-add-word').addEventListener('click', async function () {
     pos: 'n',
     level: 1,
     order_index: (max ? max.order_index : 0) + 1
-  }).select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level').single();
+  }).select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, image_url').single();
 
   this.disabled = false;
 
