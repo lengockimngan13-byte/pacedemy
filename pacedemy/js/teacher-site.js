@@ -36,6 +36,7 @@ const STRIP_PARTS = [
 })();
 
 function say(msg, kind) {
+  toast(msg, kind === 'good' ? 'good' : 'bad');
   const n = $('note');
   n.classList.remove('hidden');
   n.className = 'note ' + (kind === 'good' ? 'note-good' : 'note-bad');

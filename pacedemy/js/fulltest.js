@@ -359,7 +359,7 @@ async function submit(auto) {
 
   $('btn-review').addEventListener('click', showReview);
 
-  await db.from('mock_tests').insert({
+  const { error: mockErr } = await db.from('mock_tests').insert({
     user_id: me.id, exam_set_id: examSet.id,
     started_at: new Date(startAt).toISOString(),
     submitted_at: new Date().toISOString(),
@@ -368,17 +368,24 @@ async function submit(auto) {
     payload: { parts: byPart, listening_total: lN, reading_total: rN }
   });
 
-  const { data: att } = await db.from('attempts').insert({
+  if (mockErr) toast('Không lưu được kết quả thi thử: ' + mockErr.message, 'bad');
+
+  const { data: att, error: attErr } = await db.from('attempts').insert({
     user_id: me.id, mode: 'mock', total_questions: all.length,
     correct_count: lOk + rOk, seconds_used: secs, submitted_at: new Date().toISOString()
   }).select('id').single();
+
+  if (attErr) toast('Không lưu được nhật ký thi thử: ' + attErr.message, 'bad');
 
   if (att) {
     const rows = all.map(function (q) {
       return { attempt_id: att.id, question_id: null, selected: picked[q.id] || null,
         is_correct: picked[q.id] === q.correct_answer };
     });
-    for (let i = 0; i < rows.length; i += 100) await db.from('attempt_answers').insert(rows.slice(i, i + 100));
+    for (let i = 0; i < rows.length; i += 100) {
+      const { error: ansErr } = await db.from('attempt_answers').insert(rows.slice(i, i + 100));
+      if (ansErr) { toast('Không lưu được một phần câu trả lời: ' + ansErr.message, 'bad'); break; }
+    }
   }
 }
 

@@ -60,6 +60,7 @@ $('btn-prompt').addEventListener('click', function () {
 // ---------- Đọc dữ liệu ----------
 
 function say(msg, kind) {
+  toast(msg, kind === 'good' ? 'good' : 'bad');
   const n = $('note');
   n.className = 'note ' + (kind === 'good' ? 'note-good' : 'note-bad');
   n.textContent = msg;

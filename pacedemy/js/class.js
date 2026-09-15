@@ -248,8 +248,13 @@ $('btn-leave').addEventListener('click', async function () {
 
   this.disabled = false;
 
-  if (error) { $('leave-msg').textContent = 'Không rời được: ' + error.message; return; }
+  if (error) {
+    toast('Không rời được: ' + error.message, 'bad');
+    $('leave-msg').textContent = 'Không rời được: ' + error.message;
+    return;
+  }
 
+  toast('Đã rời lớp.', 'good');
   location.replace('app.html');
 });
 

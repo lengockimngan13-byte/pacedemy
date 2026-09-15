@@ -2788,6 +2788,41 @@ body.focus-mode .side-toggle { display: none; }
 
 
 /* ============================================================
+   TOAST — thông báo nổi dùng chung cho mọi trang
+   ============================================================ */
+
+#pace-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 9999;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 13px 20px;
+  border-radius: var(--r);
+  font-family: var(--ui);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.5;
+  box-shadow: 0 8px 24px rgba(12, 36, 34, .18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+#pace-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.pace-toast-good { background: var(--ink); color: var(--paper); }
+.pace-toast-bad  { background: var(--danger); color: var(--paper); }
+
+@media (max-width: 560px) {
+  #pace-toast { bottom: 16px; font-size: 0.88rem; }
+}
+
+/* ============================================================
    NHẮC HỌC CHỦ ĐỘNG — banner đầu trang học
    ============================================================ */
 

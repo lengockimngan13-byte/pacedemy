@@ -9,6 +9,7 @@ const note       = document.getElementById('note');
 // ---------- Thông báo ----------
 
 function say(message, kind) {
+  toast(message, kind === 'good' ? 'good' : 'bad');
   note.textContent = message;
   note.className = 'note ' + (kind === 'good' ? 'note-good' : 'note-bad');
 }

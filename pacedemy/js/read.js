@@ -196,11 +196,13 @@ function makeReadingPanel(part) {
       });
     }
 
-    const { data: att } = await db.from('attempts').insert({
+    const { data: att, error: attErr } = await db.from('attempts').insert({
       user_id: me.id, mode: 'practice', part: cur.part,
       total_questions: qs.length, correct_count: ok, seconds_used: secs,
       submitted_at: new Date().toISOString()
     }).select('id').single();
+
+    if (attErr) toast('Không lưu được kết quả bài đọc: ' + attErr.message, 'bad');
 
     if (att) {
       const rows = qs.map(function (q) {
@@ -209,7 +211,8 @@ function makeReadingPanel(part) {
           selected: picked[q.id] || null, is_correct: picked[q.id] === q.correct_answer
         };
       });
-      await db.from('attempt_answers').insert(rows);
+      const { error: ansErr } = await db.from('attempt_answers').insert(rows);
+      if (ansErr) toast('Không lưu được câu trả lời: ' + ansErr.message, 'bad');
     }
 
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });

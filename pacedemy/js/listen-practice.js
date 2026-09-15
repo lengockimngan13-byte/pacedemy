@@ -248,7 +248,7 @@ function scriptHtml(s) {
 
 async function saveAnswer(q, chose, ok) {
   if (!attemptId) {
-    const { data } = await db.from('attempts').insert({
+    const { data, error } = await db.from('attempts').insert({
       user_id: me.id,
       mode: 'practice',
       part: part,
@@ -257,17 +257,20 @@ async function saveAnswer(q, chose, ok) {
       correct_count: 0
     }).select('id').single();
 
+    if (error) toast('Không lưu được bài luyện: ' + error.message, 'bad');
     attemptId = data ? data.id : null;
   }
 
   if (!attemptId) return;
 
-  await db.from('attempt_answers').insert({
+  const { error: ansErr } = await db.from('attempt_answers').insert({
     attempt_id: attemptId,
     question_id: q.id,
     selected: chose,
     is_correct: ok
   });
+
+  if (ansErr) toast('Không lưu được câu trả lời: ' + ansErr.message, 'bad');
 }
 
 // ---------- Chuyển câu ----------
@@ -301,13 +304,15 @@ async function finish() {
   const seconds = Math.round((Date.now() - started.getTime()) / 1000);
 
   if (attemptId) {
-    await db.from('attempts').update({
+    const { error } = await db.from('attempts').update({
       submitted_at: new Date().toISOString(),
       correct_count: right,
       listening_correct: right,
       seconds_used: seconds,
       xp_earned: xp
     }).eq('id', attemptId);
+
+    if (error) toast('Không lưu được kết quả bài nghe: ' + error.message, 'bad');
   }
 
   await db.rpc('add_xp', { p_xp: xp });

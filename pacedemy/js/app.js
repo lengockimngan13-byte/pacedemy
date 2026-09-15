@@ -601,7 +601,11 @@ async function loadClass() {
     const { data, error } = await db.rpc('vao_lop', { p_code: code });
     this.disabled = false;
 
-    if (error) { el('join-msg').textContent = 'Không vào được lớp: ' + error.message; return; }
+    if (error) {
+      toast('Không vào được lớp: ' + error.message, 'bad');
+      el('join-msg').textContent = 'Không vào được lớp: ' + error.message;
+      return;
+    }
 
     const say = {
       'khong-tim-thay': 'Không có lớp nào dùng mã này. Bạn kiểm tra lại nhé.',
@@ -610,7 +614,9 @@ async function loadClass() {
       'cho-duyet':      'Đã gửi yêu cầu. Chờ cô duyệt là học được.'
     };
 
-    el('join-msg').textContent = say[data] || 'Đã gửi yêu cầu.';
+    const msg = say[data] || 'Đã gửi yêu cầu.';
+    toast(msg, (data === 'khong-tim-thay' || data === 'het-cho') ? 'bad' : 'good');
+    el('join-msg').textContent = msg;
     if (data === 'cho-duyet' || data === 'da-o-trong') setTimeout(loadClass, 1400);
   });
 }
@@ -860,8 +866,10 @@ async function loadStreak() {
 
   box.querySelectorAll('button[data-goal]').forEach(function (b) {
     b.addEventListener('click', async function () {
-      await db.from('profiles')
+      const { error } = await db.from('profiles')
         .update({ daily_goal: parseInt(b.dataset.goal, 10) }).eq('id', me.id);
+      if (error) toast('Không lưu được: ' + error.message, 'bad');
+      else toast('Đã đổi mục tiêu mỗi ngày.', 'good');
       loadStreak();
     });
   });

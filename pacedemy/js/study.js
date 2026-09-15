@@ -407,7 +407,10 @@ async function finish() {
     xp_earned: xp
   });
 
-  if (attErr) console.error('Không ghi được kết quả kiểm tra:', attErr.message);
+  if (attErr) {
+    console.error('Không ghi được kết quả kiểm tra:', attErr.message);
+    toast('Không lưu được kết quả bài này: ' + attErr.message, 'bad');
+  }
 
   await db.rpc('add_xp', { p_xp: xp });
 }

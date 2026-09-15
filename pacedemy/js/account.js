@@ -10,6 +10,7 @@ const $ = function (id) { return document.getElementById(id); };
 // ---------- Thông báo ----------
 
 function say(msg, kind) {
+  toast(msg, kind === 'good' ? 'good' : 'bad');
   const n = $('note');
   n.textContent = msg;
   n.className = 'note ' + (kind === 'good' ? 'note-good' : 'note-bad');

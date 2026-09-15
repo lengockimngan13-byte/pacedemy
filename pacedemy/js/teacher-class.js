@@ -106,10 +106,11 @@ function bindNewClassForm() {
 
     this.disabled = false;
 
-    if (error) { $('new-note-msg').textContent = 'Không tạo được: ' + error.message; return; }
+    if (error) { toast('Không tạo được: ' + error.message, 'bad'); $('new-note-msg').textContent = 'Không tạo được: ' + error.message; return; }
 
     $('new-name').value = '';
     $('new-note').value = '';
+    toast('Đã tạo lớp mới.', 'good');
     $('new-note-msg').textContent = 'Đã tạo lớp.';
     $('tc-new').classList.add('hidden');
     setTimeout(function () { $('new-note-msg').textContent = ''; }, 3000);
@@ -187,14 +188,16 @@ async function openClass() {
     this.disabled = true;
     const { data, error } = await db.rpc('doi_ma_lop', { p_class_id: Number(classId) });
     this.disabled = false;
-    if (error) { alert('Không đổi được: ' + error.message); return; }
+    if (error) { toast('Không đổi được: ' + error.message, 'bad'); return; }
     $('c-code').textContent = data;
+    toast('Đã đổi mã lớp mới.', 'good');
   };
 
   $('btn-max').onclick = async function () {
     const v = $('c-max').value.trim();
     const { error } = await db.from('classes')
       .update({ max_students: v ? parseInt(v, 10) : null }).eq('id', classId);
+    toast(error ? 'Không lưu được: ' + error.message : 'Đã lưu sĩ số tối đa.', error ? 'bad' : 'good');
     $('max-ok').textContent = error ? 'Không lưu được' : 'Đã lưu';
     setTimeout(function () { $('max-ok').textContent = ''; }, 2500);
   };
@@ -202,7 +205,10 @@ async function openClass() {
   const toggleBtn = $('btn-toggle-active');
   toggleBtn.textContent = c.is_active ? 'Đóng lớp' : 'Mở lại lớp';
   toggleBtn.onclick = async function () {
-    await db.from('classes').update({ is_active: !c.is_active }).eq('id', classId);
+    const willActive = !c.is_active;
+    const { error } = await db.from('classes').update({ is_active: willActive }).eq('id', classId);
+    toast(error ? 'Không đổi được: ' + error.message
+                : (willActive ? 'Đã mở lại lớp.' : 'Đã đóng lớp.'), error ? 'bad' : 'good');
     await listClasses();
     $('tc-class-list').querySelectorAll('.tc-class-item').forEach(function (b) {
       b.classList.toggle('on', b.dataset.class === classId);
@@ -310,8 +316,9 @@ async function loadRoster() {
   $('roster').querySelectorAll('button[data-out]').forEach(function (b) {
     b.addEventListener('click', async function () {
       if (!confirm('Cho em này rời lớp?')) return;
-      await db.from('class_members').delete()
+      const { error } = await db.from('class_members').delete()
         .eq('class_id', classId).eq('student_id', b.dataset.out);
+      toast(error ? 'Không thực hiện được: ' + error.message : 'Đã cho rời lớp.', error ? 'bad' : 'good');
       loadRoster(); loadOutside(); listClasses();
     });
   });
@@ -330,17 +337,18 @@ async function sendOne(sid, btn) {
 
   btn.disabled = false;
 
-  if (error) { alert('Không gửi được: ' + error.message); return; }
+  if (error) { toast('Không gửi được: ' + error.message, 'bad'); return; }
 
   box.value = '';
   btn.textContent = 'Đã gửi';
+  toast('Đã gửi nhận xét.', 'good');
   setTimeout(function () { btn.textContent = 'Gửi'; loadRoster(); }, 1500);
 }
 
 $('btn-all').addEventListener('click', async function () {
   const body = $('all-msg').value.trim();
   if (!body) return;
-  if (!roster.length) { $('all-ok').textContent = 'Lớp chưa có học viên nào.'; return; }
+  if (!roster.length) { toast('Lớp chưa có học viên nào.', 'bad'); $('all-ok').textContent = 'Lớp chưa có học viên nào.'; return; }
 
   this.disabled = true;
 
@@ -352,9 +360,10 @@ $('btn-all').addEventListener('click', async function () {
 
   this.disabled = false;
 
-  if (error) { $('all-ok').textContent = 'Không gửi được: ' + error.message; return; }
+  if (error) { toast('Không gửi được: ' + error.message, 'bad'); $('all-ok').textContent = 'Không gửi được: ' + error.message; return; }
 
   $('all-msg').value = '';
+  toast('Đã gửi cho ' + rows.length + ' em.', 'good');
   $('all-ok').textContent = 'Đã gửi cho ' + rows.length + ' em.';
   setTimeout(function () { $('all-ok').textContent = ''; loadRoster(); }, 3000);
 });
@@ -388,7 +397,9 @@ async function loadOutside() {
 
   $('outside').querySelectorAll('button[data-add]').forEach(function (b) {
     b.addEventListener('click', async function () {
-      await db.from('class_members').insert({ class_id: classId, student_id: b.dataset.add, status: 'active' });
+      const { error } = await db.from('class_members')
+        .insert({ class_id: classId, student_id: b.dataset.add, status: 'active' });
+      toast(error ? 'Không thêm được: ' + error.message : 'Đã thêm vào lớp.', error ? 'bad' : 'good');
       loadRoster(); loadOutside(); listClasses();
     });
   });
@@ -493,8 +504,8 @@ function drawDraft() {
 
 async function saveAssign() {
   const title = $('as-title').value.trim();
-  if (!title) { $('as-ok').textContent = 'Bạn đặt tên bài tập đã nhé.'; return; }
-  if (!draftItems.length) { $('as-ok').textContent = 'Thêm ít nhất một đầu việc.'; return; }
+  if (!title) { toast('Bạn đặt tên bài tập đã nhé.', 'bad'); $('as-ok').textContent = 'Bạn đặt tên bài tập đã nhé.'; return; }
+  if (!draftItems.length) { toast('Thêm ít nhất một đầu việc.', 'bad'); $('as-ok').textContent = 'Thêm ít nhất một đầu việc.'; return; }
 
   this.disabled = true;
 
@@ -506,7 +517,9 @@ async function saveAssign() {
 
   if (error || !a) {
     this.disabled = false;
-    $('as-ok').textContent = 'Không giao được: ' + (error ? error.message : 'lỗi không rõ');
+    const msg = 'Không giao được: ' + (error ? error.message : 'lỗi không rõ');
+    toast(msg, 'bad');
+    $('as-ok').textContent = msg;
     return;
   }
 
@@ -523,7 +536,9 @@ async function saveAssign() {
 
   if (e2) {
     await db.from('assignments').delete().eq('id', a.id);
-    $('as-ok').textContent = 'Không lưu được đầu việc: ' + e2.message;
+    const msg = 'Không lưu được đầu việc: ' + e2.message;
+    toast(msg, 'bad');
+    $('as-ok').textContent = msg;
     return;
   }
 
@@ -531,6 +546,7 @@ async function saveAssign() {
   $('as-due').value = '';
   draftItems = [];
   drawDraft();
+  toast('Đã giao bài cho lớp.', 'good');
   $('as-ok').textContent = 'Đã giao bài cho lớp.';
   setTimeout(function () { $('as-ok').textContent = ''; }, 3000);
   listAssigns();
@@ -609,7 +625,8 @@ async function listAssigns() {
   $('assigns').querySelectorAll('button[data-del-as]').forEach(function (b) {
     b.addEventListener('click', async function () {
       if (!confirm('Đóng bài tập này? Học viên sẽ không thấy nữa.')) return;
-      await db.from('assignments').update({ is_active: false }).eq('id', b.dataset.delAs);
+      const { error } = await db.from('assignments').update({ is_active: false }).eq('id', b.dataset.delAs);
+      toast(error ? 'Không đóng được: ' + error.message : 'Đã đóng bài tập.', error ? 'bad' : 'good');
       listAssigns();
     });
   });
@@ -659,8 +676,9 @@ async function loadPending() {
 
   box.querySelectorAll('button[data-ok]').forEach(function (b) {
     b.addEventListener('click', async function () {
-      await db.from('class_members').update({ status: 'active' })
+      const { error } = await db.from('class_members').update({ status: 'active' })
         .eq('class_id', classId).eq('student_id', b.dataset.ok);
+      toast(error ? 'Không duyệt được: ' + error.message : 'Đã duyệt vào lớp.', error ? 'bad' : 'good');
       loadPending(); loadRoster(); listClasses();
     });
   });
@@ -668,8 +686,9 @@ async function loadPending() {
   box.querySelectorAll('button[data-no]').forEach(function (b) {
     b.addEventListener('click', async function () {
       if (!confirm('Từ chối người này?')) return;
-      await db.from('class_members').delete()
+      const { error } = await db.from('class_members').delete()
         .eq('class_id', classId).eq('student_id', b.dataset.no);
+      toast(error ? 'Không thực hiện được: ' + error.message : 'Đã từ chối.', error ? 'bad' : 'good');
       loadPending(); loadOutside();
     });
   });
