@@ -202,15 +202,20 @@ async function startRecording() {
   btn.classList.add('recording');
 
   let finalTranscript = '';
+  let interimTranscript = '';
 
   const rec = new SpeechRec();
   rec.lang = 'en-US';
-  rec.interimResults = false;
+  rec.continuous = true;
+  rec.interimResults = true;
   rec.maxAlternatives = 1;
 
   rec.onresult = function (ev) {
-    for (let i = 0; i < ev.results.length; i++) {
-      finalTranscript += ev.results[i][0].transcript + ' ';
+    interimTranscript = '';
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      const t = ev.results[i][0].transcript;
+      if (ev.results[i].isFinal) finalTranscript += t + ' ';
+      else interimTranscript += t;
     }
   };
 
@@ -219,7 +224,10 @@ async function startRecording() {
   rec.onend = function () {
     recognizing = false;
     if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-    showResult(finalTranscript.trim());
+    // Ưu tiên kết quả đã chốt; từ ngắn hay bị dừng trước khi Chrome kịp
+    // chốt, nên lấy luôn kết quả tạm thời làm phương án dự phòng.
+    const heard = (finalTranscript + ' ' + interimTranscript).trim();
+    showResult(heard);
   };
 
   rec.start();
