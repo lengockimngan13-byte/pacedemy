@@ -28,6 +28,13 @@
       <p>Thêm từ vào chủ đề đang có, hoặc mở chủ đề mới. Từ nào đã có sẵn sẽ tự bị bỏ qua.</p>
     </div>
 
+    <div class="test-tabs" id="vocab-tabs">
+      <button class="test-tab on" data-tab="bulk">Thêm hàng loạt (AI)</button>
+      <button class="test-tab" data-tab="single">Sửa từng từ</button>
+    </div>
+
+    <div id="pane-bulk">
+
     <div class="tbox">
       <h3>Bước 1 · Lấy câu nhắc cho ChatGPT</h3>
       <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
@@ -54,8 +61,25 @@
       <button class="btn btn-gold hidden" id="btn-save">Lưu vào kho từ vựng</button>
     </div>
 
-    <div id="note" class="note hidden"></div>
     <div id="preview"></div>
+
+    </div>
+
+    <div class="hidden" id="pane-single">
+
+      <div class="tbox">
+        <div class="field" style="margin-bottom:0">
+          <label for="sv-topic">Chọn chủ đề để sửa</label>
+          <select id="sv-topic"></select>
+        </div>
+      </div>
+
+      <div id="sv-list"></div>
+
+      <button class="btn btn-gold" id="btn-add-word">+ Thêm từ mới</button>
+    </div>
+
+    <div id="note" class="note hidden"></div>
 
   </section>
 

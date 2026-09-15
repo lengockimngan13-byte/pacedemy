@@ -2788,6 +2788,71 @@ body.focus-mode .side-toggle { display: none; }
 
 
 /* ============================================================
+   SỬA TỪNG TỪ — danh sách từ vựng kiểu Quizlet trong Nhập từ vựng
+   ============================================================ */
+
+.sv-row {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.sv-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sv-main input {
+  font-family: var(--ui);
+  font-size: 0.96rem;
+  color: var(--ink);
+  padding: 9px 12px;
+  border: 1.5px solid transparent;
+  border-radius: var(--r);
+  background: var(--mist);
+}
+.sv-main input:focus { border-color: var(--teal); outline: none; background: var(--paper); }
+
+.sv-word { flex: 1; min-width: 140px; font-weight: 600; }
+.sv-meaning { flex: 2; min-width: 180px; }
+
+.sv-detail {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sv-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 100px 90px;
+  gap: 8px;
+}
+
+.sv-detail input,
+.sv-detail select,
+.sv-detail textarea {
+  width: 100%;
+  font-family: var(--ui);
+  font-size: 0.9rem;
+  color: var(--ink);
+  padding: 9px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+}
+
+@media (max-width: 620px) {
+  .sv-detail-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================
    TOAST — thông báo nổi dùng chung cho mọi trang
    ============================================================ */
 

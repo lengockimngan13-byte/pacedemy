@@ -81,8 +81,21 @@ const SAMPLE = JSON.stringify([
   }
 
   $('view-main').classList.remove('hidden');
-  loadTopics();
+  bindTabs();
+  await loadTopics();
+  fillTopicSelect();
 })();
+
+function bindTabs() {
+  document.querySelectorAll('#vocab-tabs .test-tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#vocab-tabs .test-tab').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      $('pane-bulk').classList.toggle('hidden', b.dataset.tab !== 'bulk');
+      $('pane-single').classList.toggle('hidden', b.dataset.tab !== 'single');
+    });
+  });
+}
 
 async function loadTopics() {
   const { data: ts } = await db
@@ -375,7 +388,8 @@ $('btn-save').addEventListener('click', async function () {
   $('raw').value = '';
   $('preview').innerHTML = '';
   $('btn-save').classList.add('hidden');
-  loadTopics();
+  await loadTopics();
+  fillTopicSelect();
 });
 
 function esc(s) {
@@ -383,3 +397,156 @@ function esc(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+// ============================================================
+// Sửa từng từ — thêm/sửa/xoá trực tiếp, kiểu Quizlet
+// ============================================================
+
+let svTopicId = null;
+
+function fillTopicSelect() {
+  const sel = $('sv-topic');
+  if (!sel) return;
+
+  const prev = sel.value;
+
+  if (!topicsNow.length) {
+    sel.innerHTML = '<option value="">Chưa có chủ đề nào</option>';
+    svTopicId = null;
+    $('sv-list').innerHTML = '';
+    return;
+  }
+
+  sel.innerHTML = topicsNow.map(function (t) {
+    return '<option value="' + t.id + '">' + esc(t.name_vi) + '</option>';
+  }).join('');
+
+  sel.value = topicsNow.some(function (t) { return String(t.id) === prev; }) ? prev : topicsNow[0].id;
+  svTopicId = sel.value;
+  loadWordsForTopic(svTopicId);
+
+  sel.onchange = function () {
+    svTopicId = sel.value;
+    loadWordsForTopic(svTopicId);
+  };
+}
+
+async function loadWordsForTopic(topicId) {
+  const box = $('sv-list');
+  box.innerHTML = '<p class="empty" style="text-align:left">Đang tải…</p>';
+
+  const { data: ws, error } = await db.from('vocabulary')
+    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, order_index')
+    .eq('topic_id', topicId)
+    .order('level').order('order_index').order('id');
+
+  if (error) { box.innerHTML = '<p class="empty" style="text-align:left">Không tải được: ' + esc(error.message) + '</p>'; return; }
+
+  box.innerHTML = '';
+
+  if (!ws || !ws.length) {
+    box.innerHTML = '<p class="empty" style="text-align:left">Chủ đề này chưa có từ nào. Bấm "+ Thêm từ mới" bên dưới.</p>';
+    return;
+  }
+
+  ws.forEach(function (w) { box.appendChild(svRow(w)); });
+}
+
+function svRow(w) {
+  const row = document.createElement('div');
+  row.className = 'sv-row';
+  row.dataset.id = w.id;
+
+  row.innerHTML =
+    '<div class="sv-main">' +
+      '<input type="text" class="sv-word" placeholder="từ tiếng Anh" value="' + esc(w.word) + '">' +
+      '<input type="text" class="sv-meaning" placeholder="nghĩa tiếng Việt" value="' + esc(w.meaning_vi || '') + '">' +
+      '<button class="btn-sm" type="button" data-toggle>Chi tiết</button>' +
+      '<button class="btn-sm" type="button" data-del>Xoá</button>' +
+    '</div>' +
+    '<div class="sv-detail hidden">' +
+      '<div class="sv-detail-grid">' +
+        '<input type="text" class="sv-phonetic" placeholder="phiên âm, ví dụ /kənˈtrækt/" value="' + esc(w.phonetic || '') + '">' +
+        '<select class="sv-pos">' + POS.map(function (p) {
+          return '<option value="' + p + '"' + (p === w.pos ? ' selected' : '') + '>' + p + '</option>';
+        }).join('') + '</select>' +
+        '<input type="number" class="sv-level" min="1" max="9" placeholder="mức" value="' + (w.level || 1) + '">' +
+      '</div>' +
+      '<textarea class="sv-example-en" rows="2" placeholder="câu ví dụ tiếng Anh">' + esc(w.example_en || '') + '</textarea>' +
+      '<textarea class="sv-example-vi" rows="2" placeholder="bản dịch câu ví dụ">' + esc(w.example_vi || '') + '</textarea>' +
+      '<input type="text" class="sv-synonyms" placeholder="từ đồng nghĩa, ngăn nhau bằng dấu phẩy" value="' + esc(w.synonyms || '') + '">' +
+      '<input type="text" class="sv-collocations" placeholder="cụm từ — nghĩa; cụm khác — nghĩa" value="' + esc(w.collocations || '') + '">' +
+    '</div>';
+
+  const id = w.id;
+
+  bindSave(row.querySelector('.sv-word'), id, 'word', function (v) { return v.trim().toLowerCase(); });
+  bindSave(row.querySelector('.sv-meaning'), id, 'meaning_vi', function (v) { return v.trim(); });
+  bindSave(row.querySelector('.sv-phonetic'), id, 'phonetic', function (v) { return v.trim() || null; });
+  bindSave(row.querySelector('.sv-level'), id, 'level', function (v) { return parseInt(v, 10) || 1; });
+  bindSave(row.querySelector('.sv-example-en'), id, 'example_en', function (v) { return v.trim() || null; });
+  bindSave(row.querySelector('.sv-example-vi'), id, 'example_vi', function (v) { return v.trim() || null; });
+  bindSave(row.querySelector('.sv-synonyms'), id, 'synonyms', function (v) { return v.trim() || null; });
+  bindSave(row.querySelector('.sv-collocations'), id, 'collocations', function (v) { return v.trim() || null; });
+
+  row.querySelector('.sv-pos').addEventListener('change', function () {
+    saveField(id, 'pos', this.value);
+  });
+
+  row.querySelector('[data-toggle]').addEventListener('click', function () {
+    row.querySelector('.sv-detail').classList.toggle('hidden');
+  });
+
+  row.querySelector('[data-del]').addEventListener('click', async function () {
+    if (!confirm('Xoá từ "' + w.word + '"? Không hoàn tác được.')) return;
+    const { error } = await db.from('vocabulary').delete().eq('id', id);
+    if (error) { toast('Không xoá được: ' + error.message, 'bad'); return; }
+    toast('Đã xoá từ.', 'good');
+    row.remove();
+  });
+
+  return row;
+}
+
+function bindSave(el, id, field, transform) {
+  el.addEventListener('blur', function () {
+    saveField(id, field, transform(el.value));
+  });
+}
+
+async function saveField(id, field, value) {
+  const patch = {};
+  patch[field] = value;
+  const { error } = await db.from('vocabulary').update(patch).eq('id', id);
+  if (error) toast('Không lưu được: ' + error.message, 'bad');
+}
+
+$('btn-add-word').addEventListener('click', async function () {
+  if (!svTopicId) { toast('Chọn một chủ đề trước đã.', 'bad'); return; }
+
+  this.disabled = true;
+
+  const { data: max } = await db.from('vocabulary')
+    .select('order_index').eq('topic_id', svTopicId).order('order_index', { ascending: false }).limit(1).maybeSingle();
+
+  const { data: w, error } = await db.from('vocabulary').insert({
+    topic_id: svTopicId,
+    word: '',
+    meaning_vi: '',
+    pos: 'n',
+    level: 1,
+    order_index: (max ? max.order_index : 0) + 1
+  }).select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level').single();
+
+  this.disabled = false;
+
+  if (error || !w) { toast('Không thêm được: ' + (error ? error.message : 'lỗi không rõ'), 'bad'); return; }
+
+  const empty = $('sv-list').querySelector('.empty');
+  if (empty) empty.remove();
+
+  const row = svRow(w);
+  $('sv-list').appendChild(row);
+  row.querySelector('.sv-word').focus();
+  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
