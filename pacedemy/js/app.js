@@ -54,8 +54,11 @@ async function loadProfile() {
   // Thẻ giới thiệu giáo viên: học viên chỉ thấy khi đã bật công tắc,
   // giáo viên luôn thấy để xem thử trước khi công bố.
   const card = el('teacher-card');
-  if (card && (data.role === 'teacher' || (typeof TEACHER !== 'undefined' && TEACHER.show))) {
-    card.style.display = '';
+  if (card) {
+    if (typeof TEACHER_READY !== 'undefined') await TEACHER_READY;
+    if (data.role === 'teacher' || (typeof TEACHER !== 'undefined' && TEACHER && TEACHER.show)) {
+      card.style.display = '';
+    }
   }
 
   el('greet-line').textContent = data.target_score

@@ -10,6 +10,8 @@ const $ = function (id) { return document.getElementById(id); };
   me = await requireLogin();
   if (!me) return;
 
+  await TEACHER_READY;
+
   const { data } = await db.from('profiles').select('role').eq('id', me.id).single();
   const amTeacher = data && data.role === 'teacher';
 
@@ -25,7 +27,7 @@ const $ = function (id) { return document.getElementById(id); };
     $('page').innerHTML =
       '<div class="note note-good" style="margin-bottom:22px">' +
       'Chế độ xem thử. Học viên chưa thấy trang này. ' +
-      'Mở js/teacher-info.js và đổi show thành true khi muốn công bố.</div>';
+      'Vào Teacher Studio → "Trang giới thiệu" và bật "Hiện trang cho học viên" khi muốn công bố.</div>';
     const box = document.createElement('div');
     $('page').appendChild(box);
     drawInto(box);

@@ -1,46 +1,45 @@
 // ============================================================
-// Pacedemy — THÔNG TIN GIÁO VIÊN
+// Pacedemy — THÔNG TIN GIÁO VIÊN (trang giới thiệu đầy đủ, about.html)
 //
-// Ngân sửa trực tiếp file này trên GitHub, không cần đụng code.
-// Chỗ nào ghi SUA_LAI thì thay bằng nội dung thật.
-// Mục nào để chuỗi rỗng '' thì phần đó tự ẩn trên trang.
+// Trước đây sửa trực tiếp file này. Giờ Ngân tự sửa trong
+// Teacher Studio → "Trang giới thiệu" (teacher-about.html), lưu
+// vào bảng site_settings, khoá "teacher_page" — không cần đụng
+// code hay deploy lại nữa.
+//
+// TEACHER_DEFAULTS bên dưới chỉ dùng khi CHƯA lưu lần nào (hoặc
+// mạng lỗi lúc tải) — giữ nguyên nội dung gốc để trang không bị
+// trống trong lúc Ngân chưa vào chỉnh.
+//
+// Lưu ý: đây là trang giới thiệu ĐẦY ĐỦ (about.html). Khác với
+// thẻ giới thiệu nhỏ trên trang chủ công khai (index.html), thẻ
+// đó vẫn sửa ở "Chỉnh trang web" như cũ (khoá site_settings khác:
+// "teacher_bio"), không đụng gì tới file này.
 // ============================================================
 
-const TEACHER = {
+const TEACHER_DEFAULTS = {
 
-  // Đổi thành true khi nội dung đã sẵn sàng cho học viên xem.
-  // Đang false: học viên không thấy gì, riêng tài khoản giáo viên
-  // vẫn mở được about.html để xem thử.
   show: false,
 
-  // ---------- Phần đầu trang ----------
   name:  'Lê Ngọc Kim Ngân',
   role:  'Giáo viên TOEIC Listening & Reading',
-  photo: 'images/ngan.jpg',        // tải ảnh chân dung lên thư mục images
+  photo: 'images/ngan.jpg',
 
-  // Ba con số hiện nổi bật ở đầu trang
   facts: [
-    { num: '10',    label: 'năm dạy TOEIC' },
+    { num: '10',      label: 'năm dạy TOEIC' },
     { num: 'Thạc sĩ', label: 'Ngôn ngữ Anh (đang học)' },
-    { num: '100%',  label: 'giáo trình tự biên soạn' }
+    { num: '100%',    label: 'giáo trình tự biên soạn' }
   ],
 
-  // ---------- Giới thiệu ngắn, dùng cho trang chủ công khai ----------
   short:
     'Mình là Ngân, mười năm dạy TOEIC cho người đi làm và sinh viên. ' +
     'Pacedemy là nơi mình đưa toàn bộ giáo trình tự soạn lên thành một lộ trình học có thể theo dõi được tiến độ.',
 
-  // ---------- Giới thiệu đầy đủ, dùng cho trang bên trong ----------
   bio: [
     'Mình bắt đầu dạy tiếng Anh từ năm 2016, và chọn đi sâu vào TOEIC Listening & Reading thay vì dạy dàn trải. Lý do đơn giản: phần lớn học viên tìm tới mình đều có một hạn cụ thể cần đạt, một con số cần đủ để tốt nghiệp hoặc để ứng tuyển. Dạy đúng một thứ và dạy kỹ thì hiệu quả hơn.',
-
     'Hiện mình vừa dạy tại trung tâm, vừa nhận lớp riêng dạy trực tuyến qua Zoom và Google Meet. Toàn bộ tài liệu, bài tập và đề luyện đều do mình tự biên soạn theo từng học viên, không dùng giáo trình có sẵn.',
-
     'Mình đang học Thạc sĩ Ngôn ngữ Anh tại Trường Đại học Công nghệ TP.HCM. Việc học lại từ đầu ở bậc sau đại học giúp mình lý giải được nhiều thứ trước đây chỉ dạy theo kinh nghiệm.'
-    // SUA_LAI: thêm hoặc bớt đoạn tuỳ ý
   ],
 
-  // ---------- Cách dạy ----------
   approach: [
     { h: 'Học theo nhịp của từng người',
       p: 'Không có lộ trình chung cho mọi học viên. Người đi làm mỗi tối được ba mươi phút sẽ có cách đi khác sinh viên rảnh cả buổi chiều.' },
@@ -48,28 +47,34 @@ const TEACHER = {
       p: 'Từ vựng trên Pacedemy quay lại theo khoảng cách giãn dần. Học viên không phải tự nhớ hôm nay nên ôn gì.' },
     { h: 'Sửa tận gốc, không học mẹo',
       p: 'Mẹo làm bài giúp thêm vài chục điểm rồi dừng. Hiểu được vì sao sai mới đưa được điểm lên mốc cao hơn.' }
-    // SUA_LAI: đổi lại cho đúng cách Ngân hay nói với học viên
   ],
 
-  // ---------- Bằng cấp, chứng chỉ ----------
   credentials: [
     'Đang học Thạc sĩ Ngôn ngữ Anh — Trường Đại học Công nghệ TP.HCM (HUTECH)'
-    // SUA_LAI: thêm bằng cử nhân, chứng chỉ TOEIC, TESOL, IELTS... của Ngân
   ],
 
-  // ---------- Kết quả học viên ----------
-  // Bỏ trống mảng này thì cả mục tự ẩn.
-  results: [
-    // SUA_LAI: điền dần khi Ngân hệ thống lại được số liệu
-    // { from: 450, to: 700, months: 3, who: 'Bạn P., sinh viên năm cuối',
-    //   quote: 'Trước đây em học từ vựng xong quên hết. Ôn theo lịch của cô thì nhớ được.' },
-  ],
+  results: [],
 
-  // ---------- Liên hệ ----------
   contact: {
     email:    'contact@pacedemy.com',
-    zalo:     '',   // SUA_LAI: số Zalo, ví dụ '0901234567'
-    facebook: '',   // SUA_LAI: link Fanpage đầy đủ, ví dụ 'https://facebook.com/pacedemy'
-    form:     true  // true để hiện form liên hệ ngay trên trang
+    zalo:     '',
+    facebook: '',
+    form:     true
   }
 };
+
+let TEACHER = null;
+
+// Các trang khác (about.js, app.js) await TEACHER_READY trước khi
+// đọc biến TEACHER, để chắc chắn đã tải xong dữ liệu từ database.
+const TEACHER_READY = (async function () {
+  try {
+    const { data } = await db.from('site_settings').select('value').eq('key', 'teacher_page').single();
+    const v = (data && data.value) || {};
+    TEACHER = Object.assign({}, TEACHER_DEFAULTS, v);
+    TEACHER.contact = Object.assign({}, TEACHER_DEFAULTS.contact, v.contact || {});
+  } catch (e) {
+    TEACHER = TEACHER_DEFAULTS;
+  }
+  return TEACHER;
+})();

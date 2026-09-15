@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trang giới thiệu — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+    <div class="greet">
+      <h1>Trang giới thiệu</h1>
+      <p>
+        Nội dung trang giới thiệu đầy đủ của bạn (about.html) — tiểu sử, cách dạy, bằng cấp,
+        kết quả học viên và thông tin liên hệ. Lưu xong hiện ngay, không cần deploy lại.
+        Thẻ giới thiệu nhỏ trên trang chủ công khai vẫn sửa ở "Chỉnh trang web" như cũ, không liên quan trang này.
+      </p>
+    </div>
+
+    <div id="note" class="note hidden"></div>
+
+    <div class="tbox">
+      <label class="check-row">
+        <input type="checkbox" id="show">
+        <span>Hiện trang này cho học viên (tắt thì chỉ tài khoản giáo viên xem thử được)</span>
+      </label>
+    </div>
+
+    <div class="tbox">
+      <h3>Đầu trang</h3>
+      <div class="field"><label for="name">Tên</label><input id="name" type="text"></div>
+      <div class="field"><label for="role">Chức danh / vai trò</label><input id="role" type="text"></div>
+      <div class="field"><label for="photo">Đường dẫn ảnh (trong thư mục images/)</label>
+        <input id="photo" type="text" placeholder="images/ngan.jpg"></div>
+    </div>
+
+    <div class="tbox">
+      <h3>Ba con số nổi bật đầu trang</h3>
+      <div id="facts-fields"></div>
+    </div>
+
+    <div class="tbox">
+      <h3>Giới thiệu ngắn (dùng cho trang chủ công khai)</h3>
+      <div class="field"><textarea id="short" rows="3"></textarea></div>
+    </div>
+
+    <div class="tbox">
+      <h3>Đôi lời về mình</h3>
+      <p class="field-hint" style="margin:0 0 12px">Mỗi ô là một đoạn văn, xuống dòng sẽ tách đoạn mới trên trang.</p>
+      <div id="bio-list"></div>
+      <button class="btn-sm" id="btn-add-bio" type="button">+ Thêm đoạn</button>
+    </div>
+
+    <div class="tbox">
+      <h3>Cách mình dạy</h3>
+      <p class="field-hint" style="margin:0 0 12px">Mỗi mục gồm một tiêu đề ngắn và một đoạn giải thích.</p>
+      <div id="approach-list"></div>
+      <button class="btn-sm" id="btn-add-approach" type="button">+ Thêm mục</button>
+    </div>
+
+    <div class="tbox">
+      <h3>Bằng cấp và chứng chỉ</h3>
+      <div id="cred-list"></div>
+      <button class="btn-sm" id="btn-add-cred" type="button">+ Thêm dòng</button>
+    </div>
+
+    <div class="tbox">
+      <h3>Kết quả học viên</h3>
+      <p class="field-hint" style="margin:0 0 12px">Bỏ trống hết mục này thì cả phần tự ẩn trên trang.</p>
+      <div id="results-list"></div>
+      <button class="btn-sm" id="btn-add-result" type="button">+ Thêm học viên</button>
+    </div>
+
+    <div class="tbox">
+      <h3>Liên hệ</h3>
+      <div class="field"><label for="c-email">Email</label><input id="c-email" type="text"></div>
+      <div class="field"><label for="c-zalo">Số Zalo (chỉ số, không cần link)</label>
+        <input id="c-zalo" type="text" placeholder="0901234567"></div>
+      <div class="field"><label for="c-facebook">Link Fanpage đầy đủ</label>
+        <input id="c-facebook" type="text" placeholder="https://facebook.com/pacedemy"></div>
+      <label class="check-row">
+        <input type="checkbox" id="c-form">
+        <span>Hiện form "để lại lời nhắn" ngay trên trang</span>
+      </label>
+    </div>
+
+    <button class="btn btn-gold" id="btn-save">Lưu trang giới thiệu</button>
+    <a class="btn btn-line" href="about.html" target="_blank" style="margin-left:10px">Xem thử trang giới thiệu</a>
+
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-info.js"></script>
+<script src="js/teacher-about.js"></script>
+</body>
+</html>

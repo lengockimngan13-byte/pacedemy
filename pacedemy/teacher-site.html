@@ -48,6 +48,23 @@
       </p>
     </div>
 
+    <!-- Bố cục trang -->
+    <div class="tbox">
+      <h3>Bố cục trang</h3>
+      <p style="margin:0 0 14px;font-size:0.94rem;line-height:1.65">
+        Áp dụng cho toàn bộ trang học viên và giáo viên. Để trống thì giữ nguyên mặc định.
+      </p>
+      <div class="field">
+        <label for="layout-width">Bề rộng nội dung (px, mặc định 1120)</label>
+        <input id="layout-width" type="number" min="800" max="1600" placeholder="1120">
+      </div>
+      <div class="field">
+        <label for="layout-gap">Khoảng cách cộng thêm giữa các khối lớn (px, mặc định 0)</label>
+        <input id="layout-gap" type="number" min="0" max="80" placeholder="0">
+      </div>
+      <button class="btn btn-gold" id="btn-save-layout">Lưu bố cục</button>
+    </div>
+
     <!-- Trang giới thiệu -->
     <div class="tbox">
       <h3>Câu mở đầu trang giới thiệu</h3>
@@ -105,6 +122,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/layout-settings.js"></script>
 <script src="js/teacher-nav.js"></script>
 <script src="js/teacher-site.js"></script>
 </body>

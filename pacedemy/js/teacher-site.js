@@ -86,7 +86,32 @@ async function loadAll() {
   $('bio-role').value = bio.role || '';
   $('bio-short').value = bio.short || '';
   $('bio-photo').value = bio.photo || '';
+
+  const layout = await getSetting('layout', {});
+  $('layout-width').value = layout.page_width || '';
+  $('layout-gap').value = layout.section_gap || '';
 }
+
+// ---------- Lưu bố cục trang ----------
+
+$('btn-save-layout').addEventListener('click', async function () {
+  this.disabled = true;
+
+  const width = parseInt($('layout-width').value, 10);
+  const gap = parseInt($('layout-gap').value, 10);
+
+  const layout = {
+    page_width: width > 0 ? width : null,
+    section_gap: gap >= 0 && $('layout-gap').value !== '' ? gap : null
+  };
+
+  const { error } = await saveSetting('layout', layout);
+
+  this.disabled = false;
+
+  say(error ? 'Không lưu được: ' + error.message
+            : 'Đã lưu. Tải lại một trang bất kỳ để thấy thay đổi.', error ? '' : 'good');
+});
 
 // ---------- Lưu tính năng ----------
 
