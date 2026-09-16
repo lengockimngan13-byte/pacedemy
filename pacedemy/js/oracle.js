@@ -314,11 +314,15 @@ async function drawSlip() {
 
     if (slip.personal) {
       const ctx = await fetchOracleContext();
-      const lines = slip.lines.concat(personalLines(ctx));
+      const pLines = personalLines(ctx); // luôn có ít nhất vài dòng, kể cả khi chưa có dữ liệu gì
+      // Ưu tiên hẳn câu cá nhân hoá — chỉ thỉnh thoảng đổi vị bằng câu chung.
+      const useGeneric = Math.random() < 0.2;
+      const chosen = (useGeneric || !pLines.length) ? pick(slip.lines) : pick(pLines);
+
       html =
         '<div class="oracle-result">' +
           '<p class="oracle-title">🎯 ' + slip.module + '</p>' +
-          '<p class="oracle-text">' + pick(lines) + '</p>' +
+          '<p class="oracle-text">' + chosen + '</p>' +
           '<div class="oracle-actions">' +
             '<button class="btn-sm" id="btn-oracle-again">Bốc lại</button>' +
           '</div>' +
