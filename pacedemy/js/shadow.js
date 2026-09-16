@@ -138,6 +138,10 @@ function bindStaticButtons() {
     }
   });
 
+  $('btn-record-again').addEventListener('click', function () {
+    if (!recognizing && current.en) startRecording();
+  });
+
   $('btn-retry').addEventListener('click', function () {
     renderDeckCard();
   });
@@ -184,6 +188,9 @@ async function startRecording() {
     toast('Không dùng được micro: ' + (e.message || 'bị từ chối quyền'), 'bad');
     return;
   }
+
+  $('sh-result').classList.add('hidden');
+  $('sh-en').textContent = current.en || '—'; // bỏ tô màu đúng/sai của lần ghi trước
 
   const chunks = [];
   const mediaRecorder = new MediaRecorder(stream);

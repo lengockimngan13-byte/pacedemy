@@ -3121,6 +3121,7 @@ body.focus-mode .side-toggle { display: none; }
 .sh-score {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 18px;
   padding: 14px 16px;
@@ -3128,7 +3129,8 @@ body.focus-mode .side-toggle { display: none; }
   border: 1.5px solid var(--line);
 }
 .sh-score-num { font-family: var(--disp); font-size: 1.8rem; font-weight: 700; }
-.sh-score-lab { font-size: 0.92rem; color: #4A635E; }
+.sh-score-lab { font-size: 0.92rem; color: #4A635E; flex: 1; }
+#btn-record-again { margin-left: auto; }
 
 .sh-score.sh-good { background: var(--mist); border-color: var(--teal-dim); }
 .sh-score.sh-good .sh-score-num { color: var(--teal); }
