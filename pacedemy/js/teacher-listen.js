@@ -343,7 +343,7 @@ function preview(bad) {
 function urlOf(name) {
   if (!name) return null;
   if (/^https?:\/\//i.test(name)) return name;
-  const { data } = db.storage.from(BUCKET).getPublicUrl(name);
+  const { data } = db.storage.from(BUCKET).getPublicUrl(slug(name));
   return data ? data.publicUrl : null;
 }
 
