@@ -77,6 +77,20 @@
       <h2>Bài nghe đã có</h2>
       <span class="stat-lab" id="have-n"></span>
     </div>
+
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px">
+      <label class="check-row" style="padding:0">
+        <input type="checkbox" id="have-select-all">
+        <span>Chọn tất cả</span>
+      </label>
+      <div class="hidden" id="have-bulk-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span class="stat-lab" id="have-bulk-count"></span>
+        <button class="btn-sm" id="have-bulk-hide">Ẩn các bài đã chọn</button>
+        <button class="btn-sm" id="have-bulk-show">Hiện các bài đã chọn</button>
+        <button class="btn-sm" id="have-bulk-del">Xoá các bài đã chọn</button>
+      </div>
+    </div>
+
     <div id="have"></div>
 
   </section>

@@ -41,7 +41,8 @@ const PROMPT =
 '      "explanation": "giải thích bằng tiếng Việt: chỗ nào trong bài nghe cho ra đáp án, ' +
 'và vì sao các phương án còn lại sai hoặc là bẫy đồng âm",\n' +
 '      "translation_vi": "nghĩa tiếng Việt của phương án đúng",\n' +
-'      "key_point": "từ hoặc cụm cần nghe bắt được, viết dạng: cụm tiếng Anh = nghĩa tiếng Việt"\n' +
+'      "key_point": "từ hoặc cụm cần nghe bắt được, viết dạng: cụm tiếng Anh = nghĩa tiếng Việt",\n' +
+'      "topic_tag": "đúng MỘT nhãn lấy từ danh sách bên dưới, khớp với part của câu này"\n' +
 '    }\n' +
 '  ]\n' +
 '}\n\n' +
@@ -50,7 +51,23 @@ const PROMPT =
 '- Part 2 có đúng 1 câu hỏi, chỉ 3 phương án A B C, bỏ hẳn trường D, question_text để rỗng.\n' +
 '- Part 3 và Part 4 mỗi bài có đúng 3 câu hỏi, mỗi câu 4 phương án, question_text ghi đầy đủ.\n' +
 '- difficulty là 1 dễ, 2 vừa, 3 khó.\n' +
-'- Đáp án đúng phải rải đều A B C D giữa các câu, không dồn vào một chữ cái.';
+'- Đáp án đúng phải rải đều A B C D giữa các câu, không dồn vào một chữ cái.\n' +
+'- topic_tag PHẢI lấy đúng nguyên văn một nhãn trong danh sách dưới đây, không tự đặt nhãn mới. ' +
+'Mỗi câu chỉ chọn 1 nhãn phù hợp nhất, kể cả khi câu đó có thể hợp nhiều nhãn.\n\n' +
+'Danh sách nhãn hợp lệ theo từng Part:\n' +
+'Part 1: Tranh tả người | Tranh tả vật | Tranh tả cả người và vật\n' +
+'Part 2: Câu hỏi WHAT | Câu hỏi WHO | Câu hỏi WHEN | Câu hỏi HOW | Câu hỏi WHY | ' +
+'Câu hỏi YES/NO | Câu hỏi đuôi | Câu hỏi lựa chọn | Câu yêu cầu, đề nghị | Câu trần thuật\n' +
+'Part 3: Câu hỏi về chủ đề, mục đích | Câu hỏi về danh tính người nói | ' +
+'Câu hỏi về chi tiết cuộc hội thoại | Câu hỏi về hành động tương lai | Câu hỏi kết hợp bảng biểu | ' +
+'Câu hỏi về hàm ý câu nói | Câu hỏi về địa điểm hội thoại | Câu hỏi về yêu cầu, gợi ý | ' +
+'Chủ đề: Company - General Office Work | Chủ đề: Company - Personnel | ' +
+'Chủ đề: Company - Event, Project | Chủ đề: Shopping, Service | Chủ đề: Order, delivery | Chủ đề: Housing\n' +
+'Part 4: Câu hỏi về chủ đề, mục đích | Câu hỏi về danh tính, địa điểm | Câu hỏi về chi tiết | ' +
+'Câu hỏi về hành động tương lai | Câu hỏi kết hợp bảng biểu | Câu hỏi về hàm ý câu nói | ' +
+'Câu hỏi về yêu cầu, gợi ý | Dạng bài: Telephone message - Tin nhắn thoại | ' +
+'Dạng bài: News report, Broadcast - Bản tin | Dạng bài: Talk - Bài phát biểu, diễn văn | ' +
+'Dạng bài: Excerpt from a meeting - Trích dẫn từ buổi họp';
 
 const SAMPLE = JSON.stringify([
   {
@@ -72,7 +89,8 @@ const SAMPLE = JSON.stringify([
           'Phương án B trả lời Yes cho câu hỏi Wh nên loại ngay. ' +
           'Phương án C trả lời về tần suất, hợp với How often chứ không hợp với Where.',
         translation_vi: 'Ở phòng họp trên tầng ba.',
-        key_point: 'quarterly review = buổi tổng kết quý'
+        key_point: 'quarterly review = buổi tổng kết quý',
+        topic_tag: 'Câu hỏi WHERE'
       }
     ]
   }
@@ -230,7 +248,8 @@ function readJson(raw) {
           correct_answer: (q.correct_answer || '').trim().toUpperCase(),
           explanation: (q.explanation || '').trim(),
           translation_vi: (q.translation_vi || '').trim(),
-          key_point: (q.key_point || '').trim()
+          key_point: (q.key_point || '').trim(),
+          topic_tag: (q.topic_tag || '').trim()
         };
       })
     };
@@ -304,7 +323,9 @@ function preview(bad) {
     s.questions.forEach(function (q, j) {
       html +=
         '<div style="margin-top:10px;padding-left:12px;border-left:2px solid var(--line)">' +
-          '<p class="wq">' + (j + 1) + '. ' + esc(q.question_text || '(không in đề)') + '</p>' +
+          '<p class="wq">' + (j + 1) + '. ' + esc(q.question_text || '(không in đề)') +
+            (q.topic_tag ? ' <span class="q-tag">' + esc(q.topic_tag) + '</span>' : ' <span class="tag-cold" style="font-size:0.78rem">chưa gán dạng</span>') +
+          '</p>' +
           '<p class="wa">' +
             Object.keys(q.options).map(function (k) {
               return k === q.correct_answer
@@ -387,6 +408,7 @@ $('btn-save').addEventListener('click', async function () {
         explanation: q.explanation || null,
         translation_vi: q.translation_vi || null,
         key_point: q.key_point || null,
+        topic_tag: q.topic_tag || null,
         difficulty: s.difficulty || 2,
         is_active: true
       };
@@ -417,7 +439,11 @@ $('btn-save').addEventListener('click', async function () {
 
 // ---------- Bài nghe đã có ----------
 
+let haveSelected = new Set();
+
 async function loadHave() {
+  haveSelected = new Set();
+
   const { data: rows } = await db
     .from('listening_sets')
     .select('id, part, title, is_active, audio_url')
@@ -426,6 +452,8 @@ async function loadHave() {
   if (!rows || !rows.length) {
     $('have').innerHTML = '<p class="empty">Chưa có bài nghe nào.</p>';
     $('have-n').textContent = '';
+    $('have-select-all').checked = false;
+    updateBulkBar();
     return;
   }
 
@@ -451,6 +479,7 @@ async function loadHave() {
 
     html +=
       '<div class="wrong-q" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+        '<input type="checkbox" class="have-check" data-id="' + r.id + '" style="width:18px;height:18px;accent-color:var(--teal)">' +
         '<span style="flex:1;min-width:180px;font-weight:600">' + esc(r.title) + '</span>' +
         '<span class="stat-lab">' + (count[r.id] || 0) + ' câu</span>' +
         (r.is_active ? '' : '<span class="tag-cold" style="font-size:0.78rem">đang ẩn</span>') +
@@ -465,7 +494,73 @@ async function loadHave() {
   $('have').querySelectorAll('button[data-act]').forEach(function (b) {
     b.addEventListener('click', function () { act(b.dataset.act, b.dataset.id, b); });
   });
+
+  $('have').querySelectorAll('.have-check').forEach(function (c) {
+    c.addEventListener('change', function () {
+      if (c.checked) haveSelected.add(c.dataset.id);
+      else haveSelected.delete(c.dataset.id);
+      $('have-select-all').checked = haveSelected.size === rows.length;
+      updateBulkBar();
+    });
+  });
+
+  $('have-select-all').checked = false;
+  updateBulkBar();
 }
+
+$('have-select-all').addEventListener('change', function () {
+  const on = this.checked;
+  $('have').querySelectorAll('.have-check').forEach(function (c) {
+    c.checked = on;
+    if (on) haveSelected.add(c.dataset.id);
+    else haveSelected.delete(c.dataset.id);
+  });
+  updateBulkBar();
+});
+
+function updateBulkBar() {
+  const bar = $('have-bulk-bar');
+  if (haveSelected.size) {
+    bar.classList.remove('hidden');
+    $('have-bulk-count').textContent = 'Đã chọn ' + haveSelected.size + ' bài';
+  } else {
+    bar.classList.add('hidden');
+  }
+}
+
+$('have-bulk-hide').addEventListener('click', async function () {
+  const ids = Array.from(haveSelected);
+  if (!ids.length) return;
+  this.disabled = true;
+  const { error } = await db.from('listening_sets').update({ is_active: false }).in('id', ids);
+  this.disabled = false;
+  toast(error ? 'Không ẩn được: ' + error.message : 'Đã ẩn ' + ids.length + ' bài.', error ? 'bad' : 'good');
+  loadHave();
+});
+
+$('have-bulk-show').addEventListener('click', async function () {
+  const ids = Array.from(haveSelected);
+  if (!ids.length) return;
+  this.disabled = true;
+  const { error } = await db.from('listening_sets').update({ is_active: true }).in('id', ids);
+  this.disabled = false;
+  toast(error ? 'Không hiện được: ' + error.message : 'Đã hiện lại ' + ids.length + ' bài.', error ? 'bad' : 'good');
+  loadHave();
+});
+
+$('have-bulk-del').addEventListener('click', async function () {
+  const ids = Array.from(haveSelected);
+  if (!ids.length) return;
+  if (!confirm('Xoá hẳn ' + ids.length + ' bài nghe đã chọn cùng toàn bộ câu hỏi của chúng? Không hoàn tác được.')) return;
+
+  this.disabled = true;
+  await db.from('questions').delete().in('set_id', ids);
+  const { error } = await db.from('listening_sets').delete().in('id', ids);
+  this.disabled = false;
+
+  toast(error ? 'Không xoá hết được: ' + error.message : 'Đã xoá ' + ids.length + ' bài.', error ? 'bad' : 'good');
+  loadHave();
+});
 
 async function act(what, id, btn) {
   if (what === 'toggle') {

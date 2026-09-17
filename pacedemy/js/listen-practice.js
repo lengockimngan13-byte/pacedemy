@@ -43,6 +43,7 @@ const PART_NAME = {
   const p = new URLSearchParams(location.search);
   setId = p.get('set');
   part = parseInt(p.get('part') || '1', 10);
+  const dang = p.get('dang');
 
   started = new Date();
   await loadSets();
@@ -56,6 +57,7 @@ const PART_NAME = {
   $('part-name').textContent = PART_NAME[part] || 'Luyện nghe';
   $('start-title').textContent = PART_NAME[part] || 'Luyện nghe';
   $('start-sub').textContent =
+    (dang ? 'Dạng: ' + dang + ' · ' : '') +
     queue.length + ' câu. Bấm nút bên dưới để bắt đầu, tiếng sẽ tự phát.';
   $('btn-start').classList.remove('hidden');
 })();
@@ -63,6 +65,38 @@ const PART_NAME = {
 // ---------- Lấy bài nghe và câu hỏi ----------
 
 async function loadSets() {
+  const dang = new URLSearchParams(location.search).get('dang');
+
+  if (dang) {
+    // Luyện theo đúng một dạng câu hỏi — không giới hạn ngẫu nhiên như luyện thường
+    const { data: qs } = await db
+      .from('questions')
+      .select('id, set_id, question_text, options, correct_answer, explanation, translation_vi, key_point, order_index')
+      .eq('part', part)
+      .eq('topic_tag', dang)
+      .eq('is_active', true)
+      .order('set_id').order('order_index');
+
+    if (!qs || !qs.length) return;
+
+    const setIds = Array.from(new Set(qs.map(function (q) { return q.set_id; })));
+
+    const { data: dsets } = await db
+      .from('listening_sets')
+      .select('id, part, title, audio_url, image_url, transcript, transcript_vi')
+      .in('id', setIds)
+      .eq('is_active', true);
+
+    const byTagId = {};
+    for (const s of (dsets || [])) byTagId[s.id] = s;
+
+    for (const q of qs) {
+      const s = byTagId[q.set_id];
+      if (s) queue.push({ set: s, q: q });
+    }
+    return;
+  }
+
   let sq = db
     .from('listening_sets')
     .select('id, part, title, audio_url, image_url, transcript, transcript_vi')
