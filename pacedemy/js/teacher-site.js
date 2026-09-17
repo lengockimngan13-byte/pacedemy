@@ -13,6 +13,7 @@ const FEATURES = [
   { key: 'listen',      label: 'Luyện nghe' },
   { key: 'shadow',      label: 'Luyện nói theo (Shadowing)' },
   { key: 'read',        label: 'Luyện đọc' },
+  { key: 'extra',       label: 'Ôn tổng hợp (trộn Nghe/Đọc/Từ vựng)' },
   { key: 'mock',        label: 'Thi thử' },
   { key: 'leaderboard', label: 'Xếp hạng / Lớp học' },
   { key: 'class',       label: 'Vào lớp bằng mã' }

@@ -3164,6 +3164,72 @@ body.focus-mode .side-toggle { display: none; }
 
 
 /* ============================================================
+   LUYỆN NGHE — bố cục 2 cột, chọn đáp án kiểu radio tròn
+   ============================================================ */
+
+.lp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+  align-items: start;
+  margin: 20px 0;
+}
+
+.lp-left { display: flex; flex-direction: column; gap: 16px; }
+.lp-right { display: flex; flex-direction: column; gap: 14px; }
+
+#btn-submit { width: 100%; }
+#btn-submit:disabled { opacity: .4; cursor: default; }
+
+.opts-radio { display: flex; flex-direction: column; gap: 10px; }
+
+.opt-radio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  cursor: pointer;
+  background: var(--paper);
+}
+.opt-radio:hover { border-color: var(--teal-dim); }
+.opt-radio.on { border-color: var(--teal); background: var(--mist); }
+.opt-radio.disabled { cursor: default; pointer-events: none; }
+
+.radio-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  flex: none;
+  position: relative;
+}
+.opt-radio.on .radio-dot,
+.opt-radio.right .radio-dot { border-color: var(--teal); }
+.opt-radio.on .radio-dot::after,
+.opt-radio.right .radio-dot::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+.opt-radio .letter { font-weight: 700; width: 20px; flex: none; }
+.opt-radio .say { flex: 1; }
+
+.opt-radio.right { background: var(--mist); }
+.opt-radio.wrong { border-color: var(--danger); background: #FBEAE5; }
+.opt-radio.wrong .radio-dot { border-color: var(--danger); }
+.opt-radio.wrong .radio-dot::after { background: var(--danger); }
+
+@media (max-width: 780px) {
+  .lp-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================
    TOAST — thông báo nổi dùng chung cho mọi trang
    ============================================================ */
 

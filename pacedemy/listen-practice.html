@@ -44,28 +44,35 @@
     </div>
     <div class="study-bar"><span id="progress" style="width:0"></span></div>
 
-    <div class="player">
-      <div class="player-top">
-        <b id="set-title">—</b>
-        <span id="set-meta"></span>
+    <div class="lp-grid">
+      <div class="lp-left">
+        <div class="player">
+          <div class="player-top">
+            <b id="set-title">—</b>
+            <span id="set-meta"></span>
+          </div>
+          <div class="play-bar" id="play-bar"><span id="play-fill"></span></div>
+          <div class="player-btns">
+            <button class="play-main" id="btn-play">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              <span id="play-label">Phát</span>
+            </button>
+            <button class="play-side" id="btn-replay">Nghe lại từ đầu</button>
+            <button class="play-side" id="btn-slow">Chậm 0.75x</button>
+          </div>
+          <p class="play-hint" id="play-hint">Nghe bao nhiêu lần cũng được, chưa tính là sai.</p>
+        </div>
+
+        <div class="pic hidden" id="pic"><img id="pic-img" src="" alt="Ảnh bài nghe"></div>
+
+        <p class="q-sentence" id="q-text"></p>
       </div>
-      <div class="play-bar" id="play-bar"><span id="play-fill"></span></div>
-      <div class="player-btns">
-        <button class="play-main" id="btn-play">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-          <span id="play-label">Phát</span>
-        </button>
-        <button class="play-side" id="btn-replay">Nghe lại từ đầu</button>
-        <button class="play-side" id="btn-slow">Chậm 0.75x</button>
+
+      <div class="lp-right">
+        <button class="btn btn-gold" id="btn-submit" disabled>Nộp bài</button>
+        <div class="opts-radio" id="opts"></div>
       </div>
-      <p class="play-hint" id="play-hint">Nghe bao nhiêu lần cũng được, chưa tính là sai.</p>
     </div>
-
-    <div class="pic hidden" id="pic"><img id="pic-img" src="" alt="Ảnh bài nghe"></div>
-
-    <p class="q-sentence" id="q-text"></p>
-
-    <div class="opts" id="opts"></div>
 
     <div id="after" class="hidden">
       <p class="verdict" id="verdict"></p>
@@ -74,8 +81,8 @@
         <p class="en" id="why"></p>
       </div>
       <div id="script-box"></div>
-      <div class="study-actions">
-        <button class="btn btn-ink btn-full" id="btn-next">Câu tiếp theo</button>
+      <div class="study-actions" style="justify-content:flex-end">
+        <button class="btn btn-ink" id="btn-next">Câu tiếp theo</button>
       </div>
     </div>
   </section>

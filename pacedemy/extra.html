@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ôn tổng hợp — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="greet">
+    <h1>Ôn tổng hợp</h1>
+    <p>Trộn ngẫu nhiên Từ vựng, Đọc (Part 5) và Nghe (Part 1-2) trong cùng một lượt ôn.</p>
+  </section>
+
+  <div class="hidden" id="view-empty">
+    <p class="empty">Kho câu hỏi chưa có đủ dữ liệu để trộn — báo cô nhé.</p>
+  </div>
+
+  <div class="hidden" id="view-start">
+    <p class="stat-lab" id="start-sub" style="margin-bottom:16px"></p>
+    <button class="btn btn-gold" id="btn-start">Bắt đầu</button>
+  </div>
+
+  <div class="hidden" id="view-q">
+    <div class="study-top">
+      <span id="counter"></span>
+      <span class="stat-lab" id="kind-badge"></span>
+    </div>
+    <div class="study-bar"><span id="progress" style="width:0"></span></div>
+
+    <div class="word-box" id="q-box"></div>
+
+    <div class="opts" id="opts"></div>
+
+    <div class="hidden" id="after">
+      <p class="verdict" id="verdict"></p>
+      <div id="why"></div>
+      <button class="btn btn-ink" id="btn-next" style="margin-top:14px">Câu tiếp theo</button>
+    </div>
+  </div>
+
+  <div class="hidden" id="view-done">
+    <div class="greet">
+      <h1 id="done-title">Xong lượt ôn</h1>
+      <p id="done-sub"></p>
+    </div>
+    <div class="done-actions">
+      <button class="btn btn-ink" id="btn-again">Ôn lượt khác</button>
+      <a class="btn btn-line" href="app.html">Về trang học</a>
+    </div>
+  </div>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/extra.js"></script>
+</body>
+</html>

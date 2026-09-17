@@ -16,6 +16,8 @@
       icon: '<path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12z"/>' },
     { href: 'part5.html',       label: 'Luyện đọc',     feat: 'read',
       icon: '<path d="M5 3h11l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 9h8v2H8zm0 4h6v2H8z"/>' },
+    { href: 'extra.html',       label: 'Ôn tổng hợp',   feat: 'extra',
+      icon: '<path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/>' },
     { href: 'fulltest.html',    label: 'Thi thử',       feat: 'mock',
       icon: '<path d="M12 3a9 9 0 1 0 9 9h-9z"/>' },
     { href: 'leaderboard.html', label: 'Xếp hạng',      feat: 'leaderboard',

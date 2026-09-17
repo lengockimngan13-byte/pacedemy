@@ -23,6 +23,7 @@ let attemptId = null;
 
 let curSetId = null;  // bài nghe đang phát
 let slow = false;
+let selected = null;  // đáp án đang chọn, chưa nộp
 
 const au = document.getElementById('au');
 const $ = function (id) { return document.getElementById(id); };
@@ -200,17 +201,31 @@ function render() {
   for (const k of ['A', 'B', 'C', 'D']) {
     if (opts[k] == null || opts[k] === '') continue;
     html +=
-      '<button class="opt opt-letter" data-k="' + k + '">' +
+      '<label class="opt-radio" data-k="' + k + '">' +
+        '<span class="radio-dot"></span>' +
         '<span class="letter">' + k + '</span>' +
         '<span class="say">' + (hideText ? '' : esc(opts[k])) + '</span>' +
-      '</button>';
+      '</label>';
   }
 
   $('opts').innerHTML = html;
 
-  $('opts').querySelectorAll('.opt').forEach(function (b) {
-    b.addEventListener('click', function () { answer(b.dataset.k); });
+  selected = null;
+  $('btn-submit').disabled = true;
+  $('btn-submit').classList.remove('hidden');
+
+  $('opts').querySelectorAll('.opt-radio').forEach(function (el) {
+    el.addEventListener('click', function () { selectOpt(el.dataset.k); });
   });
+}
+
+// Chọn đáp án — chưa chấm, chỉ đánh dấu và mở khoá nút Nộp bài
+function selectOpt(k) {
+  selected = k;
+  $('opts').querySelectorAll('.opt-radio').forEach(function (el) {
+    el.classList.toggle('on', el.dataset.k === k);
+  });
+  $('btn-submit').disabled = false;
 }
 
 // Câu thứ mấy trong bài nghe hiện tại
@@ -235,14 +250,16 @@ async function answer(k) {
   const opts = q.options || {};
   const ok = (k === q.correct_answer);
 
+  $('btn-submit').classList.add('hidden');
+
   // Hiện đầy đủ nội dung các lựa chọn sau khi đã chọn
-  $('opts').querySelectorAll('.opt').forEach(function (b) {
-    b.disabled = true;
-    const key = b.dataset.k;
-    const say = b.querySelector('.say');
+  $('opts').querySelectorAll('.opt-radio').forEach(function (el) {
+    el.classList.add('disabled');
+    const key = el.dataset.k;
+    const say = el.querySelector('.say');
     if (say && !say.textContent) say.textContent = opts[key] || '';
-    if (key === q.correct_answer) b.classList.add('right');
-    else if (key === k) b.classList.add('wrong');
+    if (key === q.correct_answer) el.classList.add('right');
+    else if (key === k) el.classList.add('wrong');
   });
 
   if (ok) { right++; xp += XP_RIGHT; }
@@ -306,6 +323,13 @@ async function saveAnswer(q, chose, ok) {
 
   if (ansErr) toast('Không lưu được câu trả lời: ' + ansErr.message, 'bad');
 }
+
+// ---------- Nộp bài ----------
+
+$('btn-submit').addEventListener('click', function () {
+  if (!selected) return;
+  answer(selected);
+});
 
 // ---------- Chuyển câu ----------
 
