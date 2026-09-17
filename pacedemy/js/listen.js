@@ -31,12 +31,6 @@ async function showStreak() {
 }
 
 async function build() {
-  const { data: tags } = await db
-    .from('question_tags')
-    .select('part, skill_group, tag, order_index')
-    .in('part', [1, 2, 3, 4])
-    .order('order_index');
-
   const { data: sets } = await db
     .from('listening_sets')
     .select('id, part, title, difficulty')
@@ -45,23 +39,15 @@ async function build() {
 
   const { data: qs } = await db
     .from('questions')
-    .select('id, part, set_id, topic_tag')
+    .select('id, part, set_id')
     .not('set_id', 'is', null)
     .eq('is_active', true);
 
   const done = await myResults();
 
-  // Đếm số câu trong từng bộ đề, và số câu trong từng dạng
+  // Đếm số câu trong từng bộ đề
   const qInSet = {};
-  const qInTag = {};
-  for (const q of (qs || [])) {
-    qInSet[q.set_id] = (qInSet[q.set_id] || 0) + 1;
-    if (q.topic_tag) qInTag[q.part + '|' + q.topic_tag] = (qInTag[q.part + '|' + q.topic_tag] || 0) + 1;
-  }
-
-  // Gom danh mục dạng bài theo từng Part, giữ theo nhóm lớn (skill_group)
-  const tagsByPart = { 1: [], 2: [], 3: [], 4: [] };
-  for (const t of (tags || [])) if (tagsByPart[t.part]) tagsByPart[t.part].push(t);
+  for (const q of (qs || [])) qInSet[q.set_id] = (qInSet[q.set_id] || 0) + 1;
 
   let html = '';
 
@@ -87,53 +73,8 @@ async function build() {
       continue;
     }
 
-    // ---- Chọn theo dạng câu hỏi ----
-    const partTags = tagsByPart[p.n];
-    if (partTags.length) {
-      const groups = [];
-      const seen = {};
-      for (const t of partTags) {
-        if (!seen[t.skill_group]) { seen[t.skill_group] = []; groups.push(t.skill_group); }
-        seen[t.skill_group].push(t);
-      }
-
-      html += '<p class="level-note" style="margin-top:22px">Chọn theo dạng câu hỏi</p>';
-
-      for (const g of groups) {
-        html += '<p class="stat-lab" style="margin:10px 0 8px">' + esc(g) + '</p><div class="set-grid">';
-
-        for (const t of seen[g]) {
-          const n = qInTag[p.n + '|' + t.tag] || 0;
-
-          if (!n) {
-            html +=
-              '<div class="set" style="opacity:.5">' +
-                '<div class="set-top"><span class="set-name">' + esc(t.tag) + '</span>' +
-                '<span class="set-n">chưa có bài</span></div>' +
-              '</div>';
-            continue;
-          }
-
-          html +=
-            '<div class="set">' +
-              '<div class="set-top">' +
-                '<span class="set-name">' + esc(t.tag) + '</span>' +
-                '<span class="set-n">' + n + ' câu</span>' +
-              '</div>' +
-              '<div class="topic-actions">' +
-                '<a class="btn-sm test" style="flex:1" href="listen-practice.html?part=' + p.n +
-                  '&dang=' + encodeURIComponent(t.tag) + '">Luyện dạng này</a>' +
-              '</div>' +
-            '</div>';
-        }
-
-        html += '</div>';
-      }
-    }
-
-    // ---- Chọn theo từng bài nghe ----
     const d = done[p.n];
-    html += '<p class="level-note" style="margin-top:22px">' + list.length + ' bài nghe · ' + nq + ' câu hỏi' +
+    html += '<p class="level-note">' + list.length + ' bài nghe · ' + nq + ' câu hỏi' +
             (d ? ' · bạn đã đúng ' + d.right + '/' + d.seen + ' câu' : '') + '</p>';
 
     html += '<div class="set-grid">';
