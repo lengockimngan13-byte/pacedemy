@@ -29,7 +29,7 @@ const PROMPT =
 '  "part": 3,\n' +
 '  "title": "tên ngắn gọn bằng tiếng Việt để cô dễ nhận ra bài này",\n' +
 '  "audio_file": "tên file âm thanh, ví dụ p3-01.mp3",\n' +
-'  "image_file": "chỉ Part 1 mới cần, ví dụ p1-01.jpg, các part khác để chuỗi rỗng",\n' +
+'  "image_file": "chỉ cần khi có ảnh minh hoạ — Part 1 luôn có, Part 3/4 có khi là dạng graphic (bảng biểu, hoá đơn...); để chuỗi rỗng nếu không có ảnh",\n' +
 '  "difficulty": 2,\n' +
 '  "transcript": "toàn bộ lời thoại tiếng Anh, xuống dòng giữa các lượt nói",\n' +
 '  "transcript_vi": "bản dịch tiếng Việt của lời thoại, xuống dòng tương ứng",\n' +

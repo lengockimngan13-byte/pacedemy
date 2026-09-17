@@ -2125,8 +2125,12 @@ a { color: inherit; }
   border-radius: var(--r);
   overflow: hidden;
   background: var(--mist);
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.pic img { display: block; width: 100%; height: auto; }
+.pic img { display: block; width: 100%; height: auto; min-height: 220px; object-fit: contain; }
 
 .opt-letter { display: flex; align-items: flex-start; gap: 4px; }
 .opt-letter .say { flex: 1; min-height: 1.6em; }
@@ -3226,6 +3230,30 @@ body.focus-mode .side-toggle { display: none; }
 
 @media (max-width: 780px) {
   .lp-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================
+   THI THỬ — nút đánh dấu xem lại từng câu
+   ============================================================ */
+
+.mark-btn {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  background: var(--paper);
+  font-size: 14px;
+  cursor: pointer;
+  opacity: .45;
+  filter: grayscale(1);
+}
+.mark-btn.on {
+  opacity: 1;
+  filter: none;
+  border-color: var(--gold);
+  background: var(--gold-dim);
 }
 
 

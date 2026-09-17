@@ -11,6 +11,7 @@ let examSet = null;
 let screens = [];       // mỗi phần tử: 1 câu (Part 1-5) hoặc 1 bài (Part 6-7)
 let cur = 0;
 let picked = {};        // id câu -> chữ cái
+let marked = {};        // id câu -> đã đánh dấu xem lại hay chưa
 let deadline = 0;
 let tick = null;
 let startAt = 0;
@@ -205,10 +206,12 @@ function openScreen(i) {
 
   const s = screens[cur];
   const done = allQuestions().filter(function (q) { return picked[q.id]; }).length;
+  const nMarked = Object.keys(marked).filter(function (id) { return marked[id]; }).length;
 
   $('pos-label').textContent =
     'Part ' + s.part + ' · màn ' + (cur + 1) + '/' + screens.length +
-    ' · đã làm ' + done + '/' + allQuestions().length + ' câu';
+    ' · đã làm ' + done + '/' + allQuestions().length + ' câu' +
+    (nMarked ? ' · đã đánh dấu ' + nMarked + ' câu' : '');
 
   $('btn-prev').disabled = cur === 0;
   $('btn-next').classList.toggle('hidden', cur === screens.length - 1);
@@ -261,21 +264,35 @@ function drawReading(s) {
 
 function qBlock(q, no) {
   const o = q.options || {};
+  const isMarked = !!marked[q.id];
   return '<div class="rq" data-q="' + q.id + '">' +
-    '<p class="rq-head">' + (no ? no + '. ' : '') + esc(q.question_text || '') + '</p>' +
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">' +
+      '<p class="rq-head">' + (no ? no + '. ' : '') + esc(q.question_text || '') + '</p>' +
+      '<button class="mark-btn' + (isMarked ? ' on' : '') + '" data-mark="' + q.id + '" title="Đánh dấu xem lại">🚩</button>' +
+    '</div>' +
+    '<div class="opts-radio">' +
     ['A', 'B', 'C', 'D'].map(function (L) {
       if (!o[L]) return '';
       const on = picked[q.id] === L;
-      return '<button class="opt' + (on ? ' on' : '') + '" data-pick="' + q.id + '" data-l="' + L + '">' +
-        '<span class="opt-letter">' + L + '</span><span>' + esc(o[L]) + '</span></button>';
-    }).join('') + '</div>';
+      return '<label class="opt-radio' + (on ? ' on' : '') + '" data-pick="' + q.id + '" data-l="' + L + '">' +
+        '<span class="radio-dot"></span><span class="letter">' + L + '</span><span class="say">' + esc(o[L]) + '</span></label>';
+    }).join('') + '</div></div>';
 }
 
 function bindPick() {
-  $('screen').querySelectorAll('button[data-pick]').forEach(function (b) {
+  $('screen').querySelectorAll('label[data-pick]').forEach(function (b) {
     b.addEventListener('click', function () {
       const id = b.dataset.pick;
       picked[id] = b.dataset.l;
+      openScreen(cur);
+    });
+  });
+
+  $('screen').querySelectorAll('button[data-mark]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const id = b.dataset.mark;
+      marked[id] = !marked[id];
       openScreen(cur);
     });
   });

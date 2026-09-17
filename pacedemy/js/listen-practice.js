@@ -180,8 +180,8 @@ function render() {
   $('set-title').textContent = s.title || 'Bài nghe';
   $('set-meta').textContent = seatInSet(at);
 
-  // Ảnh của Part 1
-  if (part === 1 && s.image_url) {
+  // Ảnh minh hoạ — Part 1 luôn có, Part 3/4 có khi bài dùng dạng "graphic" (bảng biểu, hoá đơn...)
+  if (s.image_url) {
     $('pic-img').src = s.image_url;
     $('pic').classList.remove('hidden');
   } else {
