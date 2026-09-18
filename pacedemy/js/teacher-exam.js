@@ -44,21 +44,29 @@ const PROMPTS = {
     'Mình soạn đề Part 6 cho một BỘ ĐỀ THI THỬ. Trả về DUY NHẤT một khối JSON.\n\n' +
     'Mảng các đoạn:\n{\n  "title": "tên ngắn gọn", "doc_type": "email, thông báo...",\n' +
     '  "passage_text": "đoạn văn có 4 chỗ trống dạng ---131---, ---132---, ---133---, ---134---",\n' +
-    '  "passage_vi": "bản dịch",\n  "questions": [{\n    "number": 131,\n' +
+    '  "passage_vi": "bản dịch",\n' +
+    '  "vocab": [{"term": "từ/cụm đáng chú ý", "meaning_vi": "nghĩa tiếng Việt"}],\n' +
+    '  "questions": [{\n    "number": 131,\n' +
     '    "A": "..", "B": "..", "C": "..", "D": "..",\n    "correct_answer": "A",\n' +
-    '    "explanation": "giải thích tiếng Việt",\n    "topic_tag": "dạng câu hỏi"\n  }]\n}\n\n' +
-    'Đúng 4 câu mỗi đoạn, ít nhất 1 câu chọn câu hoàn chỉnh điền vào đoạn.\n\n' +
+    '    "explanation": "giải thích tiếng Việt",\n    "topic_tag": "dạng câu hỏi",\n' +
+    '    "evidence": ["chép nguyên văn cụm trong passage_text chứng minh đáp án, mảng rỗng nếu câu ngữ pháp thuần"]\n  }]\n}\n\n' +
+    'Đúng 4 câu mỗi đoạn, ít nhất 1 câu chọn câu hoàn chỉnh điền vào đoạn. ' +
+    'evidence phải chép đúng nguyên văn từ passage_text, không diễn giải lại.\n\n' +
     'Việc cần làm: [ghi rõ số đoạn]',
 
   7:
     'Mình soạn đề Part 7 cho một BỘ ĐỀ THI THỬ. Trả về DUY NHẤT một khối JSON.\n\n' +
     'Mảng các bài đọc:\n{\n  "title": "tên ngắn gọn", "doc_type": "email, thông báo...",\n' +
     '  "passage_text": "văn bản. Nếu nhiều văn bản thì ngăn bằng dòng chỉ có ===",\n' +
-    '  "passage_vi": "bản dịch",\n  "questions": [{\n    "number": 147,\n' +
+    '  "passage_vi": "bản dịch",\n' +
+    '  "vocab": [{"term": "từ/cụm đáng chú ý", "meaning_vi": "nghĩa tiếng Việt"}],\n' +
+    '  "questions": [{\n    "number": 147,\n' +
     '    "question_text": "câu hỏi tiếng Anh",\n    "A": "..", "B": "..", "C": "..", "D": "..",\n' +
     '    "correct_answer": "B",\n    "explanation": "giải thích tiếng Việt",\n' +
-    '    "topic_tag": "dạng câu hỏi"\n  }]\n}\n\n' +
-    'Mỗi bài 2 đến 5 câu. Bài nhiều văn bản phải có ít nhất 1 câu cần đọc cả hai văn bản.\n\n' +
+    '    "topic_tag": "dạng câu hỏi",\n' +
+    '    "evidence": ["chép nguyên văn câu/cụm trong passage_text trả lời câu hỏi này"]\n  }]\n}\n\n' +
+    'Mỗi bài 2 đến 5 câu. Bài nhiều văn bản phải có ít nhất 1 câu cần đọc cả hai văn bản. ' +
+    'evidence phải chép đúng nguyên văn từ passage_text, không diễn giải lại.\n\n' +
     'Việc cần làm: [ghi rõ số bài]'
 };
 
@@ -80,16 +88,20 @@ const SAMPLES = {
     title: 'Thông báo nghỉ lễ', doc_type: 'thông báo',
     passage_text: 'The office will be ---131--- on Monday for the public holiday.',
     passage_vi: 'Văn phòng sẽ đóng cửa vào thứ Hai nhân ngày lễ.',
+    vocab: [{ term: 'public holiday', meaning_vi: 'ngày lễ' }],
     questions: [{ number: 131, A: 'closed', B: 'closing', C: 'close', D: 'closes',
-      correct_answer: 'A', explanation: 'Sau "will be" cần tính từ/quá khứ phân từ.', topic_tag: 'Từ loại' }]
+      correct_answer: 'A', explanation: 'Sau "will be" cần tính từ/quá khứ phân từ.', topic_tag: 'Từ loại',
+      evidence: [] }]
   }], null, 2),
   7: JSON.stringify([{
     title: 'Email đặt phòng', doc_type: 'email',
     passage_text: 'Dear Ms. Tran, I would like to confirm our meeting room booking for Friday.',
     passage_vi: 'Kính gửi chị Trân, tôi muốn xác nhận việc đặt phòng họp vào thứ Sáu.',
+    vocab: [{ term: 'booking', meaning_vi: 'việc đặt chỗ' }],
     questions: [{ number: 147, question_text: 'What is the purpose of the email?',
       A: 'To cancel a booking', B: 'To confirm a booking', C: 'To request a refund', D: 'To ask for directions',
-      correct_answer: 'B', explanation: 'Câu đầu nêu rõ mục đích là xác nhận đặt phòng.', topic_tag: 'Câu hỏi ý chính' }]
+      correct_answer: 'B', explanation: 'Câu đầu nêu rõ mục đích là xác nhận đặt phòng.', topic_tag: 'Câu hỏi ý chính',
+      evidence: ['I would like to confirm our meeting room booking for Friday.'] }]
   }], null, 2)
 };
 
@@ -470,7 +482,7 @@ $('btn-save').addEventListener('click', async function () {
     for (const s of good) {
       const { data: rowData, error } = await db.from('exam_reading').insert({
         exam_set_id: curSet.id, part: part, title: s.title, doc_type: s.doc_type || null,
-        passage_text: s.passage_text, passage_vi: s.passage_vi || null
+        passage_text: s.passage_text, passage_vi: s.passage_vi || null, vocab: s.vocab || []
       }).select('id').single();
       if (error || !rowData) return fail(error ? error.message : 'lỗi không rõ');
 
@@ -480,7 +492,8 @@ $('btn-save').addEventListener('click', async function () {
           question_text: q.question_text || ('Chỗ trống số ' + (q.number || i + 1)),
           options: { A: q.A, B: q.B, C: q.C, D: q.D },
           correct_answer: q.correct_answer.toUpperCase(),
-          explanation: q.explanation || null, topic_tag: q.topic_tag || null, order_index: i
+          explanation: q.explanation || null, topic_tag: q.topic_tag || null,
+          evidence: q.evidence || [], order_index: i
         };
       });
       const { error: e2 } = await db.from('exam_questions').insert(qs);

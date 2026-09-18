@@ -3258,6 +3258,43 @@ body.focus-mode .side-toggle { display: none; }
 
 
 /* ============================================================
+   LUYỆN ĐỌC / THI THỬ — thanh công cụ Song ngữ, Cỡ chữ, Dẫn chứng
+   ============================================================ */
+
+.read-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.read-toolbar .btn-sm.on { background: var(--ink); color: var(--paper); }
+
+.font-ctrl { display: flex; gap: 4px; margin-left: auto; }
+.font-ctrl .btn-sm { width: 34px; padding: 6px 0; text-align: center; }
+
+.ev {
+  padding: 1px 3px;
+  border-radius: 3px;
+  position: relative;
+}
+.ev-0 { background: rgba(240,168,48,.30); }
+.ev-1 { background: rgba(42,127,118,.28); }
+.ev-2 { background: rgba(180,67,46,.22); }
+.ev-3 { background: rgba(76,110,245,.22); }
+.ev-4 { background: rgba(155,89,182,.24); }
+.ev-5 { background: rgba(46,160,90,.26); }
+
+.ev-tag {
+  font-size: 0.62rem;
+  font-weight: 800;
+  vertical-align: super;
+  margin-left: 1px;
+  opacity: .8;
+}
+
+
+/* ============================================================
    TOAST — thông báo nổi dùng chung cho mọi trang
    ============================================================ */
 

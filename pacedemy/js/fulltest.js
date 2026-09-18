@@ -103,7 +103,7 @@ async function prepare(setId) {
     (rsets || []).filter(function (x) { return x.part === p; }).forEach(function (x) {
       const qs = (byReading[x.id] || []).sort(function (a, b) { return a.order_index - b.order_index; });
       if (qs.length) screens.push({ part: p, kind: 'reading', title: x.title, doc_type: x.doc_type,
-        passage_text: x.passage_text, passage_vi: x.passage_vi, questions: qs });
+        passage_text: x.passage_text, passage_vi: x.passage_vi, vocab: x.vocab || [], questions: qs });
     });
   });
 
@@ -239,8 +239,12 @@ function drawAudio(s) {
   bindPick();
 }
 
+let readVi = false;
+let readFontPct = 100;
+
 function drawReading(s) {
-  let text = esc(s.passage_text).replace(/---\s*(\d+)\s*---/g, function (m, n) {
+  const raw = readVi && s.passage_vi ? s.passage_vi : s.passage_text;
+  let text = esc(raw).replace(/---\s*(\d+)\s*---/g, function (m, n) {
     return '<span class="blank">' + n + '</span>';
   });
   const docs = text.split(/\n?===+\n?/).map(function (d) {
@@ -255,11 +259,32 @@ function drawReading(s) {
       '<div class="exam-passage">' +
         '<p class="rq-head">' + esc(s.title) +
           (s.doc_type ? ' <span class="stat-lab">' + esc(s.doc_type) + '</span>' : '') + '</p>' +
-        docs +
+        '<div class="read-toolbar">' +
+          '<button class="btn-sm' + (readVi ? ' on' : '') + '" id="btn-read-vi">🌐 Song ngữ</button>' +
+          '<span class="font-ctrl">' +
+            '<button class="btn-sm" id="btn-read-font-minus">T−</button>' +
+            '<button class="btn-sm" id="btn-read-font-plus">T+</button>' +
+          '</span>' +
+        '</div>' +
+        '<div id="read-doc" style="font-size:' + readFontPct + '%">' + docs + '</div>' +
       '</div>' +
       '<div class="exam-questions">' + qHtml + '</div>' +
     '</div>';
   bindPick();
+
+  $('btn-read-vi').addEventListener('click', function () {
+    if (!s.passage_vi) { toast('Đoạn này chưa có bản dịch.', 'bad'); return; }
+    readVi = !readVi;
+    drawReading(s);
+  });
+  $('btn-read-font-minus').addEventListener('click', function () {
+    readFontPct = Math.max(80, readFontPct - 10);
+    $('read-doc').style.fontSize = readFontPct + '%';
+  });
+  $('btn-read-font-plus').addEventListener('click', function () {
+    readFontPct = Math.min(150, readFontPct + 10);
+    $('read-doc').style.fontSize = readFontPct + '%';
+  });
 }
 
 function qBlock(q, no) {
@@ -410,30 +435,112 @@ function stat(num, lab) {
   return '<div class="stat"><span class="stat-num">' + num + '</span><span class="stat-lab">' + lab + '</span></div>';
 }
 
+function highlightEvidence(text, qs) {
+  const ranges = [];
+  qs.forEach(function (q, qi) {
+    (q.evidence || []).forEach(function (quote) {
+      if (!quote) return;
+      const idx = text.indexOf(quote);
+      if (idx === -1) return;
+      ranges.push({ start: idx, end: idx + quote.length, no: qi + 1 });
+    });
+  });
+  if (!ranges.length) return esc(text);
+
+  ranges.sort(function (a, b) { return a.start - b.start; });
+  const clean = [];
+  let lastEnd = -1;
+  ranges.forEach(function (r) { if (r.start >= lastEnd) { clean.push(r); lastEnd = r.end; } });
+
+  let out = '', pos = 0;
+  clean.forEach(function (r) {
+    out += esc(text.slice(pos, r.start));
+    out += '<mark class="ev ev-' + (r.no % 6) + '">' + esc(text.slice(r.start, r.end)) +
+           '<sup class="ev-tag">' + r.no + '</sup></mark>';
+    pos = r.end;
+  });
+  out += esc(text.slice(pos));
+  return out;
+}
+
 function showReview() {
   const all = allQuestions();
-  const wrong = all.filter(function (q) { return picked[q.id] !== q.correct_answer; });
+  const wrongIds = {};
+  all.forEach(function (q) { if (picked[q.id] !== q.correct_answer) wrongIds[q.id] = true; });
 
-  if (!wrong.length) { $('review').innerHTML = '<p class="empty">Bạn làm đúng hết.</p>'; return; }
+  const wrongScreens = screens.filter(function (s) {
+    return s.questions.some(function (q) { return wrongIds[q.id]; });
+  });
 
-  let html = '<div class="section-head"><h2>' + wrong.length + ' câu cần xem lại</h2></div>';
+  if (!wrongScreens.length) { $('review').innerHTML = '<p class="empty">Bạn làm đúng hết.</p>'; return; }
 
-  wrong.forEach(function (q) {
-    const o = q.options || {};
-    const my = picked[q.id];
+  const totalWrong = all.filter(function (q) { return wrongIds[q.id]; }).length;
+  let html = '<div class="section-head"><h2>' + totalWrong + ' câu cần xem lại</h2></div>';
 
-    html += '<div class="wrong-q">' +
-      '<p class="wq">Part ' + q.part + ' · ' + esc(q.question_text || '') + '</p>' +
-      ['A', 'B', 'C', 'D'].map(function (L) {
-        if (!o[L]) return '';
-        const right = L === q.correct_answer;
-        const mine = L === my;
-        return '<p class="ww" style="margin:3px 0' + (right ? ';color:var(--teal);font-weight:600' : '') +
-          (mine && !right ? ';color:var(--danger)' : '') + '">' + L + '. ' + esc(o[L]) +
-          (right ? '  ✓' : (mine ? '  ✗ bạn chọn' : '')) + '</p>';
-      }).join('') +
-      (q.explanation ? '<p class="key-point" style="margin:8px 0 0">' + esc(q.explanation) + '</p>' : '') +
-      '</div>';
+  wrongScreens.forEach(function (s) {
+    if (s.kind === 'reading') {
+      const text = highlightEvidence(s.passage_text, s.questions).replace(/---\s*(\d+)\s*---/g, function (m, n) {
+        return '<span class="blank">' + n + '</span>';
+      });
+      const docs = text.split(/\n?===+\n?/).map(function (d) {
+        return '<div class="doc">' + d.replace(/\n/g, '<br>') + '</div>';
+      }).join('');
+
+      html +=
+        '<div class="tbox" style="margin-bottom:20px">' +
+          '<p class="rq-head">Part ' + s.part + ' · ' + esc(s.title) + '</p>' +
+          '<div class="passage">' + docs + '</div>';
+
+      s.questions.forEach(function (q, i) {
+        if (!wrongIds[q.id]) return;
+        const o = q.options || {};
+        const my = picked[q.id];
+        html += '<div class="wrong-q" style="margin-top:14px">' +
+          '<p class="wq">' + (i + 1) + '. ' + esc(q.question_text || '') + '</p>' +
+          ['A', 'B', 'C', 'D'].map(function (L) {
+            if (!o[L]) return '';
+            const right = L === q.correct_answer;
+            const mine = L === my;
+            return '<p class="ww" style="margin:3px 0' + (right ? ';color:var(--teal);font-weight:600' : '') +
+              (mine && !right ? ';color:var(--danger)' : '') + '">' + L + '. ' + esc(o[L]) +
+              (right ? '  ✓' : (mine ? '  ✗ bạn chọn' : '')) + '</p>';
+          }).join('') +
+          (q.explanation ? '<p class="key-point" style="margin:8px 0 0">' + esc(q.explanation) + '</p>' : '') +
+          '</div>';
+      });
+
+      if (s.vocab && s.vocab.length) {
+        html += '<div class="tbox" style="border-color:var(--gold);margin-top:14px">' +
+          '<h3>📖 Từ vựng trong bài</h3>' +
+          s.vocab.map(function (v) {
+            return '<p class="ww" style="margin:4px 0"><b>' + esc(v.term) + '</b>: ' + esc(v.meaning_vi) + '</p>';
+          }).join('') +
+          '</div>';
+      }
+
+      html += '</div>';
+      return;
+    }
+
+    // Part 1-4 và Part 5 — không có đoạn văn để gắn dẫn chứng, giữ dạng thẻ như cũ
+    s.questions.forEach(function (q) {
+      if (!wrongIds[q.id]) return;
+      const o = q.options || {};
+      const my = picked[q.id];
+
+      html += '<div class="wrong-q">' +
+        '<p class="wq">Part ' + q.part + ' · ' + esc(q.question_text || '') + '</p>' +
+        ['A', 'B', 'C', 'D'].map(function (L) {
+          if (!o[L]) return '';
+          const right = L === q.correct_answer;
+          const mine = L === my;
+          return '<p class="ww" style="margin:3px 0' + (right ? ';color:var(--teal);font-weight:600' : '') +
+            (mine && !right ? ';color:var(--danger)' : '') + '">' + L + '. ' + esc(o[L]) +
+            (right ? '  ✓' : (mine ? '  ✗ bạn chọn' : '')) + '</p>';
+        }).join('') +
+        (q.explanation ? '<p class="key-point" style="margin:8px 0 0">' + esc(q.explanation) + '</p>' : '') +
+        '</div>';
+    });
   });
 
   $('review').innerHTML = html;

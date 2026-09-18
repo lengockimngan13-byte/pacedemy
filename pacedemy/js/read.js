@@ -15,6 +15,10 @@ function makeReadingPanel(part) {
   let picked = {};
   let startAt = 0;
   let loaded = false;
+  let showVi = false;
+  let showEvidence = false;
+  let fontPct = 100;
+  let submitted = false;
 
   async function ensureLoaded() {
     if (loaded) return;
@@ -75,18 +79,25 @@ function makeReadingPanel(part) {
 
     const { data: list } = await db
       .from('questions')
-      .select('id, question_text, options, correct_answer, explanation, topic_tag, order_index')
+      .select('id, question_text, options, correct_answer, explanation, topic_tag, evidence, order_index')
       .eq('rset_id', id).order('order_index');
 
     cur = r;
     qs = list || [];
     picked = {};
     startAt = Date.now();
+    showVi = false;
+    showEvidence = false;
+    fontPct = 100;
+    submitted = false;
 
     $('view-pick').classList.add('hidden');
     $('view-do').classList.remove('hidden');
     $('d-result').innerHTML = '';
+    $('d-vocab').innerHTML = '';
     $('btn-submit').classList.remove('hidden');
+    $('btn-evidence').classList.add('hidden');
+    $('btn-vi').textContent = '🌐 Song ngữ';
     window.scrollTo(0, 0);
 
     $('d-title').textContent = r.title;
@@ -97,16 +108,81 @@ function makeReadingPanel(part) {
     drawQuestions();
   }
 
-  function drawPassage() {
-    let text = esc(cur.passage_text);
-    text = text.replace(/---\s*(\d+)\s*---/g, function (m, n) {
-      return '<span class="blank">' + n + '</span>';
+  // Tô màu đúng những cụm/câu chứng minh đáp án (evidence), mỗi câu
+  // một màu riêng, đánh số nhỏ để biết dẫn chứng đó của câu nào.
+  function highlightEvidence(text) {
+    const ranges = [];
+
+    qs.forEach(function (q, qi) {
+      (q.evidence || []).forEach(function (quote) {
+        if (!quote) return;
+        const idx = text.indexOf(quote);
+        if (idx === -1) return;
+        ranges.push({ start: idx, end: idx + quote.length, no: q.order_index || (qi + 1) });
+      });
     });
+
+    if (!ranges.length) return esc(text);
+
+    ranges.sort(function (a, b) { return a.start - b.start; });
+    const clean = [];
+    let lastEnd = -1;
+    ranges.forEach(function (r) {
+      if (r.start >= lastEnd) { clean.push(r); lastEnd = r.end; }
+    });
+
+    let out = '';
+    let pos = 0;
+    clean.forEach(function (r) {
+      out += esc(text.slice(pos, r.start));
+      out += '<mark class="ev ev-' + (r.no % 6) + '">' + esc(text.slice(r.start, r.end)) +
+             '<sup class="ev-tag">' + r.no + '</sup></mark>';
+      pos = r.end;
+    });
+    out += esc(text.slice(pos));
+    return out;
+  }
+
+  function drawPassage() {
+    const raw = showVi && cur.passage_vi ? cur.passage_vi : cur.passage_text;
+    let text = showEvidence && !showVi ? highlightEvidence(raw) : esc(raw);
+
+    if (!showVi) {
+      text = text.replace(/---\s*(\d+)\s*---/g, function (m, n) {
+        return '<span class="blank">' + n + '</span>';
+      });
+    }
+
     const parts = text.split(/\n?===+\n?/);
     $('d-passage').innerHTML = parts.map(function (p) {
       return '<div class="doc">' + p.replace(/\n/g, '<br>') + '</div>';
     }).join('');
+    $('d-passage').style.fontSize = fontPct + '%';
   }
+
+  $('btn-vi').addEventListener('click', function () {
+    if (!cur || !cur.passage_vi) { toast('Đoạn này chưa có bản dịch.', 'bad'); return; }
+    showVi = !showVi;
+    $('btn-vi').textContent = showVi ? '🌐 Xem tiếng Anh' : '🌐 Song ngữ';
+    drawPassage();
+  });
+
+  $('btn-evidence').addEventListener('click', function () {
+    showEvidence = !showEvidence;
+    $('btn-evidence').classList.toggle('on', showEvidence);
+    if (showVi) { showVi = false; $('btn-vi').textContent = '🌐 Song ngữ'; }
+    drawPassage();
+  });
+
+  $('btn-font-minus').addEventListener('click', function () {
+    fontPct = Math.max(80, fontPct - 10);
+    $('d-passage').style.fontSize = fontPct + '%';
+  });
+
+  $('btn-font-plus').addEventListener('click', function () {
+    fontPct = Math.min(150, fontPct + 10);
+    $('d-passage').style.fontSize = fontPct + '%';
+  });
 
   function drawQuestions() {
     let html = '';
@@ -175,28 +251,32 @@ function makeReadingPanel(part) {
     }
 
     $('btn-submit').classList.add('hidden');
+    submitted = true;
+    if (qs.some(function (q) { return (q.evidence || []).length; })) {
+      $('btn-evidence').classList.remove('hidden');
+    }
+
+    if (cur.vocab && cur.vocab.length) {
+      $('d-vocab').innerHTML =
+        '<div class="tbox" style="border-color:var(--gold);margin-top:16px">' +
+          '<h3>📖 Từ vựng trong bài</h3>' +
+          cur.vocab.map(function (v) {
+            return '<p class="ww" style="margin:4px 0"><b>' + esc(v.term) + '</b>: ' + esc(v.meaning_vi) + '</p>';
+          }).join('') +
+        '</div>';
+    }
 
     const secs = Math.round((Date.now() - startAt) / 1000);
 
     $('d-result').innerHTML =
       '<div class="tbox" style="border-color:var(--teal)">' +
         '<h3>Kết quả: ' + ok + '/' + qs.length + ' câu đúng</h3>' +
-        '<p style="margin:0 0 12px;font-size:0.94rem">Bạn làm hết ' +
-          Math.floor(secs / 60) + ' phút ' + (secs % 60) + ' giây.</p>' +
-        (cur.passage_vi ? '<button class="btn-sm test" data-vi="1">Xem bản dịch đoạn văn</button>' : '') +
+        '<p style="margin:0;font-size:0.94rem">Bạn làm hết ' +
+          Math.floor(secs / 60) + ' phút ' + (secs % 60) + ' giây. ' +
+          'Bấm "🌐 Song ngữ" hoặc "🔎 Dẫn chứng" ở trên để xem lại đoạn văn kỹ hơn.' +
+        '</p>' +
       '</div>';
 
-    const btnVi = $('d-result').querySelector('button[data-vi]');
-    if (btnVi) {
-      btnVi.addEventListener('click', function () {
-        this.classList.add('hidden');
-        const d = document.createElement('div');
-        d.className = 'passage';
-        d.style.marginTop = '14px';
-        d.innerHTML = '<div class="doc">' + esc(cur.passage_vi).replace(/\n/g, '<br>') + '</div>';
-        $('d-result').appendChild(d);
-      });
-    }
 
     const { data: att, error: attErr } = await db.from('attempts').insert({
       user_id: me.id, mode: 'practice', part: cur.part,

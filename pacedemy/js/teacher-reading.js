@@ -19,6 +19,7 @@ const P6 =
 '  "passage_text": "toàn bộ đoạn văn tiếng Anh. Bốn chỗ trống viết đúng dạng ---131---, ' +
 '---132---, ---133---, ---134---",\n' +
 '  "passage_vi": "bản dịch tiếng Việt của cả đoạn",\n' +
+'  "vocab": [{"term": "từ hoặc cụm tiếng Anh đáng chú ý trong đoạn", "meaning_vi": "nghĩa tiếng Việt"}],\n' +
 '  "questions": [\n' +
 '    {\n' +
 '      "number": 131,\n' +
@@ -26,7 +27,9 @@ const P6 =
 '      "correct_answer": "A",\n' +
 '      "explanation": "giải thích bằng tiếng Việt, nói rõ vì sao đáp án đúng và ' +
 'vì sao ba phương án kia sai",\n' +
-'      "topic_tag": "dạng ngữ pháp hoặc kỹ năng đang kiểm tra, ví dụ: Thì động từ, Từ nối, Từ vựng"\n' +
+'      "topic_tag": "dạng ngữ pháp hoặc kỹ năng đang kiểm tra, ví dụ: Thì động từ, Từ nối, Từ vựng",\n' +
+'      "evidence": ["chép NGUYÊN VĂN 1-2 cụm/câu trong passage_text chứng minh đáp án, ' +
+'để mảng rỗng [] nếu câu này không có chỗ trích cụ thể (như câu ngữ pháp thuần)"]\n' +
 '    }\n' +
 '  ]\n' +
 '}\n\n' +
@@ -36,7 +39,10 @@ const P6 =
 'đây là dạng đặc trưng của Part 6.\n' +
 '- Đáp án đúng rải đều A, B, C, D giữa các đoạn, không dồn hết vào một chữ.\n' +
 '- Đoạn văn dài khoảng 90 đến 130 từ, bối cảnh công sở thật, văn phong TOEIC.\n' +
-'- Giải thích viết bằng tiếng Việt, mỗi câu 2 đến 3 dòng.\n\n' +
+'- Giải thích viết bằng tiếng Việt, mỗi câu 2 đến 3 dòng.\n' +
+'- evidence PHẢI chép đúng nguyên văn từ passage_text (không diễn giải lại), ' +
+'để hệ thống tô màu đúng chỗ trong bài — chép sai một chữ là sẽ không tô được.\n' +
+'- vocab chọn khoảng 4 đến 8 từ/cụm khó hoặc đáng học trong đoạn, không trùng các từ đã quá cơ bản.\n\n' +
 'Việc cần làm lần này:\n[ghi rõ ở đây, ví dụ: soạn 3 đoạn Part 6 chủ đề tuyển dụng và nội quy công ty]';
 
 const P7 =
@@ -50,6 +56,7 @@ const P7 =
 '  "passage_text": "toàn bộ văn bản tiếng Anh. Nếu bài có nhiều văn bản thì ngăn nhau ' +
 'bằng một dòng chỉ có ba dấu === và đặt tiêu đề nhỏ cho từng văn bản",\n' +
 '  "passage_vi": "bản dịch tiếng Việt",\n' +
+'  "vocab": [{"term": "từ hoặc cụm tiếng Anh đáng chú ý trong bài", "meaning_vi": "nghĩa tiếng Việt"}],\n' +
 '  "questions": [\n' +
 '    {\n' +
 '      "number": 147,\n' +
@@ -59,7 +66,9 @@ const P7 =
 '      "explanation": "giải thích bằng tiếng Việt, chỉ rõ thông tin nằm ở câu nào ' +
 'trong bài và vì sao ba phương án kia sai",\n' +
 '      "topic_tag": "dạng câu hỏi, ví dụ: Câu hỏi ý chính, Câu hỏi chi tiết, ' +
-'Câu hỏi suy luận, Câu hỏi từ vựng, Câu hỏi chèn câu"\n' +
+'Câu hỏi suy luận, Câu hỏi từ vựng, Câu hỏi chèn câu",\n' +
+'      "evidence": ["chép NGUYÊN VĂN câu hoặc cụm trong passage_text trả lời cho câu hỏi này, ' +
+'có thể ghi nhiều đoạn nếu câu hỏi cần gộp thông tin từ nhiều chỗ"]\n' +
 '    }\n' +
 '  ]\n' +
 '}\n\n' +
@@ -70,7 +79,10 @@ const P7 =
 '- Bài một văn bản dài 150 đến 250 từ. Bài nhiều văn bản thì mỗi văn bản 100 đến 150 từ ' +
 'và phải có ít nhất một câu hỏi bắt buộc đọc cả hai văn bản mới trả lời được.\n' +
 '- Đáp án đúng rải đều A, B, C, D.\n' +
-'- Giải thích viết bằng tiếng Việt.\n\n' +
+'- Giải thích viết bằng tiếng Việt.\n' +
+'- evidence PHẢI chép đúng nguyên văn từ passage_text, không diễn giải lại — chép sai dù một chữ ' +
+'cũng khiến hệ thống không tô màu được chỗ đó.\n' +
+'- vocab chọn khoảng 4 đến 8 từ/cụm khó hoặc đáng học trong bài.\n\n' +
 'Việc cần làm lần này:\n[ghi rõ ở đây, ví dụ: soạn 2 bài Part 7 một văn bản và 1 bài hai văn bản]';
 
 const SAMPLE = JSON.stringify([
@@ -89,12 +101,18 @@ const SAMPLE = JSON.stringify([
       'từ thứ Hai đến thứ Tư. Trong thời gian này, xin dùng cầu thang bộ cánh nam. ' +
       'Chúng tôi xin lỗi vì sự bất tiện. Nhân viên cần hỗ trợ xin liên hệ quầy cơ sở vật chất ' +
       'trước. Thang máy hoạt động lại bình thường vào sáng thứ Năm.',
+    vocab: [
+      { term: 'routine maintenance', meaning_vi: 'bảo trì định kỳ' },
+      { term: 'stairwell', meaning_vi: 'lồng cầu thang bộ' },
+      { term: 'facilities desk', meaning_vi: 'quầy cơ sở vật chất' }
+    ],
     questions: [
       {
         number: 131, A: 'unavailable', B: 'unavailably', C: 'unavailability', D: 'unavailed',
         correct_answer: 'A',
         explanation: 'Sau động từ to be cần tính từ làm bổ ngữ. B là trạng từ, C là danh từ, D không tồn tại.',
-        topic_tag: 'Từ loại'
+        topic_tag: 'Từ loại',
+        evidence: []
       },
       {
         number: 132,
@@ -104,7 +122,8 @@ const SAMPLE = JSON.stringify([
         D: 'Our sales figures exceeded expectations.',
         correct_answer: 'A',
         explanation: 'Câu chèn phải nối ý với việc dùng cầu thang bộ. Ba phương án kia lạc chủ đề.',
-        topic_tag: 'Chèn câu'
+        topic_tag: 'Chèn câu',
+        evidence: ['During this period, please use the south stairwell.']
       }
     ]
   }
@@ -180,6 +199,9 @@ function readJson(raw) {
       doc_type: (o.doc_type || '').trim(),
       passage_text: (o.passage_text || '').trim(),
       passage_vi: (o.passage_vi || '').trim(),
+      vocab: Array.isArray(o.vocab) ? o.vocab.map(function (v) {
+        return { term: (v.term || '').trim(), meaning_vi: (v.meaning_vi || '').trim() };
+      }).filter(function (v) { return v.term; }) : [],
       difficulty: parseInt(o.difficulty || 2, 10),
       questions: qs.map(function (q, i) {
         return {
@@ -190,6 +212,7 @@ function readJson(raw) {
           correct_answer: (q.correct_answer || '').trim().toUpperCase(),
           explanation: (q.explanation || '').trim(),
           topic_tag: (q.topic_tag || '').trim(),
+          evidence: Array.isArray(q.evidence) ? q.evidence.map(function (e) { return String(e).trim(); }).filter(Boolean) : [],
           order_index: i + 1
         };
       })
@@ -303,6 +326,7 @@ $('btn-save').addEventListener('click', async function () {
       passage_vi: s.passage_vi || null,
       doc_type: s.doc_type || null,
       difficulty: s.difficulty || 2,
+      vocab: s.vocab || [],
       is_active: true
     }).select('id').single();
 
@@ -324,6 +348,7 @@ $('btn-save').addEventListener('click', async function () {
         correct_answer: q.correct_answer,
         explanation: q.explanation || null,
         topic_tag: q.topic_tag || null,
+        evidence: q.evidence || [],
         difficulty: s.difficulty || 2,
         is_active: true
       };
