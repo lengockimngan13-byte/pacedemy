@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiến độ của tôi — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="greet">
+    <h1>Tiến độ của tôi</h1>
+    <p>Toàn bộ quá trình học tính từ lúc bắt đầu dùng Pacedemy tới giờ.</p>
+  </section>
+
+  <div class="section-head"><h2>Theo từng kỹ năng</h2></div>
+  <div style="overflow-x:auto">
+    <table class="progress-table" id="skill-table">
+      <thead>
+        <tr><th>Kỹ năng</th><th>Câu đã làm</th><th>Câu đúng</th><th>% chính xác</th></tr>
+      </thead>
+      <tbody id="skill-body"><tr><td colspan="4" class="empty">Đang tải…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="section-head" style="margin-top:36px"><h2>Từ vựng</h2></div>
+  <div style="overflow-x:auto">
+    <table class="progress-table" id="vocab-table">
+      <thead>
+        <tr><th>Đã thuộc hẳn</th><th>Đang ôn</th><th>Mới học</th><th>Tổng đã gặp</th></tr>
+      </thead>
+      <tbody id="vocab-body"><tr><td colspan="4" class="empty">Đang tải…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="section-head" style="margin-top:36px"><h2>Lịch sử thi thử</h2></div>
+  <div style="overflow-x:auto">
+    <table class="progress-table" id="mock-table">
+      <thead>
+        <tr><th>Ngày</th><th>Điểm Nghe</th><th>Điểm Đọc</th><th>Tổng</th><th>Thời gian làm</th></tr>
+      </thead>
+      <tbody id="mock-body"><tr><td colspan="5" class="empty">Đang tải…</td></tr></tbody>
+    </table>
+  </div>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/progress.js"></script>
+</body>
+</html>

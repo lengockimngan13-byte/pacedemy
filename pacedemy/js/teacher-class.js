@@ -276,7 +276,32 @@ async function loadRoster() {
     return (sess[b.id] || 0) - (sess[a.id] || 0);
   });
 
-  let html = '';
+  // ---- Bảng tổng quan cả lớp ----
+  let tableHtml =
+    '<div style="overflow-x:auto;margin-bottom:24px">' +
+      '<table class="progress-table">' +
+        '<thead><tr><th>Học viên</th><th>Từ thuộc</th><th>Buổi/7 ngày</th>' +
+        '<th>Đúng % (7 ngày)</th><th>Hoạt động gần nhất</th></tr></thead><tbody>';
+
+  roster.forEach(function (s) {
+    const acc = asked[s.id] ? Math.round(right[s.id] / asked[s.id] * 100) : null;
+    const lastActive = s.last_active
+      ? new Date(s.last_active).toLocaleDateString('vi-VN') : '—';
+
+    tableHtml +=
+      '<tr>' +
+        '<td><b>' + esc(s.full_name || 'Học viên') + '</b></td>' +
+        '<td>' + (words[s.id] || 0) + '</td>' +
+        '<td>' + (sess[s.id] || 0) + '</td>' +
+        '<td>' + (acc == null ? '<span class="stat-lab">chưa luyện</span>' :
+          '<b style="color:' + (acc >= 70 ? 'var(--teal)' : (acc >= 50 ? '#6B4A05' : 'var(--danger)')) + '">' + acc + '%</b>') + '</td>' +
+        '<td>' + lastActive + '</td>' +
+      '</tr>';
+  });
+
+  tableHtml += '</tbody></table></div>';
+
+  let html = tableHtml;
 
   for (const s of roster) {
     const acc = asked[s.id] ? Math.round(right[s.id] / asked[s.id] * 100) + '%' : '—';

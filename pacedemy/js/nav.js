@@ -20,6 +20,8 @@
       icon: '<path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/>' },
     { href: 'fulltest.html',    label: 'Thi thử',       feat: 'mock',
       icon: '<path d="M12 3a9 9 0 1 0 9 9h-9z"/>' },
+    { href: 'progress.html',    label: 'Tiến độ',
+      icon: '<path d="M4 20h4v-7H4zm6 0h4v-13h-4zm6 0h4v-9h-4z"/>' },
     { href: 'leaderboard.html', label: 'Xếp hạng',      feat: 'leaderboard',
       icon: '<path d="M4 20h4v-7H4zm6 0h4V4h-4zm6 0h4V9h-4z"/>' },
     { href: 'account.html',     label: 'Tài khoản',

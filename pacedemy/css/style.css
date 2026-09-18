@@ -3295,6 +3295,26 @@ body.focus-mode .side-toggle { display: none; }
 
 
 /* ============================================================
+   BẢNG TIẾN ĐỘ — dùng chung cho trang học viên và Teacher Studio
+   ============================================================ */
+
+.progress-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.progress-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1.5px solid var(--line);
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  color: #6C837E;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.progress-table td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.progress-table tbody tr:hover { background: var(--mist); }
+
+
+/* ============================================================
    TOAST — thông báo nổi dùng chung cho mọi trang
    ============================================================ */
 
