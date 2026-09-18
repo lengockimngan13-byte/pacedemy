@@ -116,24 +116,26 @@ function makeReadingPanel(part) {
       html +=
         '<div class="rq" data-q="' + q.id + '">' +
           '<p class="rq-head">' + (i + 1) + '. ' + esc(q.question_text) + '</p>' +
+          '<div class="opts-radio">' +
           ['A', 'B', 'C', 'D'].map(function (L) {
             if (!o[L]) return '';
-            return '<button class="opt" data-pick="' + q.id + '" data-l="' + L + '">' +
-                     '<span class="opt-letter">' + L + '</span>' +
-                     '<span>' + esc(o[L]) + '</span>' +
-                   '</button>';
+            return '<label class="opt-radio" data-pick="' + q.id + '" data-l="' + L + '">' +
+                     '<span class="radio-dot"></span><span class="letter">' + L + '</span>' +
+                     '<span class="say">' + esc(o[L]) + '</span>' +
+                   '</label>';
           }).join('') +
+          '</div>' +
           '<div class="rq-exp hidden"></div>' +
         '</div>';
     });
 
     $('d-questions').innerHTML = html;
 
-    $('d-questions').querySelectorAll('button[data-pick]').forEach(function (b) {
+    $('d-questions').querySelectorAll('label[data-pick]').forEach(function (b) {
       b.addEventListener('click', function () {
         const id = b.dataset.pick;
         picked[id] = b.dataset.l;
-        $('d-questions').querySelectorAll('button[data-pick="' + id + '"]')
+        $('d-questions').querySelectorAll('label[data-pick="' + id + '"]')
           .forEach(function (x) { x.classList.remove('on'); });
         b.classList.add('on');
       });
@@ -155,8 +157,8 @@ function makeReadingPanel(part) {
       const realBox = container.querySelector('.rq[data-q="' + q.id + '"]');
       if (!realBox) continue;
 
-      realBox.querySelectorAll('button[data-pick]').forEach(function (b) {
-        b.disabled = true;
+      realBox.querySelectorAll('label[data-pick]').forEach(function (b) {
+        b.classList.add('disabled');
         const L = b.dataset.l;
         if (L === q.correct_answer) b.classList.add('right');
         else if (L === my) b.classList.add('wrong');

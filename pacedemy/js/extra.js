@@ -127,10 +127,10 @@ function render() {
   $('q-box').innerHTML = box;
 
   $('opts').innerHTML = item.options.map(function (o) {
-    return '<button class="opt" data-k="' + esc(o.key) + '">' + esc(o.text) + '</button>';
+    return '<label class="opt-radio" data-k="' + esc(o.key) + '"><span class="radio-dot"></span><span class="say">' + esc(o.text) + '</span></label>';
   }).join('');
 
-  $('opts').querySelectorAll('.opt').forEach(function (b) {
+  $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
     b.addEventListener('click', function () { answer(b.dataset.k); });
   });
 }
@@ -141,8 +141,8 @@ function answer(k) {
   const item = queue[at];
   const ok = k === item.correctKey;
 
-  $('opts').querySelectorAll('.opt').forEach(function (b) {
-    b.disabled = true;
+  $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
+    b.classList.add('disabled');
     if (b.dataset.k === item.correctKey) b.classList.add('right');
     else if (b.dataset.k === k) b.classList.add('wrong');
   });

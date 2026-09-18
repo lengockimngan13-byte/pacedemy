@@ -90,13 +90,13 @@ function render() {
   let html = '';
   for (const k of ['A', 'B', 'C', 'D']) {
     if (opts[k] == null) continue;
-    html += '<button class="opt" data-k="' + k + '">' +
-              '<span class="letter">' + k + '</span>' + esc(opts[k]) +
-            '</button>';
+    html += '<label class="opt-radio" data-k="' + k + '">' +
+              '<span class="radio-dot"></span><span class="letter">' + k + '</span><span class="say">' + esc(opts[k]) + '</span>' +
+            '</label>';
   }
   $('opts').innerHTML = html;
 
-  $('opts').querySelectorAll('.opt').forEach(function (b) {
+  $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
     b.addEventListener('click', function () { answer(b.dataset.k); });
   });
 }
@@ -117,8 +117,8 @@ async function answer(k) {
   const q = queue[at];
   const ok = (k === q.correct_answer);
 
-  $('opts').querySelectorAll('.opt').forEach(function (b) {
-    b.disabled = true;
+  $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
+    b.classList.add('disabled');
     if (b.dataset.k === q.correct_answer) b.classList.add('right');
     else if (b.dataset.k === k) b.classList.add('wrong');
   });
