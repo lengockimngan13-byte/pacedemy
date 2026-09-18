@@ -124,6 +124,20 @@ const SAMPLE = JSON.stringify([
         explanation: 'Câu chèn phải nối ý với việc dùng cầu thang bộ. Ba phương án kia lạc chủ đề.',
         topic_tag: 'Chèn câu',
         evidence: ['During this period, please use the south stairwell.']
+      },
+      {
+        number: 133, A: 'promptly', B: 'in advance', C: 'as usual', D: 'once again',
+        correct_answer: 'B',
+        explanation: 'Nhân viên cần hỗ trợ nên liên hệ trước (in advance) để được sắp xếp, hợp ngữ cảnh thông báo trước sự việc.',
+        topic_tag: 'Từ vựng',
+        evidence: []
+      },
+      {
+        number: 134, A: 'resume', B: 'resumed', C: 'resuming', D: 'resumes',
+        correct_answer: 'D',
+        explanation: 'Chủ ngữ "Normal service" số ít, thì hiện tại đơn diễn tả việc sẽ trở lại đúng lịch, nên chia "resumes".',
+        topic_tag: 'Hoà hợp chủ ngữ động từ',
+        evidence: []
       }
     ]
   }

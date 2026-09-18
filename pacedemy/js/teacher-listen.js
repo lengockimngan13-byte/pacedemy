@@ -19,82 +19,196 @@ const PART_NAME = {
   4: 'Part 4 — Bài nói ngắn'
 };
 
-// ---------- Câu nhắc gửi cho Claude ----------
+// ---------- Câu nhắc gửi cho Claude — tách riêng theo từng Part ----------
 
-const PROMPT =
-'Mình gửi script bài nghe TOEIC. Hãy chuyển thành DUY NHẤT một khối JSON, ' +
+const COMMON_SCHEMA_HEAD =
+'Mình gửi script bài nghe TOEIC PART {P}. Hãy chuyển thành DUY NHẤT một khối JSON, ' +
 'không thêm lời dẫn, không thêm dấu ```.\n\n' +
 'JSON là một mảng, mỗi phần tử là MỘT bài nghe gắn với MỘT file âm thanh:\n' +
 '{\n' +
-'  "part": 3,\n' +
+'  "part": {P},\n' +
 '  "title": "tên ngắn gọn bằng tiếng Việt để cô dễ nhận ra bài này",\n' +
-'  "audio_file": "tên file âm thanh, ví dụ p3-01.mp3",\n' +
-'  "image_file": "chỉ cần khi có ảnh minh hoạ — Part 1 luôn có, Part 3/4 có khi là dạng graphic (bảng biểu, hoá đơn...); để chuỗi rỗng nếu không có ảnh",\n' +
+'  "audio_file": "tên file âm thanh",\n' +
+'  "image_file": "{IMG_NOTE}",\n' +
 '  "difficulty": 2,\n' +
 '  "transcript": "toàn bộ lời thoại tiếng Anh, xuống dòng giữa các lượt nói",\n' +
 '  "transcript_vi": "bản dịch tiếng Việt của lời thoại, xuống dòng tương ứng",\n' +
 '  "questions": [\n' +
 '    {\n' +
-'      "question_text": "câu hỏi in trên đề. Part 1 và Part 2 không có đề in nên để chuỗi rỗng",\n' +
-'      "A": "phương án A", "B": "...", "C": "...", "D": "...",\n' +
+'      "question_text": "{QTEXT_NOTE}",\n' +
+'      {OPTIONS}\n' +
 '      "correct_answer": "B",\n' +
 '      "explanation": "giải thích bằng tiếng Việt: chỗ nào trong bài nghe cho ra đáp án, ' +
 'và vì sao các phương án còn lại sai hoặc là bẫy đồng âm",\n' +
 '      "translation_vi": "nghĩa tiếng Việt của phương án đúng",\n' +
 '      "key_point": "từ hoặc cụm cần nghe bắt được, viết dạng: cụm tiếng Anh = nghĩa tiếng Việt",\n' +
-'      "topic_tag": "đúng MỘT nhãn lấy từ danh sách bên dưới, khớp với part của câu này"\n' +
+'      "topic_tag": "đúng MỘT nhãn lấy từ danh sách bên dưới, không tự đặt nhãn mới"\n' +
 '    }\n' +
 '  ]\n' +
-'}\n\n' +
-'Quy ước bắt buộc:\n' +
-'- Part 1 có đúng 1 câu hỏi, 4 phương án A B C D, question_text để rỗng.\n' +
-'- Part 2 có đúng 1 câu hỏi, chỉ 3 phương án A B C, bỏ hẳn trường D, question_text để rỗng.\n' +
-'- Part 3 và Part 4 mỗi bài có đúng 3 câu hỏi, mỗi câu 4 phương án, question_text ghi đầy đủ.\n' +
-'- difficulty là 1 dễ, 2 vừa, 3 khó.\n' +
-'- Đáp án đúng phải rải đều A B C D giữa các câu, không dồn vào một chữ cái.\n' +
-'- topic_tag PHẢI lấy đúng nguyên văn một nhãn trong danh sách dưới đây, không tự đặt nhãn mới. ' +
-'Mỗi câu chỉ chọn 1 nhãn phù hợp nhất, kể cả khi câu đó có thể hợp nhiều nhãn.\n\n' +
-'Danh sách nhãn hợp lệ theo từng Part:\n' +
-'Part 1: Tranh tả người | Tranh tả vật | Tranh tả cả người và vật\n' +
-'Part 2: Câu hỏi WHAT | Câu hỏi WHO | Câu hỏi WHEN | Câu hỏi HOW | Câu hỏi WHY | ' +
-'Câu hỏi YES/NO | Câu hỏi đuôi | Câu hỏi lựa chọn | Câu yêu cầu, đề nghị | Câu trần thuật\n' +
-'Part 3: Câu hỏi về chủ đề, mục đích | Câu hỏi về danh tính người nói | ' +
-'Câu hỏi về chi tiết cuộc hội thoại | Câu hỏi về hành động tương lai | Câu hỏi kết hợp bảng biểu | ' +
-'Câu hỏi về hàm ý câu nói | Câu hỏi về địa điểm hội thoại | Câu hỏi về yêu cầu, gợi ý | ' +
-'Chủ đề: Company - General Office Work | Chủ đề: Company - Personnel | ' +
-'Chủ đề: Company - Event, Project | Chủ đề: Shopping, Service | Chủ đề: Order, delivery | Chủ đề: Housing\n' +
-'Part 4: Câu hỏi về chủ đề, mục đích | Câu hỏi về danh tính, địa điểm | Câu hỏi về chi tiết | ' +
-'Câu hỏi về hành động tương lai | Câu hỏi kết hợp bảng biểu | Câu hỏi về hàm ý câu nói | ' +
-'Câu hỏi về yêu cầu, gợi ý | Dạng bài: Telephone message - Tin nhắn thoại | ' +
-'Dạng bài: News report, Broadcast - Bản tin | Dạng bài: Talk - Bài phát biểu, diễn văn | ' +
-'Dạng bài: Excerpt from a meeting - Trích dẫn từ buổi họp';
+'}\n\n';
 
-const SAMPLE = JSON.stringify([
-  {
-    part: 2,
-    title: 'Hỏi về phòng họp',
-    audio_file: 'p2-01.mp3',
-    image_file: '',
+const TAGS = {
+  1: 'Tranh tả người | Tranh tả vật | Tranh tả cả người và vật',
+  2: 'Câu hỏi WHAT | Câu hỏi WHO | Câu hỏi WHEN | Câu hỏi HOW | Câu hỏi WHY | ' +
+     'Câu hỏi YES/NO | Câu hỏi đuôi | Câu hỏi lựa chọn | Câu yêu cầu, đề nghị | Câu trần thuật',
+  3: 'Câu hỏi về chủ đề, mục đích | Câu hỏi về danh tính người nói | ' +
+     'Câu hỏi về chi tiết cuộc hội thoại | Câu hỏi về hành động tương lai | Câu hỏi kết hợp bảng biểu | ' +
+     'Câu hỏi về hàm ý câu nói | Câu hỏi về địa điểm hội thoại | Câu hỏi về yêu cầu, gợi ý | ' +
+     'Chủ đề: Company - General Office Work | Chủ đề: Company - Personnel | ' +
+     'Chủ đề: Company - Event, Project | Chủ đề: Shopping, Service | Chủ đề: Order, delivery | Chủ đề: Housing',
+  4: 'Câu hỏi về chủ đề, mục đích | Câu hỏi về danh tính, địa điểm | Câu hỏi về chi tiết | ' +
+     'Câu hỏi về hành động tương lai | Câu hỏi kết hợp bảng biểu | Câu hỏi về hàm ý câu nói | ' +
+     'Câu hỏi về yêu cầu, gợi ý | Dạng bài: Telephone message - Tin nhắn thoại | ' +
+     'Dạng bài: News report, Broadcast - Bản tin | Dạng bài: Talk - Bài phát biểu, diễn văn | ' +
+     'Dạng bài: Excerpt from a meeting - Trích dẫn từ buổi họp'
+};
+
+function buildPrompt(part) {
+  const imgNote = part === 1
+    ? 'bắt buộc phải có, ví dụ p1-01.jpg'
+    : (part >= 3 ? 'chỉ cần nếu bài này là dạng graphic (bảng biểu, hoá đơn...), thường thì để chuỗi rỗng' : 'để chuỗi rỗng, Part 2 không có ảnh');
+
+  const qtextNote = part <= 2 ? 'Part này không có đề in trên giấy, để chuỗi rỗng' : 'câu hỏi in trên đề, ghi đầy đủ';
+
+  const options = part === 2
+    ? '"A": "phương án A", "B": "...", "C": "...",'
+    : '"A": "phương án A", "B": "...", "C": "...", "D": "...",';
+
+  let body = COMMON_SCHEMA_HEAD
+    .replace(/{P}/g, part)
+    .replace('{IMG_NOTE}', imgNote)
+    .replace('{QTEXT_NOTE}', qtextNote)
+    .replace('{OPTIONS}', options);
+
+  body += 'Quy ước bắt buộc:\n';
+
+  if (part === 1) {
+    body += '- Đúng 1 câu hỏi mỗi bài, 4 phương án A B C D, question_text để rỗng.\n' +
+            '- BẮT BUỘC phải có image_file, đây là Part mô tả tranh.\n';
+  } else if (part === 2) {
+    body += '- Đúng 1 câu hỏi mỗi bài, CHỈ 3 phương án A B C, bỏ hẳn trường D, question_text để rỗng.\n' +
+            '- Không có ảnh, image_file luôn để chuỗi rỗng.\n';
+  } else {
+    body += '- Đúng 3 câu hỏi mỗi bài (mỗi bài là một đoạn ' + (part === 3 ? 'hội thoại giữa 2-3 người' : 'bài nói một người') +
+            '), mỗi câu 4 phương án, question_text ghi đầy đủ vì Part này có in đề.\n';
+  }
+
+  body += '- difficulty là 1 dễ, 2 vừa, 3 khó.\n' +
+          '- Đáp án đúng phải rải đều A B C D giữa các câu, không dồn vào một chữ cái.\n' +
+          '- topic_tag PHẢI lấy đúng nguyên văn một nhãn trong danh sách dưới đây, không tự đặt nhãn mới. ' +
+          'Mỗi câu chỉ chọn 1 nhãn phù hợp nhất.\n\n' +
+          'Danh sách nhãn hợp lệ cho Part ' + part + ':\n' + TAGS[part];
+
+  return body;
+}
+
+const PROMPT_BY_PART = { 1: buildPrompt(1), 2: buildPrompt(2), 3: buildPrompt(3), 4: buildPrompt(4) };
+
+const SAMPLE_BY_PART = {
+  1: JSON.stringify([{
+    part: 1, title: 'Người phụ nữ ở bàn làm việc', audio_file: 'p1-01.mp3', image_file: 'p1-01.jpg',
     difficulty: 1,
-    transcript: 'W: Where is the quarterly review being held?\nM: In the conference room on the third floor.',
-    transcript_vi: 'Nữ: Buổi tổng kết quý được tổ chức ở đâu vậy?\nNam: Ở phòng họp trên tầng ba.',
+    transcript: 'A woman is sitting at a desk, typing on a laptop.',
+    transcript_vi: 'Một người phụ nữ đang ngồi ở bàn làm việc, gõ máy tính xách tay.',
+    questions: [{
+      question_text: '', A: 'A woman is sitting at a desk.', B: 'A woman is standing near a window.',
+      C: 'A woman is talking on the phone.', D: 'A woman is filing some documents.',
+      correct_answer: 'A',
+      explanation: 'Tranh mô tả người phụ nữ đang ngồi ở bàn làm việc, khớp đúng phương án A. Các phương án còn lại mô tả hành động không có trong tranh.',
+      translation_vi: 'Một người phụ nữ đang ngồi ở bàn làm việc.',
+      key_point: 'sit at a desk = ngồi ở bàn làm việc',
+      topic_tag: 'Tranh tả người'
+    }]
+  }], null, 2),
+  2: JSON.stringify([{
+    part: 2, title: 'Hỏi về phòng họp', audio_file: 'p2-01.mp3', image_file: '', difficulty: 1,
+    transcript: 'W: Who is leading the training session tomorrow?\nM: I believe it\'s Mr. Carter from HR.',
+    transcript_vi: 'Nữ: Ai sẽ dẫn buổi đào tạo ngày mai vậy?\nNam: Tôi nghĩ là anh Carter bên nhân sự.',
+    questions: [{
+      question_text: '', A: 'It\'s Mr. Carter from HR.', B: 'Yes, it was very helpful.', C: 'Every Monday morning.',
+      correct_answer: 'A',
+      explanation: 'Câu hỏi bắt đầu bằng Who nên phải trả lời về người. Phương án B trả lời Yes cho câu hỏi Wh nên loại ngay. Phương án C trả lời về thời gian, không hợp với Who.',
+      translation_vi: 'Là anh Carter bên nhân sự.',
+      key_point: 'training session = buổi đào tạo',
+      topic_tag: 'Câu hỏi WHO'
+    }]
+  }], null, 2),
+  3: JSON.stringify([{
+    part: 3, title: 'Đặt lại lịch giao hàng', audio_file: 'p3-01.mp3', image_file: '', difficulty: 2,
+    transcript: 'M: Hi, I\'m calling about order number 4521. It was supposed to arrive today.\n' +
+      'W: Let me check... I\'m sorry, there\'s been a delay at the warehouse. It should arrive by Thursday instead.\n' +
+      'M: That\'s fine, just please send me a confirmation email.',
+    transcript_vi: 'Nam: Chào, tôi gọi về đơn hàng số 4521. Đáng lẽ hôm nay phải giao rồi.\n' +
+      'Nữ: Để tôi kiểm tra... Xin lỗi anh, kho hàng bị chậm trễ. Đơn sẽ giao vào thứ Năm thay vì hôm nay.\n' +
+      'Nam: Vậy cũng được, chị gửi email xác nhận giúp tôi nhé.',
     questions: [
       {
-        question_text: '',
-        A: 'In the conference room on the third floor.',
-        B: 'Yes, it was a long review.',
-        C: 'Every three months.',
-        correct_answer: 'A',
-        explanation: 'Câu hỏi bắt đầu bằng Where nên phải trả lời về nơi chốn. ' +
-          'Phương án B trả lời Yes cho câu hỏi Wh nên loại ngay. ' +
-          'Phương án C trả lời về tần suất, hợp với How often chứ không hợp với Where.',
-        translation_vi: 'Ở phòng họp trên tầng ba.',
-        key_point: 'quarterly review = buổi tổng kết quý',
-        topic_tag: 'Câu hỏi WHERE'
+        question_text: 'Why is the man calling?', A: 'To cancel an order', B: 'To ask about a delayed delivery',
+        C: 'To request a refund', D: 'To change his address',
+        correct_answer: 'B',
+        explanation: 'Người nam nói rõ đơn hàng đáng lẽ giao hôm nay nhưng chưa tới, nên gọi hỏi về việc giao hàng bị trễ.',
+        translation_vi: 'Để hỏi về việc giao hàng bị trễ.',
+        key_point: 'delayed delivery = giao hàng bị trễ',
+        topic_tag: 'Câu hỏi về chủ đề, mục đích'
+      },
+      {
+        question_text: 'When will the order likely arrive?', A: 'Today', B: 'Tomorrow', C: 'On Thursday', D: 'Next week',
+        correct_answer: 'C',
+        explanation: 'Người nữ nói đơn sẽ giao vào thứ Năm thay vì hôm nay.',
+        translation_vi: 'Vào thứ Năm.',
+        key_point: 'instead = thay vào đó',
+        topic_tag: 'Câu hỏi về chi tiết cuộc hội thoại'
+      },
+      {
+        question_text: 'What does the man ask the woman to do?', A: 'Cancel the order', B: 'Call his manager',
+        C: 'Send a confirmation email', D: 'Deliver the order in person',
+        correct_answer: 'C',
+        explanation: 'Người nam yêu cầu gửi email xác nhận ở cuối đoạn hội thoại.',
+        translation_vi: 'Gửi email xác nhận.',
+        key_point: 'confirmation email = email xác nhận',
+        topic_tag: 'Câu hỏi về yêu cầu, gợi ý'
       }
     ]
-  }
-], null, 2);
+  }], null, 2),
+  4: JSON.stringify([{
+    part: 4, title: 'Thông báo nội bộ về hệ thống', audio_file: 'p4-01.mp3', image_file: '', difficulty: 2,
+    transcript: 'Attention all staff. The IT department will be updating our email system this weekend. ' +
+      'As a result, email service will be unavailable from Saturday evening until Sunday morning. ' +
+      'Please save any important documents before Friday at five p.m. If you have questions, contact the IT help desk.',
+    transcript_vi: 'Kính gửi toàn thể nhân viên. Bộ phận IT sẽ nâng cấp hệ thống email vào cuối tuần này. ' +
+      'Do đó, dịch vụ email sẽ ngừng hoạt động từ tối thứ Bảy đến sáng Chủ nhật. ' +
+      'Vui lòng lưu các tài liệu quan trọng trước 5 giờ chiều thứ Sáu. Nếu có thắc mắc, liên hệ bộ phận hỗ trợ IT.',
+    questions: [
+      {
+        question_text: 'What is the purpose of the announcement?', A: 'To announce a new hire',
+        B: 'To explain a temporary service interruption', C: 'To promote a new product', D: 'To cancel a meeting',
+        correct_answer: 'B',
+        explanation: 'Thông báo nói rõ email sẽ ngừng hoạt động tạm thời để nâng cấp hệ thống.',
+        translation_vi: 'Để giải thích việc gián đoạn dịch vụ tạm thời.',
+        key_point: 'service interruption = gián đoạn dịch vụ',
+        topic_tag: 'Câu hỏi về chủ đề, mục đích'
+      },
+      {
+        question_text: 'When will email service be unavailable?', A: 'Friday afternoon',
+        B: 'Saturday evening to Sunday morning', C: 'All weekend', D: 'Monday morning',
+        correct_answer: 'B',
+        explanation: 'Thông báo nêu rõ khung giờ ngừng dịch vụ là từ tối thứ Bảy đến sáng Chủ nhật.',
+        translation_vi: 'Từ tối thứ Bảy đến sáng Chủ nhật.',
+        key_point: 'unavailable = không dùng được',
+        topic_tag: 'Câu hỏi về chi tiết'
+      },
+      {
+        question_text: 'What are employees asked to do before Friday at five p.m.?', A: 'Submit a report',
+        B: 'Contact the help desk', C: 'Save important documents', D: 'Attend a training',
+        correct_answer: 'C',
+        explanation: 'Thông báo yêu cầu lưu tài liệu quan trọng trước 5 giờ chiều thứ Sáu.',
+        translation_vi: 'Lưu các tài liệu quan trọng.',
+        key_point: 'save documents = lưu tài liệu',
+        topic_tag: 'Câu hỏi về yêu cầu, gợi ý'
+      }
+    ]
+  }], null, 2)
+};
 
 // ---------- Khởi động ----------
 
@@ -181,18 +295,28 @@ function showUploaded(rows) {
   $('up-list').innerHTML = html;
 }
 
-// ---------- Bước 2 · Câu nhắc ----------
+// ---------- Bước 2 · Chọn Part, lấy câu nhắc ----------
+
+let curPart = 1;
+
+document.querySelectorAll('#part-tabs .test-tab').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('#part-tabs .test-tab').forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    curPart = parseInt(b.dataset.part, 10);
+  });
+});
 
 $('btn-prompt').addEventListener('click', function () {
-  navigator.clipboard.writeText(PROMPT).then(function () {
-    $('prompt-ok').textContent = 'Đã copy. Dán vào chat kèm file script bài nghe.';
+  navigator.clipboard.writeText(PROMPT_BY_PART[curPart]).then(function () {
+    $('prompt-ok').textContent = 'Đã copy câu nhắc Part ' + curPart + '. Dán vào chat kèm file script bài nghe.';
     setTimeout(function () { $('prompt-ok').textContent = ''; }, 4000);
   });
 });
 
 $('btn-sample').addEventListener('click', function () {
-  $('raw').value = SAMPLE;
-  say('Đây là một bài Part 2 làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
+  $('raw').value = SAMPLE_BY_PART[curPart];
+  say('Đây là một bài Part ' + curPart + ' làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
 });
 
 // ---------- Bước 3 · Đọc dữ liệu ----------

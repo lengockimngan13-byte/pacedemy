@@ -46,10 +46,16 @@
     <div class="tbox">
       <h3>Bước 2 · Lấy câu nhắc cho Claude</h3>
       <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
-        Copy câu nhắc, dán vào khung chat kèm file script bài nghe của bạn.
+        Chọn đúng Part đang soạn, copy câu nhắc của riêng Part đó, dán vào khung chat kèm file script.
         Claude trả về một khối dữ liệu, bạn copy rồi dán vào ô ở bước 3.
       </p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div class="test-tabs" id="part-tabs">
+        <button class="test-tab on" data-part="1">Part 1</button>
+        <button class="test-tab" data-part="2">Part 2</button>
+        <button class="test-tab" data-part="3">Part 3</button>
+        <button class="test-tab" data-part="4">Part 4</button>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
         <button class="btn btn-line" id="btn-prompt">Copy câu nhắc soạn bài nghe</button>
         <button class="btn btn-line" id="btn-sample">Xem một ví dụ mẫu</button>
       </div>
