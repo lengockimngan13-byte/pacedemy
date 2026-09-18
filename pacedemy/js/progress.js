@@ -21,6 +21,7 @@ const SKILL_LABEL = {
   loadSkillTable();
   loadVocabTable();
   loadMockTable();
+  loadTagTable();
 })();
 
 // ---------- Bảng theo kỹ năng ----------
@@ -83,6 +84,93 @@ async function loadVocabTable() {
   $('vocab-body').innerHTML =
     '<tr><td><b style="color:var(--teal)">' + c.mastered + '</b></td>' +
     '<td>' + c.reviewing + '</td><td>' + c.learning + '</td><td>' + total + '</td></tr>';
+}
+
+// ---------- Bảng theo dạng câu hỏi — gộp luyện tập + thi thử ----------
+
+async function loadTagTable() {
+  const { data: atts } = await db
+    .from('attempts')
+    .select('id, mode')
+    .eq('user_id', me.id)
+    .in('mode', ['practice', 'mock']);
+
+  if (!atts || !atts.length) {
+    $('tag-body').innerHTML = '<tr><td colspan="5" class="empty">Chưa có dữ liệu để gộp.</td></tr>';
+    return;
+  }
+
+  const modeOf = {};
+  const practiceIds = [];
+  const mockIds = [];
+  atts.forEach(function (a) {
+    modeOf[a.id] = a.mode;
+    if (a.mode === 'practice') practiceIds.push(a.id); else mockIds.push(a.id);
+  });
+
+  const { data: answers } = await db
+    .from('attempt_answers')
+    .select('attempt_id, question_id, is_correct')
+    .in('attempt_id', atts.map(function (a) { return a.id; }));
+
+  if (!answers || !answers.length) {
+    $('tag-body').innerHTML = '<tr><td colspan="5" class="empty">Chưa có dữ liệu để gộp.</td></tr>';
+    return;
+  }
+
+  const practiceQ = Array.from(new Set(answers.filter(function (a) { return modeOf[a.attempt_id] === 'practice'; })
+    .map(function (a) { return a.question_id; }))).filter(Boolean);
+  const mockQ = Array.from(new Set(answers.filter(function (a) { return modeOf[a.attempt_id] === 'mock'; })
+    .map(function (a) { return a.question_id; }))).filter(Boolean);
+
+  const [{ data: pq }, { data: mq }] = await Promise.all([
+    practiceQ.length
+      ? db.from('questions').select('id, part, topic_tag').in('id', practiceQ)
+      : Promise.resolve({ data: [] }),
+    mockQ.length
+      ? db.from('exam_questions').select('id, part, topic_tag').in('id', mockQ)
+      : Promise.resolve({ data: [] })
+  ]);
+
+  const tagOf = {}; // key: mode + ':' + question_id -> { tag, part }
+  (pq || []).forEach(function (q) { if (q.topic_tag) tagOf['practice:' + q.id] = { tag: q.topic_tag, part: q.part }; });
+  (mq || []).forEach(function (q) { if (q.topic_tag) tagOf['mock:' + q.id] = { tag: q.topic_tag, part: q.part }; });
+
+  const byTag = {};
+
+  answers.forEach(function (a) {
+    const mode = modeOf[a.attempt_id];
+    const info = tagOf[mode + ':' + a.question_id];
+    if (!info) return; // câu không có gán nhãn thì bỏ qua, không tính vào bảng này
+
+    const key = info.tag;
+    byTag[key] = byTag[key] || { n: 0, ok: 0, part: info.part };
+    byTag[key].n++;
+    if (a.is_correct) byTag[key].ok++;
+  });
+
+  const rows = Object.keys(byTag).map(function (tag) {
+    const s = byTag[tag];
+    return { tag: tag, part: s.part, n: s.n, ok: s.ok, pct: Math.round(s.ok / s.n * 100) };
+  });
+
+  if (!rows.length) {
+    $('tag-body').innerHTML = '<tr><td colspan="5" class="empty">Câu đã luyện chưa có gán dạng câu hỏi — chỉ bài mới nhập gần đây mới có.</td></tr>';
+    return;
+  }
+
+  rows.sort(function (a, b) { return a.pct - b.pct; });
+
+  $('tag-body').innerHTML = rows.map(function (r) {
+    return '<tr><td>' + esc(r.tag) + '</td><td>Part ' + r.part + '</td><td>' + r.n + '</td><td>' + r.ok + '</td>' +
+      '<td><b style="color:' + (r.pct >= 70 ? 'var(--teal)' : (r.pct >= 50 ? '#6B4A05' : 'var(--danger)')) + '">' + r.pct + '%</b></td></tr>';
+  }).join('');
+}
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ---------- Bảng lịch sử thi thử ----------

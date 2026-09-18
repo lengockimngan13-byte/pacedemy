@@ -51,7 +51,11 @@ const PROMPTS = {
     '    "explanation": "giải thích tiếng Việt",\n    "topic_tag": "dạng câu hỏi",\n' +
     '    "evidence": ["chép nguyên văn cụm trong passage_text chứng minh đáp án, mảng rỗng nếu câu ngữ pháp thuần"]\n  }]\n}\n\n' +
     'Đúng 4 câu mỗi đoạn, ít nhất 1 câu chọn câu hoàn chỉnh điền vào đoạn. ' +
-    'evidence phải chép đúng nguyên văn từ passage_text, không diễn giải lại.\n\n' +
+    'evidence phải chép đúng nguyên văn từ passage_text, không diễn giải lại. ' +
+    'topic_tag phải lấy nguyên văn từ danh sách: Câu hỏi từ loại | Câu hỏi ngữ pháp | Câu hỏi từ vựng | ' +
+    'Câu hỏi điền câu vào đoạn văn | Hình thức: Thư điện tử/ thư tay (Email/ Letter) | ' +
+    'Hình thức: Bài báo (Article/ Review) | Hình thức: Quảng cáo (Advertisement) | [Grammar] Tính từ | ' +
+    '[Grammar] Thì | [Grammar] Trạng từ | [Grammar] Động từ nguyên mẫu có to | [Grammar] Giới từ.\n\n' +
     'Việc cần làm: [ghi rõ số đoạn]',
 
   7:
@@ -66,7 +70,14 @@ const PROMPTS = {
     '    "topic_tag": "dạng câu hỏi",\n' +
     '    "evidence": ["chép nguyên văn câu/cụm trong passage_text trả lời câu hỏi này"]\n  }]\n}\n\n' +
     'Mỗi bài 2 đến 5 câu. Bài nhiều văn bản phải có ít nhất 1 câu cần đọc cả hai văn bản. ' +
-    'evidence phải chép đúng nguyên văn từ passage_text, không diễn giải lại.\n\n' +
+    'evidence phải chép đúng nguyên văn từ passage_text, không diễn giải lại. ' +
+    'topic_tag phải lấy nguyên văn từ danh sách: Câu hỏi tìm thông tin | Câu hỏi tìm chi tiết sai | ' +
+    'Câu hỏi về chủ đề, mục đích | Câu hỏi suy luận | Câu hỏi điền câu | Câu hỏi tìm từ đồng nghĩa | ' +
+    'Câu hỏi về hàm ý câu nói | Cấu trúc: một đoạn | Cấu trúc: nhiều đoạn | ' +
+    'Dạng bài: Email/ Letter: Thư điện tử/ Thư tay | Dạng bài: Form - Đơn từ, biểu mẫu | ' +
+    'Dạng bài: Article/ Review: Bài báo/ Bài đánh giá | Dạng bài: Advertisement - Quảng cáo | ' +
+    'Dạng bài: Announcement/ Notice: Thông báo | Dạng bài: Text message chain - Chuỗi tin nhắn | ' +
+    'Dạng bài: Instructions: Văn bản hướng dẫn | Dạng bài: List/ Menu: Danh sách/ Thực đơn.\n\n' +
     'Việc cần làm: [ghi rõ số bài]'
 };
 

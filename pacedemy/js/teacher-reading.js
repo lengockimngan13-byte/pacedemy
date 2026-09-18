@@ -27,7 +27,7 @@ const P6 =
 '      "correct_answer": "A",\n' +
 '      "explanation": "giải thích bằng tiếng Việt, nói rõ vì sao đáp án đúng và ' +
 'vì sao ba phương án kia sai",\n' +
-'      "topic_tag": "dạng ngữ pháp hoặc kỹ năng đang kiểm tra, ví dụ: Thì động từ, Từ nối, Từ vựng",\n' +
+'      "topic_tag": "đúng MỘT nhãn lấy nguyên văn từ danh sách bên dưới, không tự đặt nhãn mới",\n' +
 '      "evidence": ["chép NGUYÊN VĂN 1-2 cụm/câu trong passage_text chứng minh đáp án, ' +
 'để mảng rỗng [] nếu câu này không có chỗ trích cụ thể (như câu ngữ pháp thuần)"]\n' +
 '    }\n' +
@@ -43,6 +43,11 @@ const P6 =
 '- evidence PHẢI chép đúng nguyên văn từ passage_text (không diễn giải lại), ' +
 'để hệ thống tô màu đúng chỗ trong bài — chép sai một chữ là sẽ không tô được.\n' +
 '- vocab chọn khoảng 4 đến 8 từ/cụm khó hoặc đáng học trong đoạn, không trùng các từ đã quá cơ bản.\n\n' +
+'Danh sách nhãn hợp lệ cho Part 6:\n' +
+'Câu hỏi từ loại | Câu hỏi ngữ pháp | Câu hỏi từ vựng | Câu hỏi điền câu vào đoạn văn | ' +
+'Hình thức: Thư điện tử/ thư tay (Email/ Letter) | Hình thức: Bài báo (Article/ Review) | ' +
+'Hình thức: Quảng cáo (Advertisement) | [Grammar] Tính từ | [Grammar] Thì | [Grammar] Trạng từ | ' +
+'[Grammar] Động từ nguyên mẫu có to | [Grammar] Giới từ\n\n' +
 'Việc cần làm lần này:\n[ghi rõ ở đây, ví dụ: soạn 3 đoạn Part 6 chủ đề tuyển dụng và nội quy công ty]';
 
 const P7 =
@@ -65,8 +70,7 @@ const P7 =
 '      "correct_answer": "B",\n' +
 '      "explanation": "giải thích bằng tiếng Việt, chỉ rõ thông tin nằm ở câu nào ' +
 'trong bài và vì sao ba phương án kia sai",\n' +
-'      "topic_tag": "dạng câu hỏi, ví dụ: Câu hỏi ý chính, Câu hỏi chi tiết, ' +
-'Câu hỏi suy luận, Câu hỏi từ vựng, Câu hỏi chèn câu",\n' +
+'      "topic_tag": "đúng MỘT nhãn lấy nguyên văn từ danh sách bên dưới, không tự đặt nhãn mới",\n' +
 '      "evidence": ["chép NGUYÊN VĂN câu hoặc cụm trong passage_text trả lời cho câu hỏi này, ' +
 'có thể ghi nhiều đoạn nếu câu hỏi cần gộp thông tin từ nhiều chỗ"]\n' +
 '    }\n' +
@@ -83,6 +87,14 @@ const P7 =
 '- evidence PHẢI chép đúng nguyên văn từ passage_text, không diễn giải lại — chép sai dù một chữ ' +
 'cũng khiến hệ thống không tô màu được chỗ đó.\n' +
 '- vocab chọn khoảng 4 đến 8 từ/cụm khó hoặc đáng học trong bài.\n\n' +
+'Danh sách nhãn hợp lệ cho Part 7:\n' +
+'Câu hỏi tìm thông tin | Câu hỏi tìm chi tiết sai | Câu hỏi về chủ đề, mục đích | Câu hỏi suy luận | ' +
+'Câu hỏi điền câu | Câu hỏi tìm từ đồng nghĩa | Câu hỏi về hàm ý câu nói | ' +
+'Cấu trúc: một đoạn | Cấu trúc: nhiều đoạn | ' +
+'Dạng bài: Email/ Letter: Thư điện tử/ Thư tay | Dạng bài: Form - Đơn từ, biểu mẫu | ' +
+'Dạng bài: Article/ Review: Bài báo/ Bài đánh giá | Dạng bài: Advertisement - Quảng cáo | ' +
+'Dạng bài: Announcement/ Notice: Thông báo | Dạng bài: Text message chain - Chuỗi tin nhắn | ' +
+'Dạng bài: Instructions: Văn bản hướng dẫn | Dạng bài: List/ Menu: Danh sách/ Thực đơn\n\n' +
 'Việc cần làm lần này:\n[ghi rõ ở đây, ví dụ: soạn 2 bài Part 7 một văn bản và 1 bài hai văn bản]';
 
 const SAMPLE = JSON.stringify([
