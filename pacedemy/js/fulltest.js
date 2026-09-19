@@ -12,6 +12,7 @@ let screens = [];       // mỗi phần tử: 1 câu (Part 1-5) hoặc 1 bài (P
 let cur = 0;
 let picked = {};        // id câu -> chữ cái
 let marked = {};        // id câu -> đã đánh dấu xem lại hay chưa
+let reviewMode = false; // đang ở chế độ xem lại sau khi nộp bài hay không
 let deadline = 0;
 let tick = null;
 let startAt = 0;
@@ -194,6 +195,22 @@ function drawTabs() {
 
 // ---------- Hiện một màn ----------
 
+function enterReview() {
+  reviewMode = true;
+  $('view-done').classList.add('hidden');
+  $('view-test').classList.remove('hidden');
+  $('btn-exit-review').classList.remove('hidden');
+  openScreen(0);
+}
+
+$('btn-exit-review').addEventListener('click', function () {
+  reviewMode = false;
+  $('view-test').classList.add('hidden');
+  $('btn-exit-review').classList.add('hidden');
+  $('view-done').classList.remove('hidden');
+  window.scrollTo(0, 0);
+});
+
 function openScreen(i) {
   cur = i;
   window.scrollTo(0, 0);
@@ -208,14 +225,21 @@ function openScreen(i) {
   const done = allQuestions().filter(function (q) { return picked[q.id]; }).length;
   const nMarked = Object.keys(marked).filter(function (id) { return marked[id]; }).length;
 
-  $('pos-label').textContent =
-    'Part ' + s.part + ' · màn ' + (cur + 1) + '/' + screens.length +
-    ' · đã làm ' + done + '/' + allQuestions().length + ' câu' +
-    (nMarked ? ' · đã đánh dấu ' + nMarked + ' câu' : '');
+  if (reviewMode) {
+    const rightN = s.questions.filter(function (q) { return picked[q.id] === q.correct_answer; }).length;
+    $('pos-label').textContent =
+      'Xem lại · Part ' + s.part + ' · màn ' + (cur + 1) + '/' + screens.length +
+      ' · đúng ' + rightN + '/' + s.questions.length + ' câu ở màn này';
+  } else {
+    $('pos-label').textContent =
+      'Part ' + s.part + ' · màn ' + (cur + 1) + '/' + screens.length +
+      ' · đã làm ' + done + '/' + allQuestions().length + ' câu' +
+      (nMarked ? ' · đã đánh dấu ' + nMarked + ' câu' : '');
+  }
 
   $('btn-prev').disabled = cur === 0;
   $('btn-next').classList.toggle('hidden', cur === screens.length - 1);
-  $('btn-submit').classList.toggle('hidden', cur !== screens.length - 1);
+  $('btn-submit').classList.toggle('hidden', reviewMode || cur !== screens.length - 1);
 
   if (s.kind === 'p5') drawP5(s);
   else if (s.kind === 'audio') drawAudio(s);
@@ -244,7 +268,8 @@ let readFontPct = 100;
 
 function drawReading(s) {
   const raw = readVi && s.passage_vi ? s.passage_vi : s.passage_text;
-  let text = esc(raw).replace(/---\s*(\d+)\s*---/g, function (m, n) {
+  let text = (reviewMode && !readVi) ? highlightEvidence(raw, s.questions) : esc(raw);
+  text = text.replace(/---\s*(\d+)\s*---/g, function (m, n) {
     return '<span class="blank">' + n + '</span>';
   });
   const docs = text.split(/\n?===+\n?/).map(function (d) {
@@ -253,6 +278,15 @@ function drawReading(s) {
 
   let qHtml = '';
   s.questions.forEach(function (q, i) { qHtml += qBlock(q, i + 1); });
+
+  if (reviewMode && s.vocab && s.vocab.length) {
+    qHtml += '<div class="tbox" style="border-color:var(--gold);margin-top:14px">' +
+      '<h3>📖 Từ vựng trong bài</h3>' +
+      s.vocab.map(function (v) {
+        return '<p class="ww" style="margin:4px 0"><b>' + esc(v.term) + '</b>: ' + esc(v.meaning_vi) + '</p>';
+      }).join('') +
+      '</div>';
+  }
 
   $('screen').innerHTML =
     '<div class="exam-split">' +
@@ -290,21 +324,38 @@ function drawReading(s) {
 function qBlock(q, no) {
   const o = q.options || {};
   const isMarked = !!marked[q.id];
-  return '<div class="rq" data-q="' + q.id + '">' +
+  const my = picked[q.id];
+
+  let html = '<div class="rq" data-q="' + q.id + '">' +
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">' +
       '<p class="rq-head">' + (no ? no + '. ' : '') + esc(q.question_text || '') + '</p>' +
-      '<button class="mark-btn' + (isMarked ? ' on' : '') + '" data-mark="' + q.id + '" title="Đánh dấu xem lại">🚩</button>' +
+      (reviewMode ? '' :
+        '<button class="mark-btn' + (isMarked ? ' on' : '') + '" data-mark="' + q.id + '" title="Đánh dấu xem lại">🚩</button>') +
     '</div>' +
     '<div class="opts-radio">' +
     ['A', 'B', 'C', 'D'].map(function (L) {
       if (!o[L]) return '';
-      const on = picked[q.id] === L;
-      return '<label class="opt-radio' + (on ? ' on' : '') + '" data-pick="' + q.id + '" data-l="' + L + '">' +
+      const on = my === L;
+      let cls = on ? ' on' : '';
+      if (reviewMode) {
+        cls += ' disabled';
+        if (L === q.correct_answer) cls += ' right';
+        else if (on) cls += ' wrong';
+      }
+      return '<label class="opt-radio' + cls + '" data-pick="' + q.id + '" data-l="' + L + '">' +
         '<span class="radio-dot"></span><span class="letter">' + L + '</span><span class="say">' + esc(o[L]) + '</span></label>';
-    }).join('') + '</div></div>';
+    }).join('') + '</div>';
+
+  if (reviewMode && q.explanation) {
+    html += '<div class="rq-exp">' + esc(q.explanation) + '</div>';
+  }
+
+  return html + '</div>';
 }
 
 function bindPick() {
+  if (reviewMode) return; // xem lại chỉ để đọc, không cho đổi đáp án nữa
+
   $('screen').querySelectorAll('label[data-pick]').forEach(function (b) {
     b.addEventListener('click', function () {
       const id = b.dataset.pick;
@@ -395,11 +446,11 @@ async function submit(auto) {
     '<section class="stats">' + statCards.join('') + '</section>' +
     scoreNote +
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:18px 0">' +
-      '<button class="btn btn-ink" id="btn-review">Xem lại bài làm</button>' +
+      '<button class="btn btn-ink" id="btn-review">🔍 Xem lại từng câu</button>' +
       '<a class="btn btn-line" href="app.html">Về trang học</a>' +
     '</div>';
 
-  $('btn-review').addEventListener('click', showReview);
+  $('btn-review').addEventListener('click', enterReview);
 
   const { error: mockErr } = await db.from('mock_tests').insert({
     user_id: me.id, exam_set_id: examSet.id,
