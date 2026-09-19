@@ -97,7 +97,7 @@ const P7 =
 'Dạng bài: Instructions: Văn bản hướng dẫn | Dạng bài: List/ Menu: Danh sách/ Thực đơn\n\n' +
 'Việc cần làm lần này:\n[ghi rõ ở đây, ví dụ: soạn 2 bài Part 7 một văn bản và 1 bài hai văn bản]';
 
-const SAMPLE = JSON.stringify([
+const SAMPLE_6 = JSON.stringify([
   {
     part: 6,
     title: 'Thông báo bảo trì thang máy',
@@ -123,7 +123,7 @@ const SAMPLE = JSON.stringify([
         number: 131, A: 'unavailable', B: 'unavailably', C: 'unavailability', D: 'unavailed',
         correct_answer: 'A',
         explanation: 'Sau động từ to be cần tính từ làm bổ ngữ. B là trạng từ, C là danh từ, D không tồn tại.',
-        topic_tag: 'Từ loại',
+        topic_tag: 'Câu hỏi từ loại',
         evidence: []
       },
       {
@@ -134,22 +134,78 @@ const SAMPLE = JSON.stringify([
         D: 'Our sales figures exceeded expectations.',
         correct_answer: 'A',
         explanation: 'Câu chèn phải nối ý với việc dùng cầu thang bộ. Ba phương án kia lạc chủ đề.',
-        topic_tag: 'Chèn câu',
+        topic_tag: 'Câu hỏi điền câu vào đoạn văn',
         evidence: ['During this period, please use the south stairwell.']
       },
       {
         number: 133, A: 'promptly', B: 'in advance', C: 'as usual', D: 'once again',
         correct_answer: 'B',
         explanation: 'Nhân viên cần hỗ trợ nên liên hệ trước (in advance) để được sắp xếp, hợp ngữ cảnh thông báo trước sự việc.',
-        topic_tag: 'Từ vựng',
+        topic_tag: 'Câu hỏi từ vựng',
         evidence: []
       },
       {
         number: 134, A: 'resume', B: 'resumed', C: 'resuming', D: 'resumes',
         correct_answer: 'D',
         explanation: 'Chủ ngữ "Normal service" số ít, thì hiện tại đơn diễn tả việc sẽ trở lại đúng lịch, nên chia "resumes".',
-        topic_tag: 'Hoà hợp chủ ngữ động từ',
+        topic_tag: 'Câu hỏi ngữ pháp',
         evidence: []
+      }
+    ]
+  }
+], null, 2);
+
+const SAMPLE_7 = JSON.stringify([
+  {
+    part: 7,
+    title: 'Bản ghi nhớ về dự án năng lượng mặt trời',
+    doc_type: 'memo',
+    passage_text:
+      'To: Ravi Berg and 11 others\nFrom: Beatriz Janssen, External Communications Specialist\n' +
+      'Date: November 12\nSubject: Sunnyhill solar facility\n\n' +
+      'In advance of Friday\'s press briefing on the project\'s progress, I would like to issue the following ' +
+      'reminder to members of the Clean Energy Group and Public Relations Department. Since Mr. Nakamura ' +
+      'has designated me as our official spokesperson on the Sunnyhill solar facility, I must be the one to ' +
+      'handle press inquiries on the subject. Please pass this detail on to any journalists who contact you. ' +
+      'As you all know, the project continues to face some amount of resistance from members of the community ' +
+      'for its possible impact on agriculture. For that reason, it is crucial that our company avoid making ' +
+      'any remarks that are not informed by both expertise on the project and sensitivity to public sentiment.',
+    passage_vi:
+      'Gửi: Ravi Berg và 11 người khác\nTừ: Beatriz Janssen, Chuyên viên Truyền thông Đối ngoại\n' +
+      'Ngày: 12 tháng 11\nChủ đề: Cơ sở năng lượng mặt trời Sunnyhill\n\n' +
+      'Trước buổi họp báo thứ Sáu về tiến độ dự án, tôi xin nhắc lại điều sau tới các thành viên của Nhóm ' +
+      'Năng lượng Sạch và Phòng Quan hệ Công chúng. Vì ông Nakamura đã chỉ định tôi là người phát ngôn chính ' +
+      'thức về cơ sở năng lượng mặt trời Sunnyhill, tôi phải là người xử lý các câu hỏi của báo chí về chủ đề ' +
+      'này. Xin chuyển thông tin này tới bất kỳ nhà báo nào liên hệ với các bạn. Như tất cả đã biết, dự án vẫn ' +
+      'đang vấp phải một số phản đối từ cộng đồng vì tác động tiềm ẩn tới nông nghiệp. Vì vậy, công ty cần ' +
+      'tránh mọi phát ngôn thiếu chuyên môn về dự án hoặc thiếu nhạy cảm với dư luận.',
+    vocab: [
+      { term: 'spokesperson', meaning_vi: 'người phát ngôn' },
+      { term: 'press inquiries', meaning_vi: 'câu hỏi từ báo chí' },
+      { term: 'public sentiment', meaning_vi: 'dư luận, cảm nhận của công chúng' }
+    ],
+    questions: [
+      {
+        number: 147, question_text: 'What is the purpose of the memo?',
+        A: 'To invite residents to a meeting on May 3',
+        B: 'To request feedback about parking facilities',
+        C: 'To inform staff who should handle press questions',
+        D: 'To announce an increase in project funding',
+        correct_answer: 'C',
+        explanation: 'Bản ghi nhớ nêu rõ Beatriz Janssen là người phát ngôn chính thức, mọi câu hỏi báo chí phải chuyển cho cô.',
+        topic_tag: 'Câu hỏi về chủ đề, mục đích',
+        evidence: ['Since Mr. Nakamura has designated me as our official spokesperson on the Sunnyhill solar facility, I must be the one to handle press inquiries on the subject.']
+      },
+      {
+        number: 148, question_text: 'What is mentioned about the solar facility?',
+        A: 'It was proposed by a conservation group',
+        B: 'It is controversial among some local residents',
+        C: 'It will soon be toured by a team of journalists',
+        D: 'Its completion will be announced on Friday',
+        correct_answer: 'B',
+        explanation: 'Đoạn văn nói dự án đang gặp phản đối từ cộng đồng vì ảnh hưởng tới nông nghiệp, cho thấy nó đang gây tranh cãi.',
+        topic_tag: 'Câu hỏi tìm thông tin',
+        evidence: ['the project continues to face some amount of resistance from members of the community for its possible impact on agriculture']
       }
     ]
   }
@@ -182,9 +238,14 @@ function copyPrompt(text, name) {
   });
 }
 
-$('btn-sample').addEventListener('click', function () {
-  $('raw').value = SAMPLE;
-  say('Đây là một đoạn làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
+$('btn-sample-6').addEventListener('click', function () {
+  $('raw').value = SAMPLE_6;
+  say('Đây là một đoạn Part 6 làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
+});
+
+$('btn-sample-7').addEventListener('click', function () {
+  $('raw').value = SAMPLE_7;
+  say('Đây là một bài Part 7 làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
 });
 
 function say(msg, kind) {

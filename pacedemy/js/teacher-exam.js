@@ -101,7 +101,7 @@ const SAMPLES = {
     passage_vi: 'Văn phòng sẽ đóng cửa vào thứ Hai nhân ngày lễ.',
     vocab: [{ term: 'public holiday', meaning_vi: 'ngày lễ' }],
     questions: [{ number: 131, A: 'closed', B: 'closing', C: 'close', D: 'closes',
-      correct_answer: 'A', explanation: 'Sau "will be" cần tính từ/quá khứ phân từ.', topic_tag: 'Từ loại',
+      correct_answer: 'A', explanation: 'Sau "will be" cần tính từ/quá khứ phân từ.', topic_tag: 'Câu hỏi từ loại',
       evidence: [] }]
   }], null, 2),
   7: JSON.stringify([{
@@ -111,7 +111,7 @@ const SAMPLES = {
     vocab: [{ term: 'booking', meaning_vi: 'việc đặt chỗ' }],
     questions: [{ number: 147, question_text: 'What is the purpose of the email?',
       A: 'To cancel a booking', B: 'To confirm a booking', C: 'To request a refund', D: 'To ask for directions',
-      correct_answer: 'B', explanation: 'Câu đầu nêu rõ mục đích là xác nhận đặt phòng.', topic_tag: 'Câu hỏi ý chính',
+      correct_answer: 'B', explanation: 'Câu đầu nêu rõ mục đích là xác nhận đặt phòng.', topic_tag: 'Câu hỏi về chủ đề, mục đích',
       evidence: ['I would like to confirm our meeting room booking for Friday.'] }]
   }], null, 2)
 };
