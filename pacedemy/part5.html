@@ -27,15 +27,17 @@
 <main class="wrap">
   <a class="crumb" href="app.html">← Về trang học</a>
 
-  <section class="greet">
-    <h1>Luyện đọc</h1>
-    <p>Ba phần trong bài thi đọc TOEIC: hoàn thành câu, điền đoạn văn, và đọc hiểu.</p>
-  </section>
+  <div id="read-header">
+    <section class="greet">
+      <h1>Luyện đọc</h1>
+      <p>Ba phần trong bài thi đọc TOEIC: hoàn thành câu, điền đoạn văn, và đọc hiểu.</p>
+    </section>
 
-  <div class="test-tabs" id="read-tabs">
-    <button class="test-tab on" data-tab="5">Part 5<span>Hoàn thành câu</span></button>
+    <div class="test-tabs" id="read-tabs">
+      <button class="test-tab on" data-tab="5">Part 5<span>Hoàn thành câu</span></button>
     <button class="test-tab" data-tab="6">Part 6<span>Điền đoạn văn</span></button>
     <button class="test-tab" data-tab="7">Part 7<span>Đọc hiểu</span></button>
+    </div>
   </div>
 
   <!-- ================= PART 5 ================= -->
@@ -71,17 +73,16 @@
 
   <!-- ================= PART 6 ================= -->
   <section class="hidden" id="panel-6">
-    <div class="tbox guide-box">
-      <h3>Cách làm bài — Part 6</h3>
-      <ul class="guide-list">
-        <li>Đề thật có <b>16 câu</b>, chia thành 4 đoạn văn, mỗi đoạn <b>4 chỗ trống</b>.</li>
-        <li>Giống Part 5 nhưng đặt trong một đoạn văn liền mạch — phải đọc câu trước và câu sau chỗ trống mới chọn đúng, không chỉ nhìn mỗi câu chứa chỗ trống.</li>
-        <li>Một trong bốn câu thường yêu cầu chọn <b>cả một câu hoàn chỉnh</b> để điền vào đoạn, chứ không chỉ điền một từ.</li>
-        <li>Mỗi chỗ trống chỉ chọn 1 trong 4 phương án A, B, C, D.</li>
-      </ul>
-    </div>
-
     <div id="p6-view-pick">
+      <div class="tbox guide-box">
+        <h3>Cách làm bài — Part 6</h3>
+        <ul class="guide-list">
+          <li>Đề thật có <b>16 câu</b>, chia thành 4 đoạn văn, mỗi đoạn <b>4 chỗ trống</b>.</li>
+          <li>Giống Part 5 nhưng đặt trong một đoạn văn liền mạch — phải đọc câu trước và câu sau chỗ trống mới chọn đúng, không chỉ nhìn mỗi câu chứa chỗ trống.</li>
+          <li>Một trong bốn câu thường yêu cầu chọn <b>cả một câu hoàn chỉnh</b> để điền vào đoạn, chứ không chỉ điền một từ.</li>
+          <li>Mỗi chỗ trống chỉ chọn 1 trong 4 phương án A, B, C, D.</li>
+        </ul>
+      </div>
       <div id="p6-list"><p class="empty">Đang tải…</p></div>
     </div>
 
@@ -115,17 +116,16 @@
 
   <!-- ================= PART 7 ================= -->
   <section class="hidden" id="panel-7">
-    <div class="tbox guide-box">
-      <h3>Cách làm bài — Part 7</h3>
-      <ul class="guide-list">
-        <li>Đề thật có <b>54 câu</b>: bài đơn (1 văn bản, khoảng 29 câu) và bài đôi/ba (2-3 văn bản liên quan nhau, khoảng 25 câu).</li>
-        <li>Văn bản là email, thông báo, quảng cáo, tin nhắn, bài báo, biểu mẫu, hoá đơn...</li>
-        <li>Mỗi bài có từ <b>2 đến 5 câu hỏi</b>, mỗi câu chọn 1 trong 4 phương án A, B, C, D.</li>
-        <li>Bài đôi/ba luôn có ít nhất một câu bắt buộc phải đọc từ <b>2 văn bản trở lên</b> mới trả lời được — đọc một văn bản là không đủ.</li>
-      </ul>
-    </div>
-
     <div id="p7-view-pick">
+      <div class="tbox guide-box">
+        <h3>Cách làm bài — Part 7</h3>
+        <ul class="guide-list">
+          <li>Đề thật có <b>54 câu</b>: bài đơn (1 văn bản, khoảng 29 câu) và bài đôi/ba (2-3 văn bản liên quan nhau, khoảng 25 câu).</li>
+          <li>Văn bản là email, thông báo, quảng cáo, tin nhắn, bài báo, biểu mẫu, hoá đơn...</li>
+          <li>Mỗi bài có từ <b>2 đến 5 câu hỏi</b>, mỗi câu chọn 1 trong 4 phương án A, B, C, D.</li>
+          <li>Bài đôi/ba luôn có ít nhất một câu bắt buộc phải đọc từ <b>2 văn bản trở lên</b> mới trả lời được — đọc một văn bản là không đủ.</li>
+        </ul>
+      </div>
       <div id="p7-list"><p class="empty">Đang tải…</p></div>
     </div>
 

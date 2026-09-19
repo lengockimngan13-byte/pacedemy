@@ -50,20 +50,20 @@ function makeReadingPanel(part) {
 
     let html = '<div class="set-grid">';
 
-    for (const r of rs) {
+    rs.forEach(function (r, i) {
       html +=
         '<div class="set">' +
           '<div class="set-head">' +
-            '<span class="set-name">' + esc(r.title) + '</span>' +
-            '<span class="set-count">' + (n[r.id] || 0) + ' câu</span>' +
+            '<span class="set-name">Test ' + (i + 1) + '</span>' +
           '</div>' +
-          (r.doc_type ? '<p class="ww" style="margin:4px 0 10px;color:#6C837E">' +
-            esc(r.doc_type) + '</p>' : '') +
+          '<p class="set-sub">' + esc(r.title) + '</p>' +
+          '<p class="set-meta">' + (n[r.id] || 0) + ' câu' +
+            (r.doc_type ? ' · ' + esc(r.doc_type) : '') + '</p>' +
           '<div class="topic-actions">' +
             '<button class="btn-sm test" data-go="' + r.id + '">Làm bài</button>' +
           '</div>' +
         '</div>';
-    }
+    });
 
     html += '</div>';
     $('list').innerHTML = html;
@@ -93,6 +93,8 @@ function makeReadingPanel(part) {
 
     $('view-pick').classList.add('hidden');
     $('view-do').classList.remove('hidden');
+    const hdr = document.getElementById('read-header');
+    if (hdr) hdr.classList.add('hidden');
     $('d-result').innerHTML = '';
     $('d-vocab').innerHTML = '';
     $('btn-submit').classList.remove('hidden');
@@ -333,6 +335,8 @@ function makeReadingPanel(part) {
   if (btnBack) btnBack.addEventListener('click', function () {
     $('view-do').classList.add('hidden');
     $('view-pick').classList.remove('hidden');
+    const hdr = document.getElementById('read-header');
+    if (hdr) hdr.classList.remove('hidden');
     window.scrollTo(0, 0);
     loadList();
   });
