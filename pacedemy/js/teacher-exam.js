@@ -49,7 +49,9 @@ const PROMPTS = {
     '  "questions": [{\n    "number": 131,\n' +
     '    "A": "..", "B": "..", "C": "..", "D": "..",\n    "correct_answer": "A",\n' +
     '    "explanation": "giải thích tiếng Việt",\n    "topic_tag": "dạng câu hỏi",\n' +
-    '    "evidence": ["chép nguyên văn cụm trong passage_text chứng minh đáp án, mảng rỗng nếu câu ngữ pháp thuần"]\n  }]\n}\n\n' +
+    '    "evidence": ["chép nguyên văn cụm trong passage_text chứng minh đáp án, mảng rỗng nếu câu ngữ pháp thuần"],\n' +
+    '    "evidence_vi": ["bản dịch tiếng Việt của từng dẫn chứng, khớp thứ tự"],\n' +
+    '    "question_vi": {"q": "dịch câu hỏi", "A": "dịch A", "B": "dịch B", "C": "dịch C", "D": "dịch D"}\n  }]\n}\n\n' +
     'Đúng 4 câu mỗi đoạn, ít nhất 1 câu chọn câu hoàn chỉnh điền vào đoạn. ' +
     'evidence phải chép đúng nguyên văn từ passage_text, không diễn giải lại. ' +
     'topic_tag phải lấy nguyên văn từ danh sách: Câu hỏi từ loại | Câu hỏi ngữ pháp | Câu hỏi từ vựng | ' +
@@ -68,7 +70,9 @@ const PROMPTS = {
     '    "question_text": "câu hỏi tiếng Anh",\n    "A": "..", "B": "..", "C": "..", "D": "..",\n' +
     '    "correct_answer": "B",\n    "explanation": "giải thích tiếng Việt",\n' +
     '    "topic_tag": "dạng câu hỏi",\n' +
-    '    "evidence": ["chép nguyên văn câu/cụm trong passage_text trả lời câu hỏi này"]\n  }]\n}\n\n' +
+    '    "evidence": ["chép nguyên văn câu/cụm trong passage_text trả lời câu hỏi này"],\n' +
+    '    "evidence_vi": ["bản dịch tiếng Việt của từng dẫn chứng, khớp thứ tự"],\n' +
+    '    "question_vi": {"q": "dịch câu hỏi", "A": "dịch A", "B": "dịch B", "C": "dịch C", "D": "dịch D"}\n  }]\n}\n\n' +
     'Mỗi bài 2 đến 5 câu. Bài nhiều văn bản phải có ít nhất 1 câu cần đọc cả hai văn bản. ' +
     'evidence phải chép đúng nguyên văn từ passage_text, không diễn giải lại. ' +
     'topic_tag phải lấy nguyên văn từ danh sách: Câu hỏi tìm thông tin | Câu hỏi tìm chi tiết sai | ' +
@@ -504,7 +508,10 @@ $('btn-save').addEventListener('click', async function () {
           options: { A: q.A, B: q.B, C: q.C, D: q.D },
           correct_answer: q.correct_answer.toUpperCase(),
           explanation: q.explanation || null, topic_tag: q.topic_tag || null,
-          evidence: q.evidence || [], order_index: i
+          evidence: q.evidence || [],
+          evidence_vi: q.evidence_vi || [],
+          question_vi: q.question_vi || {},
+          order_index: i
         };
       });
       const { error: e2 } = await db.from('exam_questions').insert(qs);

@@ -79,7 +79,7 @@ function makeReadingPanel(part) {
 
     const { data: list } = await db
       .from('questions')
-      .select('id, question_text, options, correct_answer, explanation, topic_tag, evidence, order_index')
+      .select('id, question_text, options, correct_answer, explanation, topic_tag, evidence, evidence_vi, question_vi, order_index')
       .eq('rset_id', id).order('order_index');
 
     cur = r;
@@ -242,12 +242,38 @@ function makeReadingPanel(part) {
 
       const exp = realBox.querySelector('.rq-exp');
       exp.classList.remove('hidden');
-      exp.innerHTML =
-        '<p class="key-point" style="margin:0 0 6px">' +
-          (right ? 'Đúng rồi.' : 'Đáp án đúng là ' + q.correct_answer + '.') +
+
+      const qvi = q.question_vi || {};
+      const hasVi = qvi.q || qvi.A;
+
+      let expHtml =
+        '<p class="exp-verdict ' + (right ? 'ok' : 'no') + '">' +
+          (right ? '✓ Bạn trả lời đúng' : '✗ Đáp án đúng là ' + q.correct_answer) +
           (q.topic_tag ? ' <span class="q-tag">' + esc(q.topic_tag) + '</span>' : '') +
-        '</p>' +
-        (q.explanation ? '<p class="ww" style="margin:0">' + esc(q.explanation) + '</p>' : '');
+        '</p>';
+
+      if (hasVi) {
+        expHtml += '<div class="vi-block">' +
+          '<p class="vi-head">🈯 Dịch câu hỏi</p>' +
+          (qvi.q ? '<p class="vi-q">' + esc(qvi.q) + '</p>' : '') +
+          ['A', 'B', 'C', 'D'].map(function (L) {
+            if (!qvi[L]) return '';
+            return '<p class="vi-opt' + (L === q.correct_answer ? ' right' : '') + '">' + L + '. ' + esc(qvi[L]) + '</p>';
+          }).join('') +
+        '</div>';
+      }
+
+      (q.evidence || []).forEach(function (ev, i) {
+        const evVi = (q.evidence_vi || [])[i];
+        expHtml += '<p class="exp-line"><span class="exp-badge badge-ev">Dẫn chứng</span> <i>' + esc(ev) + '</i></p>';
+        if (evVi) expHtml += '<p class="exp-line exp-sub">(' + esc(evVi) + ')</p>';
+      });
+
+      if (q.explanation) {
+        expHtml += '<p class="exp-line"><span class="exp-badge badge-why">Giải thích</span> ' + esc(q.explanation) + '</p>';
+      }
+
+      exp.innerHTML = expHtml;
     }
 
     $('btn-submit').classList.add('hidden');

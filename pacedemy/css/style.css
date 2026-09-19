@@ -2358,13 +2358,30 @@ a { color: inherit; }
   white-space: pre-wrap;
 }
 
-.rq { margin-bottom: 20px; }
-.rq-head { font-weight: 600; margin: 0 0 10px; line-height: 1.6; }
+.rq {
+  margin-bottom: 18px;
+  padding: 16px 18px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+}
+.rq-head { font-weight: 600; margin: 0 0 12px; line-height: 1.6; }
 .rq-exp {
-  margin-top: 10px;
-  padding: 10px 14px;
+  margin-top: 12px;
+  padding: 12px 14px;
   background: var(--mist);
   border-radius: var(--r);
+}
+
+.group-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: var(--mist);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4A635E;
 }
 
 .opt {
@@ -3209,10 +3226,8 @@ body.focus-mode .side-toggle { display: none; }
   flex: none;
   position: relative;
 }
-.opt-radio.on .radio-dot,
-.opt-radio.right .radio-dot { border-color: var(--teal); }
-.opt-radio.on .radio-dot::after,
-.opt-radio.right .radio-dot::after {
+.opt-radio.on .radio-dot { border-color: var(--teal); }
+.opt-radio.on .radio-dot::after {
   content: '';
   position: absolute;
   inset: 3px;
@@ -3223,10 +3238,33 @@ body.focus-mode .side-toggle { display: none; }
 .opt-radio .letter { font-weight: 700; width: 20px; flex: none; }
 .opt-radio .say { flex: 1; }
 
-.opt-radio.right { background: var(--mist); }
-.opt-radio.wrong { border-color: var(--danger); background: #FBEAE5; }
+.opt-radio.right {
+  background: #F1F8F4;
+  border-color: var(--teal);
+  color: var(--teal);
+  font-weight: 600;
+}
+.opt-radio.right .radio-dot { border-color: var(--teal); }
+
+.opt-radio.wrong {
+  background: #FDF2F0;
+  border-color: var(--danger);
+  color: var(--danger);
+  font-weight: 600;
+}
 .opt-radio.wrong .radio-dot { border-color: var(--danger); }
 .opt-radio.wrong .radio-dot::after { background: var(--danger); }
+
+/* Dấu ✓ / ✗ bên phải — thứ phân biệt nhanh nhất bằng mắt */
+.opt-radio .verdict-mark {
+  margin-left: auto;
+  flex: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.opt-radio.right .verdict-mark { color: var(--teal); }
+.opt-radio.wrong .verdict-mark { color: var(--danger); }
 
 @media (max-width: 780px) {
   .lp-grid { grid-template-columns: 1fr; }
@@ -3267,8 +3305,14 @@ body.focus-mode .side-toggle { display: none; }
   flex-wrap: wrap;
   align-items: center;
   margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
 }
-.read-toolbar .btn-sm.on { background: var(--ink); color: var(--paper); }
+.read-toolbar .btn-sm.on {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
 
 .font-ctrl { display: flex; gap: 4px; margin-left: auto; }
 .font-ctrl .btn-sm { width: 34px; padding: 6px 0; text-align: center; }
@@ -3313,6 +3357,63 @@ body.focus-mode .side-toggle { display: none; }
 .progress-table td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .progress-table tbody tr:hover { background: var(--mist); }
 
+
+/* Khối giải thích sau khi nộp bài — tách nhãn Dẫn chứng / Giải thích cho dễ đọc */
+.exp-verdict {
+  margin: 0 0 10px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.exp-verdict.ok { color: var(--teal); }
+.exp-verdict.no { color: var(--danger); }
+
+.exp-line {
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.exp-line:last-child { margin-bottom: 0; }
+.exp-line i { color: #33504B; }
+
+.exp-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  margin-right: 4px;
+  vertical-align: 1px;
+}
+.badge-ev { background: #E3EEFB; color: #2C5AA0; }
+.badge-why { background: #FBF0DC; color: #6B4A05; }
+
+/* Khối dịch câu hỏi + 4 đáp án */
+.vi-block {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: #F2F6FC;
+  border-radius: var(--r);
+}
+.vi-head {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2C5AA0;
+}
+.vi-q { margin: 0 0 8px; font-weight: 600; font-size: 0.92rem; line-height: 1.6; }
+.vi-opt { margin: 3px 0; font-size: 0.9rem; color: #4A635E; line-height: 1.6; }
+.vi-opt.right { color: var(--teal); font-weight: 600; }
+
+.exp-sub {
+  margin-top: -4px !important;
+  padding-left: 4px;
+  color: #6C837E;
+  font-size: 0.88rem;
+}
 
 /* ============================================================
    TOAST — thông báo nổi dùng chung cho mọi trang

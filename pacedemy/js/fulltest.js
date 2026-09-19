@@ -277,6 +277,9 @@ function drawReading(s) {
   }).join('');
 
   let qHtml = '';
+  if (s.questions.length > 1) {
+    qHtml += '<span class="group-label">Nhóm ' + s.questions.length + ' câu hỏi</span>';
+  }
   s.questions.forEach(function (q, i) { qHtml += qBlock(q, i + 1); });
 
   if (reviewMode && s.vocab && s.vocab.length) {
@@ -337,17 +340,54 @@ function qBlock(q, no) {
       if (!o[L]) return '';
       const on = my === L;
       let cls = on ? ' on' : '';
+      let mark = '';
       if (reviewMode) {
         cls += ' disabled';
-        if (L === q.correct_answer) cls += ' right';
-        else if (on) cls += ' wrong';
+        if (L === q.correct_answer) { cls += ' right'; mark = '<span class="verdict-mark">✓</span>'; }
+        else if (on) { cls += ' wrong'; mark = '<span class="verdict-mark">✗</span>'; }
       }
       return '<label class="opt-radio' + cls + '" data-pick="' + q.id + '" data-l="' + L + '">' +
-        '<span class="radio-dot"></span><span class="letter">' + L + '</span><span class="say">' + esc(o[L]) + '</span></label>';
+        '<span class="radio-dot"></span><span class="letter">' + L + '</span><span class="say">' + esc(o[L]) + '</span>' +
+        mark + '</label>';
     }).join('') + '</div>';
 
-  if (reviewMode && q.explanation) {
-    html += '<div class="rq-exp">' + esc(q.explanation) + '</div>';
+  if (reviewMode) {
+    const ok = my === q.correct_answer;
+    const qvi = q.question_vi || {};
+    const hasVi = qvi.q || qvi.A;
+
+    let exp = '<div class="rq-exp">' +
+      '<p class="exp-verdict ' + (ok ? 'ok' : 'no') + '">' +
+        (ok ? '✓ Bạn trả lời đúng' : '✗ Đáp án đúng là ' + q.correct_answer) +
+        (q.topic_tag ? ' <span class="q-tag">' + esc(q.topic_tag) + '</span>' : '') +
+      '</p>';
+
+    // Dịch câu hỏi và 4 đáp án — chỉ hiện khi đề có sẵn bản dịch
+    if (hasVi) {
+      exp += '<div class="vi-block">' +
+        '<p class="vi-head">🈯 Dịch câu hỏi</p>' +
+        (qvi.q ? '<p class="vi-q">' + esc(qvi.q) + '</p>' : '') +
+        ['A', 'B', 'C', 'D'].map(function (L) {
+          if (!qvi[L]) return '';
+          const isRight = L === q.correct_answer;
+          return '<p class="vi-opt' + (isRight ? ' right' : '') + '">' + L + '. ' + esc(qvi[L]) + '</p>';
+        }).join('') +
+      '</div>';
+    }
+
+    (q.evidence || []).forEach(function (ev, i) {
+      const evVi = (q.evidence_vi || [])[i];
+      exp += '<p class="exp-line"><span class="exp-badge badge-ev">Dẫn chứng</span> ' +
+             '<i>' + esc(ev) + '</i></p>';
+      if (evVi) exp += '<p class="exp-line exp-sub">(' + esc(evVi) + ')</p>';
+    });
+
+    if (q.explanation) {
+      exp += '<p class="exp-line"><span class="exp-badge badge-why">Giải thích</span> ' +
+             esc(q.explanation) + '</p>';
+    }
+
+    html += exp + '</div>';
   }
 
   return html + '</div>';

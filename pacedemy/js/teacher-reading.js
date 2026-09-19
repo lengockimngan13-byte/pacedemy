@@ -29,7 +29,10 @@ const P6 =
 'vì sao ba phương án kia sai",\n' +
 '      "topic_tag": "đúng MỘT nhãn lấy nguyên văn từ danh sách bên dưới, không tự đặt nhãn mới",\n' +
 '      "evidence": ["chép NGUYÊN VĂN 1-2 cụm/câu trong passage_text chứng minh đáp án, ' +
-'để mảng rỗng [] nếu câu này không có chỗ trích cụ thể (như câu ngữ pháp thuần)"]\n' +
+'để mảng rỗng [] nếu câu này không có chỗ trích cụ thể (như câu ngữ pháp thuần)"],\n' +
+'      "evidence_vi": ["bản dịch tiếng Việt của từng câu dẫn chứng, khớp đúng thứ tự mảng evidence"],\n' +
+'      "question_vi": {"q": "bản dịch tiếng Việt của câu hỏi", "A": "dịch phương án A", ' +
+'"B": "dịch phương án B", "C": "dịch phương án C", "D": "dịch phương án D"}\n' +
 '    }\n' +
 '  ]\n' +
 '}\n\n' +
@@ -72,7 +75,10 @@ const P7 =
 'trong bài và vì sao ba phương án kia sai",\n' +
 '      "topic_tag": "đúng MỘT nhãn lấy nguyên văn từ danh sách bên dưới, không tự đặt nhãn mới",\n' +
 '      "evidence": ["chép NGUYÊN VĂN câu hoặc cụm trong passage_text trả lời cho câu hỏi này, ' +
-'có thể ghi nhiều đoạn nếu câu hỏi cần gộp thông tin từ nhiều chỗ"]\n' +
+'có thể ghi nhiều đoạn nếu câu hỏi cần gộp thông tin từ nhiều chỗ"],\n' +
+'      "evidence_vi": ["bản dịch tiếng Việt của từng câu dẫn chứng, khớp đúng thứ tự mảng evidence"],\n' +
+'      "question_vi": {"q": "bản dịch tiếng Việt của câu hỏi", "A": "dịch phương án A", ' +
+'"B": "dịch phương án B", "C": "dịch phương án C", "D": "dịch phương án D"}\n' +
 '    }\n' +
 '  ]\n' +
 '}\n\n' +
@@ -300,6 +306,8 @@ function readJson(raw) {
           explanation: (q.explanation || '').trim(),
           topic_tag: (q.topic_tag || '').trim(),
           evidence: Array.isArray(q.evidence) ? q.evidence.map(function (e) { return String(e).trim(); }).filter(Boolean) : [],
+          evidence_vi: Array.isArray(q.evidence_vi) ? q.evidence_vi.map(function (e) { return String(e).trim(); }) : [],
+          question_vi: (q.question_vi && typeof q.question_vi === 'object') ? q.question_vi : {},
           order_index: i + 1
         };
       })
@@ -436,6 +444,8 @@ $('btn-save').addEventListener('click', async function () {
         explanation: q.explanation || null,
         topic_tag: q.topic_tag || null,
         evidence: q.evidence || [],
+        evidence_vi: q.evidence_vi || [],
+        question_vi: q.question_vi || {},
         difficulty: s.difficulty || 2,
         is_active: true
       };
