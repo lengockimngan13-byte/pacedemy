@@ -72,7 +72,7 @@ async function loadSets() {
     // Luyện theo đúng một dạng câu hỏi — không giới hạn ngẫu nhiên như luyện thường
     const { data: qs } = await db
       .from('questions')
-      .select('id, set_id, question_text, options, correct_answer, explanation, translation_vi, key_point, order_index')
+      .select('id, set_id, question_text, options, correct_answer, explanation, translation_vi, key_point, question_vi, order_index')
       .eq('part', part)
       .eq('topic_tag', dang)
       .eq('is_active', true)
@@ -121,7 +121,7 @@ async function loadSets() {
 
   const { data: qs } = await db
     .from('questions')
-    .select('id, set_id, question_text, options, correct_answer, explanation, translation_vi, key_point, order_index')
+    .select('id, set_id, question_text, options, correct_answer, explanation, translation_vi, key_point, question_vi, order_index')
     .in('set_id', ids)
     .eq('is_active', true)
     .order('order_index');
@@ -276,6 +276,21 @@ async function answer(k) {
   box += '<p class="full-sentence">' + esc(opts[q.correct_answer] || '') + '</p>';
   if (q.translation_vi) box += '<p class="trans">' + esc(q.translation_vi) + '</p>';
   if (q.explanation) box += '<p class="why-text">' + esc(q.explanation) + '</p>';
+
+  // Dịch nghĩa 4 phương án — dùng bản dịch có sẵn trong tài liệu gốc
+  const qvi = q.question_vi || {};
+  if (qvi.q || qvi.A) {
+    box += '<div class="vi-block">' +
+      '<p class="vi-head">🈯 Dịch nghĩa câu hỏi</p>' +
+      (qvi.q ? '<p class="vi-q">' + esc(qvi.q) + '</p>' : '') +
+      ['A', 'B', 'C', 'D'].map(function (L) {
+        if (!qvi[L]) return '';
+        return '<p class="vi-opt' + (L === q.correct_answer ? ' right' : '') + '">' +
+               '(' + L + ') ' + esc(qvi[L]) + '</p>';
+      }).join('') +
+    '</div>';
+  }
+
   $('why').innerHTML = box;
 
   // Chỉ mở lời thoại khi đã trả lời hết các câu của bài nghe này

@@ -24,6 +24,9 @@ const PART_NAME = {
 const COMMON_SCHEMA_HEAD =
 'Mình gửi script bài nghe TOEIC PART {P}. Hãy chuyển thành DUY NHẤT một khối JSON, ' +
 'không thêm lời dẫn, không thêm dấu ```.\n\n' +
+'NẾU tài liệu mình gửi là bảng song ngữ (cột tiếng Anh, cột tiếng Việt) và đã có sẵn bản dịch ' +
+'các phương án A/B/C/D, hãy DÙNG LẠI ĐÚNG bản dịch đó cho question_vi, tuyệt đối không tự dịch lại. ' +
+'Đáp án đúng trong tài liệu thường được IN ĐẬM — dùng đúng đáp án đó, không tự suy luận lại.\n\n' +
 'JSON là một mảng, mỗi phần tử là MỘT bài nghe gắn với MỘT file âm thanh:\n' +
 '{\n' +
 '  "part": {P},\n' +
@@ -43,7 +46,9 @@ const COMMON_SCHEMA_HEAD =
 'và vì sao các phương án còn lại sai hoặc là bẫy đồng âm",\n' +
 '      "translation_vi": "nghĩa tiếng Việt của phương án đúng",\n' +
 '      "key_point": "từ hoặc cụm cần nghe bắt được, viết dạng: cụm tiếng Anh = nghĩa tiếng Việt",\n' +
-'      "topic_tag": "đúng MỘT nhãn lấy từ danh sách bên dưới, không tự đặt nhãn mới"\n' +
+'      "topic_tag": "đúng MỘT nhãn lấy từ danh sách bên dưới, không tự đặt nhãn mới",\n' +
+'      "question_vi": {"q": "dịch câu hỏi (Part 1 và 2 không in đề thì để chuỗi rỗng)", ' +
+'"A": "dịch phương án A", "B": "dịch B", "C": "dịch C", "D": "dịch D"}\n' +
 '    }\n' +
 '  ]\n' +
 '}\n\n';
@@ -377,7 +382,8 @@ function readJson(raw) {
           explanation: (q.explanation || '').trim(),
           translation_vi: (q.translation_vi || '').trim(),
           key_point: (q.key_point || '').trim(),
-          topic_tag: (q.topic_tag || '').trim()
+          topic_tag: (q.topic_tag || '').trim(),
+          question_vi: (q.question_vi && typeof q.question_vi === 'object') ? q.question_vi : {}
         };
       })
     };
@@ -545,6 +551,7 @@ $('btn-save').addEventListener('click', async function () {
         translation_vi: q.translation_vi || null,
         key_point: q.key_point || null,
         topic_tag: q.topic_tag || null,
+        question_vi: q.question_vi || {},
         difficulty: s.difficulty || 2,
         is_active: true
       };
@@ -718,4 +725,114 @@ function esc(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ============================================================
+// Gán audio & ảnh cho từng bài — không cần đặt tên file khớp,
+// chọn file nào là tải lên và gắn thẳng vào đúng bài đó.
+// ============================================================
+
+$('btn-assign-load').addEventListener('click', loadAssign);
+
+async function loadAssign() {
+  const no = parseInt($('assign-test').value, 10);
+  if (isNaN(no)) { toast('Nhập số Test trước đã.', 'bad'); return; }
+
+  $('assign-list').innerHTML = '<p class="empty">Đang tải…</p>';
+
+  const { data: rows } = await db
+    .from('listening_sets')
+    .select('id, part, title, audio_url, image_url')
+    .eq('test_no', no)
+    .order('part').order('id');
+
+  if (!rows || !rows.length) {
+    $('assign-list').innerHTML =
+      '<p class="empty">Test ' + no + ' chưa có bài nào. Nhập dữ liệu câu hỏi trước, rồi quay lại gán file.</p>';
+    $('assign-n').textContent = '';
+    return;
+  }
+
+  $('assign-n').textContent = rows.length + ' bài trong Test ' + no;
+
+  let html = '';
+  let lastPart = null;
+
+  rows.forEach(function (r, i) {
+    if (r.part !== lastPart) {
+      lastPart = r.part;
+      html += '<h3 style="font-family:var(--disp);font-size:1rem;margin:18px 0 10px">' +
+              esc(PART_NAME[r.part] || 'Part ' + r.part) + '</h3>';
+    }
+
+    const needImg = r.part === 1;
+
+    html +=
+      '<div class="wrong-q" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+        '<span style="flex:1;min-width:160px;font-weight:600">' + esc(r.title) + '</span>' +
+
+        '<span class="stat-lab">' +
+          (r.audio_url ? '🔊 đã có' : '<span style="color:var(--danger)">chưa có audio</span>') +
+        '</span>' +
+        '<label class="btn-sm" style="cursor:pointer;margin:0">' +
+          (r.audio_url ? 'Đổi audio' : 'Chọn audio') +
+          '<input type="file" accept="audio/*" data-set="' + r.id + '" data-kind="audio" style="display:none">' +
+        '</label>' +
+
+        (needImg ?
+          '<span class="stat-lab">' +
+            (r.image_url ? '🖼 đã có' : '<span style="color:var(--danger)">chưa có ảnh</span>') +
+          '</span>' +
+          '<label class="btn-sm" style="cursor:pointer;margin:0">' +
+            (r.image_url ? 'Đổi ảnh' : 'Chọn ảnh') +
+            '<input type="file" accept="image/*" data-set="' + r.id + '" data-kind="image" style="display:none">' +
+          '</label>'
+        : '') +
+      '</div>';
+  });
+
+  $('assign-list').innerHTML = html;
+
+  $('assign-list').querySelectorAll('input[type=file][data-set]').forEach(function (inp) {
+    inp.addEventListener('change', function () { uploadOne(inp); });
+  });
+}
+
+async function uploadOne(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+
+  const setId = inp.dataset.set;
+  const kind = inp.dataset.kind;
+  const label = inp.parentElement;
+  const oldText = label.childNodes[0].nodeValue;
+
+  label.childNodes[0].nodeValue = 'Đang tải… ';
+
+  // Tên file tự sinh theo id bài, không phụ thuộc tên gốc nên không sợ trùng
+  const ext = (f.name.split('.').pop() || '').toLowerCase();
+  const key = 'set-' + setId + '-' + kind + '-' + Date.now() + '.' + ext;
+
+  const { error: upErr } = await db.storage.from(BUCKET).upload(key, f, { upsert: true });
+
+  if (upErr) {
+    label.childNodes[0].nodeValue = oldText;
+    toast('Không tải lên được: ' + upErr.message, 'bad');
+    return;
+  }
+
+  const { data: pub } = db.storage.from(BUCKET).getPublicUrl(key);
+  const patch = {};
+  patch[kind === 'audio' ? 'audio_url' : 'image_url'] = pub ? pub.publicUrl : null;
+
+  const { error: dbErr } = await db.from('listening_sets').update(patch).eq('id', setId);
+
+  if (dbErr) {
+    label.childNodes[0].nodeValue = oldText;
+    toast('Tải lên xong nhưng không gắn được vào bài: ' + dbErr.message, 'bad');
+    return;
+  }
+
+  toast('Đã gắn ' + (kind === 'audio' ? 'audio' : 'ảnh') + ' vào bài.', 'good');
+  loadAssign();
 }
