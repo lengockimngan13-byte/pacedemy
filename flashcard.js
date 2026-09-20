@@ -8,6 +8,10 @@ let at = 0;
 let flipped = false;
 let marked = {};
 let topicSlug = null;
+let muc = null;
+let bo = null;
+let sessionStart = null;
+const SET_SIZE = 12;
 
 const $ = function (id) { return document.getElementById(id); };
 const AUDIO_KEY = 'pacedemy_tu_doc';
@@ -23,6 +27,8 @@ const AUDIO_KEY = 'pacedemy_tu_doc';
 
   const q = new URLSearchParams(location.search);
   topicSlug = q.get('chu-de');
+  muc = q.get('muc');
+  bo  = q.get('bo');
   const only = q.get('danh-dau');
 
   loadVoices();
@@ -34,9 +40,55 @@ const AUDIO_KEY = 'pacedemy_tu_doc';
     return;
   }
 
-  $('btn-test').href = 'study.html?chu-de=' + encodeURIComponent(topicSlug || '');
-  render();
+  $('btn-test').href = 'study.html?chu-de=' + encodeURIComponent(topicSlug || '') +
+                       (muc ? '&muc=' + muc : '') + (bo ? '&bo=' + bo : '');
+  document.querySelectorAll('a[href="vocab.html"]').forEach(function (a) {
+    a.href = 'topic.html?chu-de=' + encodeURIComponent(topicSlug || '');
+  });
+  // Bước 1: cho xem danh sách trước, chưa vào thẻ ngay
+  drawList('list-box');
+  $('list-sub').textContent =
+    'Bộ này có ' + deck.length + ' từ. Xem lướt một lượt cho quen mặt chữ, rồi mới lật thẻ.';
+  $('view-list').classList.remove('hidden');
+
+  $('btn-start-deck').addEventListener('click', function () {
+    sessionStart = Date.now();
+    $('view-list').classList.add('hidden');
+    $('view-deck').classList.remove('hidden');
+    render();
+  });
 })();
+
+// ---------- Danh sách từ, dùng cho cả trước và sau khi lật thẻ ----------
+
+function drawList(boxId) {
+  const box = $(boxId);
+  if (!box) return;
+
+  let html = '<ul class="wordlist">';
+
+  for (const w of deck) {
+    html +=
+      '<li>' +
+        '<div class="wl-main">' +
+          '<span class="wl-word">' + esc(w.word) + '</span>' +
+          (w.phonetic ? '<span class="wl-ipa">' + esc(w.phonetic) + '</span>' : '') +
+          (w.pos ? '<span class="wl-pos">' + esc(w.pos) + '</span>' : '') +
+        '</div>' +
+        '<div class="wl-mean">' + esc(w.meaning_vi || '') + '</div>' +
+        '<div class="wl-act">' +
+          '<button class="wl-say" data-listsay="' + esc(w.word) + '" title="Nghe">&#128266;</button>' +
+        '</div>' +
+      '</li>';
+  }
+
+  html += '</ul>';
+  box.innerHTML = html;
+
+  box.querySelectorAll('button[data-listsay]').forEach(function (b) {
+    b.addEventListener('click', function () { speak(b.dataset.listsay, 'US'); });
+  });
+}
 
 // ---------- Nạp bộ thẻ ----------
 
@@ -50,8 +102,9 @@ async function loadDeck(onlyIds) {
   $('topic-name').textContent = t.name_vi;
 
   const { data: words } = await db.from('vocabulary')
-    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations')
+    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, image_url')
     .eq('topic_id', t.id)
+    .order('level')
     .order('order_index')
     .order('id');
 
@@ -60,9 +113,23 @@ async function loadDeck(onlyIds) {
   if (onlyIds) {
     const keep = onlyIds.split(',').map(Number);
     deck = words.filter(function (w) { return keep.indexOf(w.id) !== -1; });
-  } else {
-    deck = words;
+    return;
   }
+
+  let list = words;
+
+  if (muc) {
+    const lv = parseInt(muc, 10);
+    list = list.filter(function (w) { return (w.level || 1) === lv; });
+  }
+
+  if (bo) {
+    const i = parseInt(bo, 10) - 1;
+    list = list.slice(i * SET_SIZE, (i + 1) * SET_SIZE);
+    $('topic-name').textContent = $('topic-name').textContent + ' · Bộ ' + bo;
+  }
+
+  deck = list;
 }
 
 // ---------- Hiển thị ----------
@@ -75,6 +142,13 @@ function render(speakIt) {
   $('progress').style.width = ((at + 1) / deck.length * 100) + '%';
 
   // Mặt trước
+  if (w.image_url) {
+    $('f-image').src = w.image_url;
+    $('f-image').classList.remove('hidden');
+  } else {
+    $('f-image').classList.add('hidden');
+    $('f-image').removeAttribute('src');
+  }
   $('f-word').textContent = w.word;
   $('f-pos').textContent = w.pos || '';
   $('f-pos').style.display = w.pos ? '' : 'none';
@@ -86,17 +160,27 @@ function render(speakIt) {
   $('b-count').textContent = 'Thẻ ' + (at + 1) + ' / ' + deck.length;
 
   fillList('blk-syn', 'b-syn', w.synonyms, ',', function (x) {
-    return '<span class="chip">' + esc(x) + '</span>';
+    return '<button class="chip" data-say="' + esc(x) + '">' + esc(x) + '</button>';
   });
 
   fillList('blk-col', 'b-col', w.collocations, ';', function (x) {
-    return '<li>' + esc(x) + '</li>';
+    // Định dạng: "cụm tiếng Anh — nghĩa tiếng Việt"
+    const bits = x.split(/\s+[—–-]\s+/);
+    const en = bits[0].trim();
+    const vi = bits.length > 1 ? bits.slice(1).join(' - ').trim() : '';
+    return '<li data-say="' + esc(en) + '">' +
+             '<span class="col-en">' + esc(en) + '</span>' +
+             (vi ? '<span class="col-vi">' + esc(vi) + '</span>' : '') +
+           '</li>';
   });
+
+  bindSayTargets();
 
   if (w.example_en) {
     $('blk-ex').style.display = '';
     $('b-ex').innerHTML = highlight(w.example_en, w.word);
     $('b-exvi').textContent = w.example_vi || '';
+    $('btn-say-ex').dataset.say = w.example_en;
   } else {
     $('blk-ex').style.display = 'none';
   }
@@ -192,6 +276,42 @@ async function toggleMark() {
   syncBookmarks();
 }
 
+// ---------- Bấm vào chữ để nghe ----------
+
+function bindSayTargets() {
+  document.querySelectorAll('.card-back [data-say]').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.stopPropagation();
+      sayHere(el, el.dataset.say);
+    });
+  });
+}
+
+// Đọc và tô sáng đúng phần tử vừa bấm
+function sayHere(el, text) {
+  if (!text) return;
+  if (!('speechSynthesis' in window)) return;
+
+  try {
+    window.speechSynthesis.cancel();
+    document.querySelectorAll('.speaking').forEach(function (x) {
+      x.classList.remove('speaking');
+    });
+
+    const u = new SpeechSynthesisUtterance(text);
+    const v = pickVoice('US');
+    if (v) u.voice = v;
+    u.lang = 'en-US';
+    u.rate = text.split(' ').length > 4 ? 0.85 : 0.8;
+
+    el.classList.add('speaking');
+    u.onend = function () { el.classList.remove('speaking'); };
+    u.onerror = function () { el.classList.remove('speaking'); };
+
+    window.speechSynthesis.speak(u);
+  } catch (e) { /* trình duyệt không hỗ trợ thì bỏ qua */ }
+}
+
 // ---------- Giọng đọc Mỹ và Anh ----------
 
 let voices = [];
@@ -236,6 +356,11 @@ function speak(text, kind) {
   } catch (e) { /* trình duyệt không hỗ trợ thì bỏ qua */ }
 }
 
+$('btn-say-ex').addEventListener('click', function (e) {
+  e.stopPropagation();
+  sayHere(this, this.dataset.say);
+});
+
 document.querySelectorAll('.audio-btn').forEach(function (b) {
   b.addEventListener('click', function (e) {
     e.stopPropagation();
@@ -274,6 +399,28 @@ document.addEventListener('keydown', function (e) {
 function finish() {
   $('view-deck').classList.add('hidden');
   $('view-done').classList.remove('hidden');
+
+  if (sessionStart) {
+    const secs = Math.round((Date.now() - sessionStart) / 1000);
+    db.from('attempts').insert({
+      user_id: me.id, mode: 'flashcard',
+      total_questions: deck.length, correct_count: 0,
+      seconds_used: secs, submitted_at: new Date().toISOString()
+    }).then(function (res) {
+      if (res.error) {
+        console.error('Không ghi được thời gian học thẻ:', res.error.message);
+        toast('Không ghi được thời gian học thẻ.', 'bad');
+      }
+    });
+    sessionStart = null;
+  }
+
+  // Cho xem lại toàn bộ danh sách một lần nữa
+  $('recap-box').innerHTML = '<p class="review-head">Nhắc lại cả bộ ' + deck.length + ' từ</p>';
+  const wrap = document.createElement('div');
+  wrap.id = 'recap-list';
+  $('recap-box').appendChild(wrap);
+  drawList('recap-list');
 
   const ids = Object.keys(marked).map(Number);
 

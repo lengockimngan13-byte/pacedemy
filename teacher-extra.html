@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhập Ôn tổng hợp — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+    <div class="greet">
+      <h1>Nhập Ôn tổng hợp</h1>
+      <p>
+        Câu hỏi độc lập cho mục "Ôn tổng hợp" — có thể là từ vựng, câu đọc, hoặc câu nghe,
+        lấy từ bất kỳ nguồn nào Ngân đang có. Không liên quan tới kho Từ vựng/Luyện đọc/Luyện nghe đang dùng.
+      </p>
+    </div>
+
+    <div class="tbox">
+      <h3>Bước 1 · Tải file âm thanh (chỉ cần nếu có câu nghe)</h3>
+      <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+        Chọn được nhiều file cùng lúc. Tải xong chỉ cần ghi đúng tên file vào phần dữ liệu bên dưới,
+        hệ thống tự tìm đường dẫn.
+      </p>
+      <input type="file" id="file-input" multiple accept="audio/*,image/*">
+      <button class="btn btn-line" id="btn-upload" style="margin-top:10px">Tải lên</button>
+    </div>
+
+    <div class="tbox">
+      <h3>Bước 2 · Lấy câu nhắc cho ChatGPT</h3>
+      <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65">
+        Copy câu nhắc, dán vào chat kèm tài liệu nguồn của Ngân. ChatGPT trả về một khối dữ liệu,
+        copy rồi dán vào ô ở Bước 3.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-line" id="btn-prompt">Copy câu nhắc soạn Ôn tổng hợp</button>
+        <button class="btn btn-line" id="btn-sample">Xem một ví dụ mẫu</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="raw">Bước 3 · Dữ liệu câu hỏi</label>
+      <textarea id="raw" style="min-height:260px;font-family:ui-monospace,monospace;font-size:0.88rem;width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r)"
+        placeholder='Dán khối dữ liệu ChatGPT trả về vào đây'></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn btn-ink" id="btn-parse">Xem trước</button>
+      <button class="btn btn-gold hidden" id="btn-save">Lưu vào kho Ôn tổng hợp</button>
+    </div>
+
+    <div id="preview"></div>
+
+    <!-- Câu đã có -->
+    <div class="section-head" style="margin-top:36px">
+      <h2>Câu đã có</h2>
+      <span class="stat-lab" id="have-n"></span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px">
+      <label class="check-row" style="padding:0">
+        <input type="checkbox" id="have-select-all">
+        <span>Chọn tất cả</span>
+      </label>
+      <div class="hidden" id="have-bulk-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span class="stat-lab" id="have-bulk-count"></span>
+        <button class="btn-sm" id="have-bulk-hide">Ẩn các câu đã chọn</button>
+        <button class="btn-sm" id="have-bulk-show">Hiện các câu đã chọn</button>
+        <button class="btn-sm" id="have-bulk-del">Xoá các câu đã chọn</button>
+      </div>
+    </div>
+
+    <div id="have"></div>
+
+    <div id="note" class="note hidden"></div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-extra.js"></script>
+</body>
+</html>

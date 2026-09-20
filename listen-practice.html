@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luyện nghe — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="focus-mode">
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <a class="btn-quiet" href="listen.html">Thoát</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- Màn hình chờ, bấm một lần để trình duyệt cho phép phát tiếng -->
+  <section class="done" id="view-start">
+    <h1 id="start-title">Đang tải bài nghe…</h1>
+    <p class="sub" id="start-sub">Chờ một chút nhé.</p>
+    <div class="done-actions">
+      <button class="btn btn-gold hidden" id="btn-start">Bắt đầu nghe</button>
+      <a class="btn btn-line" href="listen.html">Chọn bài khác</a>
+    </div>
+  </section>
+
+  <!-- Làm bài -->
+  <section class="study hidden" id="view-q">
+    <div class="study-top">
+      <span id="part-name">Luyện nghe</span>
+      <span id="counter"></span>
+    </div>
+    <div class="study-bar"><span id="progress" style="width:0"></span></div>
+
+    <div class="lp-grid">
+      <div class="lp-left">
+        <div class="player">
+          <div class="player-top">
+            <b id="set-title">—</b>
+            <span id="set-meta"></span>
+          </div>
+          <div class="play-bar" id="play-bar"><span id="play-fill"></span></div>
+          <div class="play-time"><span id="play-now">0:00</span> / <span id="play-dur">0:00</span></div>
+          <div class="player-btns">
+            <button class="play-main" id="btn-play">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              <span id="play-label">Phát</span>
+            </button>
+            <button class="play-side" id="btn-back3">↺ 3s</button>
+            <button class="play-side" id="btn-back5">↺ 5s</button>
+            <button class="play-side" id="btn-replay">Nghe lại từ đầu</button>
+            <button class="play-side" id="btn-slow">1x</button>
+          </div>
+          <p class="play-hint" id="play-hint">Nghe bao nhiêu lần cũng được, chưa tính là sai.</p>
+        </div>
+
+        <p class="q-sentence" id="q-text"></p>
+
+        <div class="pic hidden" id="pic"><img id="pic-img" src="" alt="Ảnh bài nghe"></div>
+      </div>
+
+      <div class="lp-right">
+        <button class="btn btn-gold" id="btn-submit" disabled>Nộp bài</button>
+        <div class="opts-radio" id="opts"></div>
+      </div>
+    </div>
+
+    <div id="after" class="hidden">
+      <p class="verdict" id="verdict"></p>
+      <div class="reveal">
+        <p class="blk-h" style="margin-bottom:10px">Cần nhớ</p>
+        <p class="en" id="why"></p>
+      </div>
+      <div id="script-box"></div>
+      <div id="vocab-box"></div>
+      <div class="study-actions" style="justify-content:flex-end">
+        <button class="btn btn-ink" id="btn-next">Câu tiếp theo</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Kết quả -->
+  <section class="done hidden" id="view-done">
+    <h1 id="done-title">Xong bài nghe</h1>
+    <p class="big" id="done-score">—</p>
+    <p class="sub" id="done-sub"></p>
+    <div id="wrong-box"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold" id="btn-again">Nghe bài khác</button>
+      <a class="btn btn-line" href="listen.html">Về danh sách bài nghe</a>
+    </div>
+  </section>
+
+  <!-- Chưa có bài -->
+  <section class="done hidden" id="view-empty">
+    <h1>Chưa có bài nghe</h1>
+    <p class="sub">Phần này chưa có bài nào. Bạn báo cô nhé.</p>
+    <div class="done-actions">
+      <a class="btn btn-ink" href="listen.html">Về danh sách bài nghe</a>
+    </div>
+  </section>
+
+</main>
+
+<audio id="au" preload="auto"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/listen-practice.js"></script>
+</body>
+</html>

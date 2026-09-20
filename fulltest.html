@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thi thử full test — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="focus-mode">
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <span class="timer hidden" id="timer">01:59:00</span>
+      <a class="btn-quiet" id="link-out" href="app.html">Về trang học</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- Chọn bộ đề -->
+  <section id="view-pick">
+    <div class="greet">
+      <h1>Thi thử full test</h1>
+      <p>Chọn một bộ đề, làm trọn bài trong 1 giờ 59 phút như thi thật.</p>
+    </div>
+    <div id="pick-list"><p class="empty">Đang tải…</p></div>
+  </section>
+
+  <!-- Màn hình bắt đầu một bộ đề -->
+  <section class="hidden" id="view-start">
+    <div id="start-info"></div>
+  </section>
+
+  <!-- Làm bài, một màn một câu / một bài -->
+  <section class="hidden" id="view-test">
+    <div class="test-tabs" id="tabs"></div>
+    <p class="stat-lab" id="pos-label" style="margin:0 0 14px"></p>
+    <div id="screen"></div>
+    <div class="exam-nav">
+      <button class="btn btn-line" id="btn-prev">← Câu trước</button>
+      <button class="btn btn-line" id="btn-next">Câu sau →</button>
+      <button class="btn btn-gold" id="btn-submit">Nộp bài</button>
+      <button class="btn btn-line hidden" id="btn-exit-review">✕ Thoát xem lại</button>
+    </div>
+  </section>
+
+  <!-- Kết quả -->
+  <section class="hidden" id="view-done">
+    <div id="result"></div>
+    <div id="review"></div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/fulltest.js"></script>
+</body>
+</html>

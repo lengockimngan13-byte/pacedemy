@@ -9,6 +9,7 @@ const note       = document.getElementById('note');
 // ---------- Thông báo ----------
 
 function say(message, kind) {
+  toast(message, kind === 'good' ? 'good' : 'bad');
   note.textContent = message;
   note.className = 'note ' + (kind === 'good' ? 'note-good' : 'note-bad');
 }
@@ -150,3 +151,20 @@ document.addEventListener('keydown', function (e) {
 db.auth.getSession().then(function (res) {
   if (res.data.session) window.location.replace('app.html');
 });
+
+// ---------- Đăng nhập / đăng ký bằng Google ----------
+
+async function withGoogle() {
+  clearNote();
+  const { error } = await db.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: location.origin + '/app.html' }
+  });
+  if (error) say('Không mở được cửa sổ Google: ' + error.message);
+}
+
+const btnGoogleLogin = document.getElementById('btn-google-login');
+if (btnGoogleLogin) btnGoogleLogin.addEventListener('click', withGoogle);
+
+const btnGoogleSignup = document.getElementById('btn-google-signup');
+if (btnGoogleSignup) btnGoogleSignup.addEventListener('click', withGoogle);

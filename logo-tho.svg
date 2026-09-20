@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tai trái (phía trên) -->
+  <ellipse cx="65" cy="35" rx="16" ry="45" fill="#0C2422" transform="rotate(-25 65 35)"/>
+  
+  <!-- Tai phải (phía trên) -->
+  <ellipse cx="135" cy="35" rx="16" ry="45" fill="#0C2422" transform="rotate(25 135 35)"/>
+  
+  <!-- Đầu (hình tròn lớn) -->
+  <circle cx="100" cy="95" r="50" fill="#0C2422"/>
+  
+  <!-- Thân (hình bầu dục) -->
+  <ellipse cx="100" cy="155" rx="38" ry="35" fill="#0C2422"/>
+  
+  <!-- Cánh tay trái (chữ S uốn) -->
+  <path d="M 70 120 Q 50 130 55 155" stroke="#0C2422" stroke-width="12" fill="none" stroke-linecap="round"/>
+  
+  <!-- Cánh tay phải (chữ S uốn) -->
+  <path d="M 130 120 Q 150 130 145 155" stroke="#0C2422" stroke-width="12" fill="none" stroke-linecap="round"/>
+  
+  <!-- Chân trái -->
+  <ellipse cx="80" cy="185" rx="12" ry="18" fill="#0C2422"/>
+  
+  <!-- Chân phải -->
+  <ellipse cx="120" cy="185" rx="12" ry="18" fill="#0C2422"/>
+  
+  <!-- Lá thẻ nhỏ trong tay (điểm nhấn cam) -->
+  <rect x="140" y="145" width="28" height="20" rx="3" fill="#F0A830" transform="rotate(30 154 155)"/>
+  <line x1="145" y1="152" x2="165" y2="152" stroke="#0C2422" stroke-width="1.5" opacity="0.3" transform="rotate(30 154 155)"/>
+</svg>

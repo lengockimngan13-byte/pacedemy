@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luyện nói theo — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="greet">
+    <h1>Luyện nói theo</h1>
+    <p>Nghe đúng audio và script thật của TOEIC, nói theo, rồi xem % từ khớp.</p>
+  </section>
+
+  <div class="review-note" style="margin-bottom:20px">
+    Đây là ước lượng thô: trình duyệt tự nghe giọng bạn rồi chuyển thành chữ, so với script để ra % từ khớp.
+    Không phải chấm điểm phát âm thật (không đánh giá ngữ điệu, trọng âm) — chỉ để biết mình nói có ra đúng từ không.
+    Ghi âm không được lưu lại ở đâu cả, rời trang là mất.
+  </div>
+
+  <div class="hidden" id="view-unsupported">
+    <div class="tbox" style="border-color:var(--gold)">
+      <h3>Trình duyệt này chưa hỗ trợ nhận diện giọng nói</h3>
+      <p style="margin:0;font-size:0.94rem;line-height:1.65">
+        Tính năng ghi âm và chấm % từ khớp cần trình duyệt Chrome (máy tính hoặc Android).
+        Safari và Firefox hiện chưa hỗ trợ. Bạn vẫn có thể bấm "Nghe mẫu" để luyện nghe theo bình thường.
+      </p>
+    </div>
+  </div>
+
+  <!-- Chọn nguồn -->
+  <div id="view-picker">
+    <div class="test-tabs" id="src-tabs">
+      <button class="test-tab on" data-part="1">Part 1</button>
+      <button class="test-tab" data-part="2">Part 2</button>
+      <button class="test-tab" data-part="3">Part 3</button>
+      <button class="test-tab" data-part="4">Part 4</button>
+      <button class="test-tab" data-part="exam">Đề thi thử</button>
+    </div>
+    <p class="stat-lab" id="src-count" style="margin:10px 0 0"></p>
+  </div>
+
+  <!-- Tự nhập câu -->
+  <div class="tbox" id="sh-custom-box">
+    <h3>Tự nhập câu để luyện</h3>
+    <div class="field" style="margin-bottom:10px">
+      <textarea id="sh-custom-text" rows="2" placeholder="Gõ hoặc dán một câu tiếng Anh bất kỳ vào đây…"
+        style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--ui);font-size:0.96rem"></textarea>
+    </div>
+    <button class="btn-sm test" id="btn-use-custom">Luyện câu này</button>
+  </div>
+
+  <div class="hidden" id="deck-empty-note">
+    <p class="empty">Phần này chưa có bài nào có sẵn audio + script — bạn tự nhập câu ở trên để luyện nhé.</p>
+  </div>
+
+  <div id="deck-nav-top">
+    <div class="study-top">
+      <span id="sh-counter"></span>
+    </div>
+    <div class="study-bar"><span id="sh-progress" style="width:0"></span></div>
+  </div>
+
+  <div class="tbox" id="sh-card">
+    <p class="sh-sentence" id="sh-en">—</p>
+    <p class="sh-vi" id="sh-vi"></p>
+
+    <audio id="sh-model-audio" controls class="hidden" style="width:100%;margin-bottom:14px"></audio>
+
+    <div class="sh-actions">
+      <button class="btn btn-line" id="btn-listen">🔊 Nghe mẫu</button>
+      <button class="btn btn-gold" id="btn-record">🎙 Ghi âm</button>
+    </div>
+
+    <div class="hidden" id="sh-result">
+      <div class="sh-score" id="sh-score-box">
+        <span class="sh-score-num" id="sh-score-num">0%</span>
+        <span class="sh-score-lab" id="sh-score-lab"></span>
+        <button class="btn-sm test" id="btn-record-again">🎙 Ghi âm lại</button>
+      </div>
+      <p class="sh-missed hidden" id="sh-missed"></p>
+      <p class="sh-heard">Trình duyệt nghe được: <i id="sh-heard-text">—</i></p>
+      <audio id="sh-playback" controls style="width:100%;margin-top:10px"></audio>
+    </div>
+  </div>
+
+  <div class="sh-nav" id="deck-nav-bottom">
+    <button class="btn-sm" id="btn-retry">Thử lại câu này</button>
+    <button class="btn btn-ink" id="btn-next">Bài tiếp →</button>
+  </div>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/shadow.js"></script>
+</body>
+</html>

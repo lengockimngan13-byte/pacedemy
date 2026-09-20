@@ -4,12 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Học thẻ — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="focus-mode">
 
 <header class="app-bar">
   <div class="wrap">
@@ -22,7 +26,18 @@
 
 <main class="wrap">
 
-  <section class="deck" id="view-deck">
+  <!-- Bước 1: xem qua danh sách từ -->
+  <section class="done hidden" id="view-list">
+    <h1 id="list-title">Bộ từ này có những từ nào</h1>
+    <p class="sub" id="list-sub">Xem lướt một lượt cho quen mặt chữ, rồi mới lật thẻ.</p>
+    <div id="list-box"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold" id="btn-start-deck">Bắt đầu lật thẻ</button>
+      <a class="btn btn-line" id="btn-back-topic" href="vocab.html">Về chủ đề</a>
+    </div>
+  </section>
+
+  <section class="deck hidden" id="view-deck">
     <div class="deck-top">
       <span id="topic-name">Đang tải…</span>
       <label class="toggle">
@@ -43,6 +58,7 @@
           </svg>
         </button>
 
+          <img class="f-image hidden" id="f-image" alt="">
           <p class="w" id="f-word">—</p>
 
           <div class="word-line">
@@ -77,6 +93,7 @@
 
           <div class="blk" id="blk-syn">
             <p class="blk-h">Từ đồng nghĩa</p>
+            <p class="tap-hint">Bấm vào từ để nghe</p>
             <div class="chips" id="b-syn"></div>
           </div>
 
@@ -87,8 +104,15 @@
 
           <div class="blk" id="blk-ex">
             <p class="blk-h">Ví dụ</p>
-            <p class="ex" id="b-ex"></p>
-            <p class="exvi" id="b-exvi"></p>
+            <div class="ex-row">
+              <div class="ex-text">
+                <p class="ex" id="b-ex"></p>
+                <p class="exvi" id="b-exvi"></p>
+              </div>
+              <button class="say-btn" id="btn-say-ex" title="Nghe cả câu" aria-label="Nghe cả câu">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+              </button>
+            </div>
           </div>
 
           <span class="flip-hint" id="b-count"></span>
@@ -114,6 +138,7 @@
   <section class="done hidden" id="view-done">
     <h1 id="done-title">Đã xem hết bộ thẻ</h1>
     <p class="sub" id="done-sub"></p>
+    <div id="recap-box"></div>
     <div id="marked-box"></div>
     <div class="done-actions">
       <button class="btn btn-gold hidden" id="btn-redo">Học lại từ đã đánh dấu</button>
@@ -134,6 +159,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
 <script src="js/flashcard.js"></script>
 </body>
 </html>

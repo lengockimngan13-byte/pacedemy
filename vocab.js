@@ -101,8 +101,7 @@ async function loadTopics() {
         '<div class="bar"><span class="' + (pct === 100 ? 'full' : '') + '" style="width:' + pct + '%"></span></div>' +
         '<span class="count">' + done + '/' + total + ' từ đã thuộc</span>' +
         '<div class="topic-actions">' +
-          '<a class="btn-sm learn" href="flashcard.html?chu-de=' + slug + '">Học thẻ</a>' +
-          '<a class="btn-sm test" href="study.html?chu-de=' + slug + '">Kiểm tra</a>' +
+          '<a class="btn-sm test" href="topic.html?chu-de=' + slug + '" style="flex:1">Mở chủ đề</a>' +
         '</div>' +
       '</div>';
   }
@@ -116,7 +115,4 @@ function esc(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-document.getElementById('btn-logout').addEventListener('click', async function () {
-  await db.auth.signOut();
-  window.location.replace('index.html');
-});
+

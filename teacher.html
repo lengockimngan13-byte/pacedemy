@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teacher Studio — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <!-- Không phải giáo viên -->
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    <div class="done-actions">
+      <a class="btn btn-ink" href="app.html">Về trang học</a>
+    </div>
+  </section>
+
+  <!-- Danh sách học viên -->
+  <section class="hidden" id="view-list">
+    <div class="greet">
+      <h1>Teacher Studio</h1>
+      <p id="class-sub">Đang tải…</p>
+    </div>
+
+    <div class="section-head"><h2>Truy cập nhanh</h2></div>
+    <div class="modules dash-quick">
+      <a class="module" href="teacher-class.html">
+        <h3>Lớp học</h3>
+        <p>Giao bài, duyệt học viên, gửi nhận xét.</p>
+      </a>
+      <a class="module" href="teacher-exam.html">
+        <h3>Bộ đề thi thử</h3>
+        <p>Tạo và quản lý từng bộ đề riêng.</p>
+      </a>
+      <a class="module" href="teacher-vocab.html">
+        <h3>Nhập từ vựng</h3>
+        <p>Thêm chủ đề và từ mới vào kho.</p>
+      </a>
+      <a class="module" href="teacher-import.html">
+        <h3>Nhập đề Part 5</h3>
+        <p>Thêm câu hoàn thành câu theo dạng.</p>
+      </a>
+      <a class="module" href="teacher-reading.html">
+        <h3>Nhập đề Part 6-7</h3>
+        <p>Thêm đoạn văn và bài đọc hiểu.</p>
+      </a>
+      <a class="module" href="teacher-listen.html">
+        <h3>Nhập bài nghe</h3>
+        <p>Tải file mp3 và câu hỏi Part 1-4.</p>
+      </a>
+      <a class="module" href="teacher-site.html">
+        <h3>Chỉnh trang web</h3>
+        <p>Sửa chữ trang giới thiệu, bật/tắt tính năng.</p>
+      </a>
+    </div>
+
+    <div class="section-head" style="margin-top:36px"><h2>Lớp của bạn</h2></div>
+
+    <div class="stats" id="class-stats">
+      <div class="stat"><span class="stat-num" id="c-total">—</span><span class="stat-lab">Học viên</span></div>
+      <div class="stat"><span class="stat-num" id="c-active">—</span><span class="stat-lab">Học trong 7 ngày</span></div>
+      <div class="stat"><span class="stat-num" id="c-words">—</span><span class="stat-lab">Lượt từ đã thuộc</span></div>
+      <div class="stat"><span class="stat-num" id="c-sessions">—</span><span class="stat-lab">Buổi học tuần này</span></div>
+    </div>
+
+    <div id="msg-box"></div>
+
+    <div class="section-head">
+      <h2>Danh sách học viên</h2>
+      <span class="stat-lab">Bấm vào một dòng để xem chi tiết</span>
+    </div>
+
+    <div id="table-box"><p class="empty">Đang tải…</p></div>
+  </section>
+
+  <!-- Chi tiết một học viên -->
+  <section class="hidden" id="view-one">
+    <a class="crumb" href="#" id="back-list">← Về danh sách lớp</a>
+
+    <div class="greet">
+      <h1 id="s-name">—</h1>
+      <p id="s-meta"></p>
+    </div>
+
+    <div id="one-box"></div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher.js"></script>
+</body>
+</html>

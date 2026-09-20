@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trang học — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
@@ -16,10 +20,7 @@
     <a class="brand" href="app.html" style="text-decoration:none">
       Pac<span class="brand-e">e</span>demy
     </a>
-    <div class="app-user">
-      <span class="streak" id="streak">0 ngày liên tiếp</span>
-      <button class="btn-quiet" id="btn-logout">Đăng xuất</button>
-    </div>
+    <div class="app-user"></div>
   </div>
 </header>
 
@@ -28,66 +29,123 @@
   <section class="greet">
     <h1 id="greet-name">Đang tải…</h1>
     <p id="greet-line"></p>
+    <p class="greet-quote-label">✨ Câu nói mỗi ngày</p>
+    <p class="greet-quote" id="greet-quote"></p>
   </section>
 
-  <section class="stats">
-    <div class="stat">
-      <span class="stat-num" id="s-xp">—</span>
-      <span class="stat-lab">Điểm tích luỹ</span>
+  <div id="reminder-box"></div>
+
+  <section class="tstats" id="tstats-section">
+    <div class="test-tabs" id="tstats-tabs">
+      <button class="test-tab on" data-range="today">Hôm nay</button>
+      <button class="test-tab" data-range="week">Tuần</button>
+      <button class="test-tab" data-range="month">Tháng</button>
+      <button class="test-tab" data-range="all">Tất cả</button>
+      <button class="test-tab" data-range="custom">Tùy chỉnh</button>
     </div>
-    <div class="stat">
-      <span class="stat-num" id="s-words">—</span>
-      <span class="stat-lab">Từ đã thuộc</span>
+    <div class="tstats-custom hidden" id="tstats-custom">
+      <input type="date" id="tstats-from">
+      <span>–</span>
+      <input type="date" id="tstats-to">
+      <button class="btn-sm" id="tstats-apply">Xem</button>
     </div>
-    <div class="stat">
-      <span class="stat-num" id="s-questions">—</span>
-      <span class="stat-lab">Câu đã luyện</span>
-    </div>
-    <div class="stat">
-      <span class="stat-num" id="s-score">—</span>
-      <span class="stat-lab">Điểm thi thử gần nhất</span>
-    </div>
+    <div class="tstats-grid" id="tstats-grid"></div>
   </section>
 
-  <section>
+  <div id="streak-box"></div>
+  <div id="goal-box"></div>
+  <div id="break-box"></div>
+
+  <div id="as-box"></div>
+  <div id="fb-box"></div>
+  <div id="join-box"></div>
+
+  <section class="oracle" id="oracle">
+    <div class="oracle-head">
+      <h2>Bốc quẻ ôn gì hôm nay</h2>
+      <p id="oracle-hint">Nhấn giữ vào hũ rồi kéo lên xuống để lắc, quẻ rớt ra là mở liền.</p>
+    </div>
+
+    <div class="oracle-jar-wrap" id="oracle-jar-wrap">
+      <div class="oracle-sparkles" id="oracle-sparkles" aria-hidden="true">
+        <span>✨</span><span>✨</span><span>✨</span><span>✨</span>
+      </div>
+      <div class="oracle-sticks">
+        <div class="oracle-stick lucky" style="left:47%;height:100px;--r:-3deg"></div>
+        <div class="oracle-stick" style="left:38%;height:90px;--r:-13deg"></div>
+        <div class="oracle-stick" style="left:57%;height:92px;--r:7deg"></div>
+        <div class="oracle-stick" style="left:30%;height:78px;--r:-20deg"></div>
+        <div class="oracle-stick" style="left:65%;height:82px;--r:16deg"></div>
+      </div>
+      <div class="oracle-jar-emoji" aria-hidden="true">
+        <svg viewBox="0 0 200 220" width="100%" height="100%">
+          <path d="M46,60 C20,75 15,112 15,142 C15,176 26,196 46,206
+                   L154,206 C174,196 185,176 185,142
+                   C185,112 180,75 154,60 Z"
+                fill="var(--gold)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M30,120 C70,138 130,138 170,120"
+                fill="none" stroke="var(--ink)" stroke-width="2" opacity=".25"/>
+          <path d="M32,160 C72,176 128,176 168,160"
+                fill="none" stroke="var(--ink)" stroke-width="2" opacity=".25"/>
+          <ellipse cx="100" cy="60" rx="54" ry="15" fill="var(--gold-dim)" stroke="var(--ink)" stroke-width="4"/>
+          <ellipse cx="100" cy="60" rx="40" ry="9" fill="none" stroke="var(--ink)" stroke-width="1.5" opacity=".3"/>
+        </svg>
+      </div>
+    </div>
+
+    <div id="oracle-body" class="hidden"></div>
+  </section>
+
+  <section id="modules-section">
     <div class="section-head"><h2>Hôm nay học gì</h2></div>
     <div class="modules">
 
-      <a class="module" href="vocab.html">
+      <a class="module" href="vocab.html" data-feat="vocab">
         <h3>Từ vựng theo chủ đề</h3>
         <p>12 chủ đề thường gặp trong đề thi. Học từ mới và ôn lại những từ tới hạn.</p>
         <span class="module-meta" id="m-vocab">Bắt đầu học →</span>
       </a>
 
-      <span class="module soon">
+      <a class="module" href="listen.html" data-feat="listen">
         <h3>Luyện nghe — Part 1 đến 4</h3>
-        <p>Mô tả tranh, hỏi đáp, hội thoại ngắn và bài nói chuyện.</p>
-        <span class="module-meta">Sắp mở</span>
-      </span>
+        <p>Mô tả tranh, hỏi đáp, hội thoại ngắn và bài nói chuyện. Có lời thoại và bản dịch sau khi trả lời.</p>
+        <span class="module-meta">Bắt đầu nghe →</span>
+      </a>
 
-      <span class="module soon">
-        <h3>Luyện đọc — Part 5 đến 7</h3>
-        <p>Ngữ pháp câu, điền đoạn văn và bài đọc hiểu.</p>
-        <span class="module-meta">Sắp mở</span>
-      </span>
+      <a class="module" href="part5.html" data-feat="read">
+        <h3>Luyện đọc — Part 5, 6, 7</h3>
+        <p>Hoàn thành câu, điền đoạn văn, và đọc hiểu. Làm xong có giải thích và bản dịch cả bài.</p>
+        <span class="module-meta">Bắt đầu luyện →</span>
+      </a>
 
-      <span class="module soon">
+      <a class="module" href="fulltest.html" data-feat="mock">
         <h3>Thi thử có bấm giờ</h3>
-        <p>Full test 200 câu trong 120 phút, quy đổi ra thang điểm TOEIC.</p>
-        <span class="module-meta">Sắp mở</span>
-      </span>
+        <p>Làm trọn bài trong 120 phút, đồng hồ chạy như thi thật, hết giờ tự nộp.</p>
+        <span class="module-meta">Vào thi thử →</span>
+      </a>
 
     </div>
   </section>
 
-  <section>
+  <section id="rank-section" data-feat="leaderboard">
     <div class="section-head">
       <h2>Bảng xếp hạng tuần</h2>
-      <span class="stat-lab">7 ngày gần nhất</span>
+      <a class="btn-quiet" href="leaderboard.html">Xem đầy đủ →</a>
     </div>
     <div id="board-wrap">
       <p class="empty">Đang tải bảng xếp hạng…</p>
     </div>
+  </section>
+
+  <section id="teacher-card" style="margin-bottom:20px;display:none">
+    <a class="module" href="about.html" style="display:flex;align-items:center;gap:18px">
+      <img src="images/ngan.jpg" alt="" onerror="this.style.display='none'"
+           style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none">
+      <span>
+        <h3 style="margin:0 0 3px">Về giáo viên của bạn</h3>
+        <p style="margin:0">Mười năm dạy TOEIC, giáo trình tự biên soạn. Xem cách mình dạy và cách liên hệ.</p>
+      </span>
+    </a>
   </section>
 
   <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
@@ -95,6 +153,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/teacher-info.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/assign.js"></script>
 <script src="js/app.js"></script>
+<script src="js/quote.js"></script>
+<script src="js/oracle.js"></script>
 </body>
 </html>

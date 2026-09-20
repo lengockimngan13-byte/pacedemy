@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Từ vựng — Pacedemy</title>
+<title>Bảng xếp hạng — Pacedemy</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -23,26 +23,18 @@
 </header>
 
 <main class="wrap">
-  <a class="crumb" href="app.html">← Về trang học</a>
-
   <section class="greet">
-    <h1>Từ vựng theo chủ đề</h1>
-    <p>Học thẻ để làm quen từ mới, rồi kiểm tra để xem nhớ được bao nhiêu. Mỗi bài kiểm tra 10 từ.</p>
+    <h1>Bảng xếp hạng</h1>
+    <p>Một câu trả lời đúng được một điểm. Học đều mỗi ngày quan trọng hơn học dồn.</p>
   </section>
 
-  <div class="due-card" id="due-card" style="display:none">
-    <div>
-      <h2 id="due-title">Đến hạn ôn tập</h2>
-      <p id="due-line"></p>
-    </div>
-    <a class="btn btn-gold" href="study.html?mode=review">Ôn ngay</a>
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-view="week">Tuần này</button>
+    <button class="tab" data-view="all">Tất cả thời gian</button>
   </div>
 
-  <section>
-    <div class="topic-grid" id="topics">
-      <p class="empty">Đang tải chủ đề…</p>
-    </div>
-  </section>
+  <div id="my-rank"></div>
+  <div id="board"><p class="empty">Đang tải…</p></div>
 
   <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
 </main>
@@ -53,6 +45,6 @@
 <script src="js/layout-settings.js"></script>
 <script src="js/gate.js"></script>
 <script src="js/nav.js"></script>
-<script src="js/vocab.js"></script>
+<script src="js/leaderboard.js"></script>
 </body>
 </html>

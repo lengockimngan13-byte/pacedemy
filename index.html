@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pacedemy — Luyện TOEIC theo nhịp của bạn</title>
 <meta name="description" content="Học từ vựng theo chủ đề, luyện từng Part Listening và Reading, thi thử có bấm giờ. Theo dõi tiến độ mỗi ngày.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
@@ -25,8 +29,8 @@
 <main>
   <section class="wrap hero">
     <div class="hero-copy">
-      <h1>Luyện TOEIC theo nhịp của riêng bạn.</h1>
-      <p>
+      <h1 id="hero-title">Luyện TOEIC theo nhịp của riêng bạn.</h1>
+      <p id="hero-sub">
         Học từ vựng theo 12 chủ đề thường gặp trong đề thi, luyện riêng từng Part,
         rồi thi thử full test có bấm giờ như phòng thi thật. Mỗi ngày bạn đều thấy
         rõ mình đang đứng ở đâu so với mục tiêu.
@@ -55,33 +59,50 @@
 
   <section class="strip">
     <div class="wrap">
-      <h2 class="strip-head">Bốn phần trong một lộ trình</h2>
+      <h2 class="strip-head" id="strip-head">Bốn bước lặp lại cho tới khi thành phản xạ</h2>
       <div class="strip-grid">
         <div class="strip-item">
           <span class="strip-num">Learn</span>
-          <h3>Từ vựng theo chủ đề</h3>
-          <p>Hợp đồng, tuyển dụng, tài chính, sản xuất… Mỗi từ có phiên âm, nghĩa và câu ví dụ đúng ngữ cảnh TOEIC.</p>
+          <h3 id="strip-learn-title">Nạp kiến thức mới</h3>
+          <p id="strip-learn-desc">Từ vựng và ngữ pháp mới, mỗi buổi một lượng vừa sức. Đây là bước nền — chưa cần nhớ hết, chỉ cần làm quen mặt chữ.</p>
         </div>
         <div class="strip-item">
           <span class="strip-num">Practice</span>
-          <h3>Luyện từng Part</h3>
-          <p>Part 1–4 phần nghe, Part 5–7 phần đọc. Làm bao nhiêu câu tuỳ bạn, có giải thích ngay sau mỗi câu.</p>
+          <h3 id="strip-practice-title">Áp dụng ngay, đừng để nguội</h3>
+          <p id="strip-practice-desc">Học xong là làm bài liền, để biết mình thật sự hiểu hay chỉ mới đọc lướt qua. Sai ở đâu, lộ ra ngay ở bước này.</p>
         </div>
         <div class="strip-item">
           <span class="strip-num">Review</span>
-          <h3>Ôn lại từ hay quên</h3>
-          <p>Từ nào sai sẽ tự quay lại sớm, từ nào thuộc rồi thì giãn ngày ôn ra. Bạn không phải tự nhớ nên ôn gì.</p>
+          <h3 id="strip-review-title">Nhìn lại lỗi sai để không lặp lại</h3>
+          <p id="strip-review-desc">Xem đúng chỗ mình vừa sai, hiểu vì sao sai, rồi ôn lại đúng những chỗ đó. Không ôn lan man những gì đã vững.</p>
         </div>
         <div class="strip-item">
           <span class="strip-num">Repeat</span>
-          <h3>Thi thử có bấm giờ</h3>
-          <p>Đồng hồ đếm ngược 120 phút, quy đổi ra thang điểm TOEIC. Đóng trình duyệt giữa chừng, giờ vẫn chạy.</p>
+          <h3 id="strip-repeat-title">Lặp lại tới khi thành phản xạ</h3>
+          <p id="strip-repeat-desc">Một kiến thức chỉ thật sự là của mình khi gặp lại đủ số lần trải dài qua nhiều ngày. Tới lúc đó, dùng được ngay mà không phải dừng lại để nhớ.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="who-sec" id="who-sec" style="display:none">
+    <div class="wrap who-in">
+      <img class="who-photo" id="who-photo" src="images/ngan.jpg" alt="Giáo viên Pacedemy" onerror="this.style.display='none'">
+      <div>
+        <span class="who-tag">Người đứng sau Pacedemy</span>
+        <h2 id="who-name">Lê Ngọc Kim Ngân</h2>
+        <p id="who-short">Mình là Ngân, mười năm dạy TOEIC cho người đi làm và sinh viên. Pacedemy là nơi mình đưa toàn bộ giáo trình tự soạn lên thành một lộ trình học có thể theo dõi được tiến độ.</p>
+        <a class="btn btn-gold" href="login.html?dangky=1">Học thử miễn phí</a>
       </div>
     </div>
   </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/site-content.js"></script>
 <script src="js/cycle.js"></script>
 </body>
 </html>
