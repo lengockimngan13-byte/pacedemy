@@ -32,7 +32,7 @@ function makeReadingPanel(part) {
     $('list').innerHTML = '<p class="empty">Đang tải…</p>';
 
     const { data: rs } = await db
-      .from('reading_sets').select('id, part, title, doc_type, difficulty')
+      .from('reading_sets').select('id, part, title, doc_type, difficulty, test_no')
       .eq('part', part).eq('is_active', true).order('created_at');
 
     if (!rs || !rs.length) {
@@ -48,24 +48,51 @@ function makeReadingPanel(part) {
     const n = {};
     for (const q of (cnt || [])) n[q.rset_id] = (n[q.rset_id] || 0) + 1;
 
-    let html = '<div class="set-grid">';
-
-    rs.forEach(function (r, i) {
-      html +=
-        '<div class="set">' +
-          '<div class="set-head">' +
-            '<span class="set-name">Test ' + (i + 1) + '</span>' +
-          '</div>' +
-          '<p class="set-sub">' + esc(r.title) + '</p>' +
-          '<p class="set-meta">' + (n[r.id] || 0) + ' câu' +
-            (r.doc_type ? ' · ' + esc(r.doc_type) : '') + '</p>' +
-          '<div class="topic-actions">' +
-            '<button class="btn-sm test" data-go="' + r.id + '">Làm bài</button>' +
-          '</div>' +
-        '</div>';
+    // Gom các đoạn vào đúng Test của nó; đoạn chưa gán test xếp riêng cuối trang
+    const groups = {};
+    const order = [];
+    rs.forEach(function (r) {
+      const key = r.test_no == null ? 'x' : String(r.test_no);
+      if (!groups[key]) { groups[key] = []; order.push(key); }
+      groups[key].push(r);
+    });
+    order.sort(function (a, b) {
+      if (a === 'x') return 1;
+      if (b === 'x') return -1;
+      return parseInt(a, 10) - parseInt(b, 10);
     });
 
-    html += '</div>';
+    let html = '';
+
+    order.forEach(function (key) {
+      const list = groups[key];
+      let totalQ = 0;
+      list.forEach(function (r) { totalQ += (n[r.id] || 0); });
+
+      html += '<div class="test-group">' +
+        '<div class="test-group-head">' +
+          '<h3>' + (key === 'x' ? 'Bài lẻ chưa xếp test' : 'Test ' + key) + '</h3>' +
+          '<span class="stat-lab">' + list.length + ' bài · ' + totalQ + ' câu</span>' +
+        '</div>' +
+        '<div class="set-grid">';
+
+      list.forEach(function (r, i) {
+        html +=
+          '<div class="set">' +
+            '<div class="set-head">' +
+              '<span class="set-name">Bài ' + (i + 1) + '</span>' +
+            '</div>' +
+            '<p class="set-sub">' + esc(r.title) + '</p>' +
+            '<p class="set-meta">' + (n[r.id] || 0) + ' câu' +
+              (r.doc_type ? ' · ' + esc(r.doc_type) : '') + '</p>' +
+            '<div class="topic-actions">' +
+              '<button class="btn-sm test" data-go="' + r.id + '">Làm bài</button>' +
+            '</div>' +
+          '</div>';
+      });
+
+      html += '</div></div>';
+    });
     $('list').innerHTML = html;
 
     $('list').querySelectorAll('button[data-go]').forEach(function (b) {

@@ -3428,6 +3428,24 @@ body.focus-mode .side-toggle { display: none; }
   color: #6C837E;
 }
 
+/* Nhóm bài theo Test — dùng ở Luyện nghe và Luyện đọc */
+.test-group { margin-bottom: 30px; }
+.test-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--line);
+}
+.test-group-head h3 {
+  margin: 0;
+  font-family: var(--disp);
+  font-size: 1.05rem;
+}
+
 /* ============================================================
    TOAST — thông báo nổi dùng chung cho mọi trang
    ============================================================ */

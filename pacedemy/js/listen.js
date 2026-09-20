@@ -39,7 +39,7 @@ async function build() {
 
   const { data: sets } = await db
     .from('listening_sets')
-    .select('id, part, title, difficulty')
+    .select('id, part, title, difficulty, test_no')
     .eq('is_active', true)
     .order('id');
 
@@ -136,24 +136,51 @@ async function build() {
     html += '<p class="level-note" style="margin-top:22px">' + list.length + ' bài nghe · ' + nq + ' câu hỏi' +
             (d ? ' · bạn đã đúng ' + d.right + '/' + d.seen + ' câu' : '') + '</p>';
 
-    html += '<div class="set-grid">';
+    // Gom bài nghe vào đúng Test; bài chưa gán test xếp riêng cuối
+    const groups = {};
+    const order = [];
+    list.forEach(function (s) {
+      const key = s.test_no == null ? 'x' : String(s.test_no);
+      if (!groups[key]) { groups[key] = []; order.push(key); }
+      groups[key].push(s);
+    });
+    order.sort(function (a, b) {
+      if (a === 'x') return 1;
+      if (b === 'x') return -1;
+      return parseInt(a, 10) - parseInt(b, 10);
+    });
 
-    for (const s of list) {
-      const c = qInSet[s.id] || 0;
-      html +=
-        '<div class="set">' +
-          '<div class="set-top">' +
-            '<span class="set-name">' + esc(s.title) + '</span>' +
-            '<span class="set-n">' + c + ' câu</span>' +
-          '</div>' +
-          '<span class="count">' + level(s.difficulty) + '</span>' +
-          '<div class="topic-actions">' +
-            '<a class="btn-sm test" style="flex:1" href="listen-practice.html?set=' + s.id + '">Nghe bài này</a>' +
-          '</div>' +
-        '</div>';
-    }
+    order.forEach(function (key) {
+      const g = groups[key];
+      let totalQ = 0;
+      g.forEach(function (s) { totalQ += (qInSet[s.id] || 0); });
 
-    html += '</div></section>';
+      html += '<div class="test-group">' +
+        '<div class="test-group-head">' +
+          '<h3>' + (key === 'x' ? 'Bài lẻ chưa xếp test' : 'Test ' + key) + '</h3>' +
+          '<span class="stat-lab">' + g.length + ' bài · ' + totalQ + ' câu</span>' +
+        '</div>' +
+        '<div class="set-grid">';
+
+      g.forEach(function (s, i) {
+        const c = qInSet[s.id] || 0;
+        html +=
+          '<div class="set">' +
+            '<div class="set-top">' +
+              '<span class="set-name">Bài ' + (i + 1) + '</span>' +
+            '</div>' +
+            '<p class="set-sub">' + esc(s.title) + '</p>' +
+            '<p class="set-meta">' + c + ' câu · ' + level(s.difficulty) + '</p>' +
+            '<div class="topic-actions">' +
+              '<a class="btn-sm test" style="flex:1" href="listen-practice.html?set=' + s.id + '">Nghe bài này</a>' +
+            '</div>' +
+          '</div>';
+      });
+
+      html += '</div></div>';
+    });
+
+    html += '</section>';
   }
 
   $('parts').innerHTML = html;

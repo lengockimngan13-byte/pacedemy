@@ -214,6 +214,7 @@ $('btn-save').addEventListener('click', async function () {
       topic_tag: r.topic_tag || null,
       skill_group: groupOf(r.topic_tag),
       difficulty: r.difficulty || 2,
+      test_no: testNo(),
       is_active: true
     };
   });
@@ -230,6 +231,13 @@ $('btn-save').addEventListener('click', async function () {
   $('preview').innerHTML = '';
   $('btn-save').classList.add('hidden');
 });
+
+// Số Test giáo viên nhập ở Bước 3 — áp cho mọi câu lưu trong lượt này
+function testNo() {
+  const el = document.getElementById('test-no');
+  const v = parseInt(el ? el.value : '', 10);
+  return isNaN(v) ? null : v;
+}
 
 const VOCAB_TAGS = ['Giới từ', 'Từ nối', 'Chọn từ đúng nghĩa', 'Cụm từ cố định', 'Cụm động từ'];
 

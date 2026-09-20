@@ -485,6 +485,12 @@ function preview(bad) {
 
 // ---------- Lưu ----------
 
+// Số Test giáo viên nhập ở Bước 3 — áp cho mọi bài lưu trong lượt này
+function testNo() {
+  const v = parseInt(($('test-no') || {}).value, 10);
+  return isNaN(v) ? null : v;
+}
+
 function urlOf(name) {
   if (!name) return null;
   if (/^https?:\/\//i.test(name)) return name;
@@ -512,6 +518,7 @@ $('btn-save').addEventListener('click', async function () {
       transcript: s.transcript || null,
       transcript_vi: s.transcript_vi || null,
       difficulty: s.difficulty || 2,
+      test_no: testNo(),
       is_active: true
     }).select('id').single();
 

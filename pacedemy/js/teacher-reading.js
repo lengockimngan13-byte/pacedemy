@@ -254,6 +254,12 @@ $('btn-sample-7').addEventListener('click', function () {
   say('Đây là một bài Part 7 làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
 });
 
+// Số Test giáo viên nhập ở Bước 3 — áp cho mọi đoạn lưu trong lượt này
+function testNo() {
+  const v = parseInt(($('test-no') || {}).value, 10);
+  return isNaN(v) ? null : v;
+}
+
 function say(msg, kind) {
   toast(msg, kind === 'good' ? 'good' : 'bad');
   const n = $('note');
@@ -422,6 +428,7 @@ $('btn-save').addEventListener('click', async function () {
       doc_type: s.doc_type || null,
       difficulty: s.difficulty || 2,
       vocab: s.vocab || [],
+      test_no: testNo(),
       is_active: true
     }).select('id').single();
 
