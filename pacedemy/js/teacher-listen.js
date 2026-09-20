@@ -33,6 +33,7 @@ const COMMON_SCHEMA_HEAD =
 '  "difficulty": 2,\n' +
 '  "transcript": "toàn bộ lời thoại tiếng Anh, xuống dòng giữa các lượt nói",\n' +
 '  "transcript_vi": "bản dịch tiếng Việt của lời thoại, xuống dòng tương ứng",\n' +
+'  "vocab": [{"term": "từ tiếng Anh đáng học trong bài", "pos": "v", "phonetic": "/pʊʃ/", "meaning_vi": "nghĩa tiếng Việt"}],\n' +
 '  "questions": [\n' +
 '    {\n' +
 '      "question_text": "{QTEXT_NOTE}",\n' +
@@ -93,7 +94,9 @@ function buildPrompt(part) {
             '), mỗi câu 4 phương án, question_text ghi đầy đủ vì Part này có in đề.\n';
   }
 
-  body += '- difficulty là 1 dễ, 2 vừa, 3 khó.\n' +
+  body += '- vocab: chọn 4 đến 8 từ/cụm đáng học xuất hiện trong bài nghe, ghi kèm loại từ (pos) ' +
+          'và phiên âm IPA (phonetic). Ưu tiên từ có trong đáp án hoặc dễ nghe nhầm.\n' +
+          '- difficulty là 1 dễ, 2 vừa, 3 khó.\n' +
           '- Đáp án đúng phải rải đều A B C D giữa các câu, không dồn vào một chữ cái.\n' +
           '- topic_tag PHẢI lấy đúng nguyên văn một nhãn trong danh sách dưới đây, không tự đặt nhãn mới. ' +
           'Mỗi câu chỉ chọn 1 nhãn phù hợp nhất.\n\n' +
@@ -358,6 +361,7 @@ function readJson(raw) {
       audio_file: (o.audio_file || o.audio_url || '').trim(),
       image_file: (o.image_file || o.image_url || '').trim(),
       difficulty: parseInt(o.difficulty || 2, 10),
+      vocab: Array.isArray(o.vocab) ? o.vocab : [],
       transcript: (o.transcript || '').trim(),
       transcript_vi: (o.transcript_vi || '').trim(),
       questions: qs.map(function (q) {
@@ -518,6 +522,7 @@ $('btn-save').addEventListener('click', async function () {
       transcript: s.transcript || null,
       transcript_vi: s.transcript_vi || null,
       difficulty: s.difficulty || 2,
+      vocab: s.vocab || [],
       test_no: testNo(),
       is_active: true
     }).select('id').single();

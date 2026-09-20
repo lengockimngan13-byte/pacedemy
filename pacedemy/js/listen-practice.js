@@ -84,7 +84,7 @@ async function loadSets() {
 
     const { data: dsets } = await db
       .from('listening_sets')
-      .select('id, part, title, audio_url, image_url, transcript, transcript_vi')
+      .select('id, part, title, audio_url, image_url, transcript, transcript_vi, vocab')
       .in('id', setIds)
       .eq('is_active', true);
 
@@ -100,7 +100,7 @@ async function loadSets() {
 
   let sq = db
     .from('listening_sets')
-    .select('id, part, title, audio_url, image_url, transcript, transcript_vi')
+    .select('id, part, title, audio_url, image_url, transcript, transcript_vi, vocab')
     .eq('is_active', true);
 
   if (setId) sq = sq.eq('id', setId);
@@ -167,6 +167,7 @@ function render() {
   $('progress').style.width = (at / queue.length * 100) + '%';
   $('after').classList.add('hidden');
   $('script-box').innerHTML = '';
+  $('vocab-box').innerHTML = '';
 
   // Đổi bài nghe thì nạp file mới và phát từ đầu
   if (curSetId !== s.id) {
@@ -278,7 +279,10 @@ async function answer(k) {
   $('why').innerHTML = box;
 
   // Chỉ mở lời thoại khi đã trả lời hết các câu của bài nghe này
-  if (isLastOfSet(at)) $('script-box').innerHTML = scriptHtml(s);
+  if (isLastOfSet(at)) {
+    $('script-box').innerHTML = scriptHtml(s);
+    $('vocab-box').innerHTML = vocabHtml(s);
+  }
 
   $('after').classList.remove('hidden');
   $('btn-next').textContent = (at + 1 >= queue.length) ? 'Xem kết quả' : 'Câu tiếp theo';
@@ -399,6 +403,36 @@ $('btn-again').addEventListener('click', function () {
   location.href = setId ? 'listen.html' : 'listen-practice.html?part=' + part;
 });
 
+// Khối "Từ vựng nên học" — chỉ hiện khi bài có sẵn dữ liệu từ vựng
+function vocabHtml(s) {
+  const list = s.vocab || [];
+  if (!list.length) return '';
+
+  return '<div class="vocab-learn">' +
+    '<p class="vocab-learn-head">📖 Từ vựng nên học</p>' +
+    list.map(function (v) {
+      return '<div class="vl-row">' +
+        '<span class="vl-term">' + esc(v.term || '') + '</span>' +
+        (v.pos ? '<span class="vl-pos">(' + esc(v.pos) + ')</span>' : '') +
+        (v.phonetic ? '<span class="vl-ipa">' + esc(v.phonetic) + '</span>' : '') +
+        '<button class="vl-say" data-say="' + esc(v.term || '') + '" title="Nghe từ này">🔊</button>' +
+        '<span class="vl-vi">' + esc(v.meaning_vi || '') + '</span>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+
+// Bấm loa để nghe cách đọc từ, dùng giọng đọc trình duyệt
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-say]');
+  if (!btn || !('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(btn.dataset.say);
+  u.lang = 'en-US';
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+});
+
 // ---------- Nút điều khiển âm thanh ----------
 
 $('btn-play').addEventListener('click', function () {
@@ -410,11 +444,23 @@ $('btn-replay').addEventListener('click', function () {
   au.play();
 });
 
+$('btn-back3').addEventListener('click', function () {
+  au.currentTime = Math.max(0, au.currentTime - 3);
+});
+
+$('btn-back5').addEventListener('click', function () {
+  au.currentTime = Math.max(0, au.currentTime - 5);
+});
+
+// Bấm lần lượt qua các tốc độ 1x -> 0.75x -> 0.5x rồi quay lại
+const RATES = [1, 0.75, 0.5];
+let rateAt = 0;
+
 $('btn-slow').addEventListener('click', function () {
-  slow = !slow;
-  au.playbackRate = slow ? 0.75 : 1;
-  this.classList.toggle('on', slow);
-  this.textContent = slow ? 'Đang chậm 0.75x' : 'Chậm 0.75x';
+  rateAt = (rateAt + 1) % RATES.length;
+  au.playbackRate = RATES[rateAt];
+  this.classList.toggle('on', rateAt !== 0);
+  this.textContent = RATES[rateAt] + 'x';
 });
 
 $('play-bar').addEventListener('click', function (e) {
@@ -427,9 +473,22 @@ au.addEventListener('play',  function () { $('play-label').textContent = 'Tạm 
 au.addEventListener('pause', function () { $('play-label').textContent = 'Phát'; });
 au.addEventListener('ended', function () { $('play-label').textContent = 'Phát lại'; });
 
+function fmtTime(sec) {
+  if (!isFinite(sec)) return '0:00';
+  const m = Math.floor(sec / 60);
+  const s2 = Math.floor(sec % 60);
+  return m + ':' + (s2 < 10 ? '0' : '') + s2;
+}
+
 au.addEventListener('timeupdate', function () {
   if (!au.duration) return;
   $('play-fill').style.width = (au.currentTime / au.duration * 100) + '%';
+  $('play-now').textContent = fmtTime(au.currentTime);
+});
+
+au.addEventListener('loadedmetadata', function () {
+  $('play-dur').textContent = fmtTime(au.duration);
+  $('play-now').textContent = '0:00';
 });
 
 au.addEventListener('error', function () {

@@ -52,13 +52,16 @@
             <span id="set-meta"></span>
           </div>
           <div class="play-bar" id="play-bar"><span id="play-fill"></span></div>
+          <div class="play-time"><span id="play-now">0:00</span> / <span id="play-dur">0:00</span></div>
           <div class="player-btns">
             <button class="play-main" id="btn-play">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
               <span id="play-label">Phát</span>
             </button>
+            <button class="play-side" id="btn-back3">↺ 3s</button>
+            <button class="play-side" id="btn-back5">↺ 5s</button>
             <button class="play-side" id="btn-replay">Nghe lại từ đầu</button>
-            <button class="play-side" id="btn-slow">Chậm 0.75x</button>
+            <button class="play-side" id="btn-slow">1x</button>
           </div>
           <p class="play-hint" id="play-hint">Nghe bao nhiêu lần cũng được, chưa tính là sai.</p>
         </div>
@@ -81,6 +84,7 @@
         <p class="en" id="why"></p>
       </div>
       <div id="script-box"></div>
+      <div id="vocab-box"></div>
       <div class="study-actions" style="justify-content:flex-end">
         <button class="btn btn-ink" id="btn-next">Câu tiếp theo</button>
       </div>
