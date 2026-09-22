@@ -10,7 +10,7 @@ let parsed = [];
 let uploaded = {};        // tên file gốc -> đường dẫn trong kho
 
 const $ = function (id) { return document.getElementById(id); };
-const BUCKET = 'audio';
+// File nghe và ảnh của đề thi lưu trên Cloudflare R2 (js/media.js), thư mục exam/
 
 const PART_NAME = { 1: 'Part 1', 2: 'Part 2', 3: 'Part 3', 4: 'Part 4' };
 
@@ -84,6 +84,50 @@ const PROMPTS = {
     'Dạng bài: Instructions: Văn bản hướng dẫn | Dạng bài: List/ Menu: Danh sách/ Thực đơn.\n\n' +
     'Việc cần làm: [ghi rõ số bài]'
 };
+
+// ---------- Câu nhắc chuyển đề có sẵn (giữ nguyên văn, đáp án theo file, AI viết lời giải) ----------
+
+const CONVERT_HEAD =
+  'Mình gửi kèm: (1) file đề TOEIC và (2) file đáp án/lời giải của đề đó. ' +
+  'Chuyển đề thành một khối JSON đúng khuôn bên dưới. Trả về DUY NHẤT khối JSON, ' +
+  'không thêm lời dẫn, không thêm dấu ```. Nếu dài quá thì dừng ở chỗ hết một bài trọn vẹn ' +
+  'rồi ghi thêm dòng cuối \"CÒN TIẾP\". Mình nhắn \"tiếp\" thì trả khối JSON kế tiếp, ' +
+  'là một mảng riêng, không lặp lại phần đã làm.\n\n' +
+  'QUY TẮC BẮT BUỘC:\n' +
+  '1. Giữ NGUYÊN VĂN câu hỏi, các phương án, đoạn văn, lời thoại trong đề. Không sửa, không viết lại, không rút gọn.\n' +
+  '2. correct_answer lấy theo file đáp án. KHÔNG tự giải để đổi đáp án.\n' +
+  '3. explanation viết bằng tiếng Việt, ngắn gọn, theo thứ tự: dấu hiệu nhận biết → vì sao đáp án đúng → ' +
+  'vì sao các phương án còn lại sai. Nếu file lời giải đã có giải thích thì dựa vào đó mà viết lại cho gọn.\n' +
+  '4. Nếu thấy đáp án trong file có vẻ mâu thuẫn với đề, VẪN giữ đáp án đó, nhưng mở đầu explanation bằng "[CẦN KIỂM TRA]".\n' +
+  '5. Chỗ nào trong file bị mờ, không đọc chắc được thì ghi "[KHÔNG RÕ]" vào đúng chỗ đó, không đoán.\n';
+
+const CONVERT_EXTRA = {
+  listen:
+    '6. Lời thoại (transcript) lấy từ file lời giải/script. transcript_vi là bản dịch tiếng Việt.\n' +
+    '7. image_file: Part 1 câu số N ghi "qN.jpg" (ví dụ câu 3 là "q3.jpg"). Bài Part 3-4 có hình ' +
+    'thì ghi "qN.jpg" với N là số câu đầu tiên của bài. Các bài khác để rỗng "".\n' +
+    '8. audio_file ghi theo tên file mp3 mình ghi ở dòng "Việc cần làm".\n',
+  5: '',
+  6: '6. Chỗ trống trong đoạn văn ghi dạng ---131---, đúng số câu của đề.\n',
+  7: '6. Văn bản dạng bảng, biểu mẫu thì chép lại thành từng dòng chữ, giữ đủ thông tin.\n'
+};
+
+function convertPrompt(p) {
+  const src = PROMPTS[p];
+  let start = src.indexOf('JSON là mảng');
+  if (start === -1) start = src.indexOf('Mảng');
+  let schema = src.slice(start, src.lastIndexOf('Việc cần làm'))
+    .replace(/ ?Đáp án rải đều A B C D\.?/g, '')
+    .replace(/ ?Bối cảnh công sở, văn phong TOEIC thật\./g, '')
+    .replace(/ ?Bài nhiều văn bản phải có ít nhất 1 câu cần đọc cả hai văn bản\./g, '')
+    .replace(/ ?ít nhất 1 câu chọn câu hoàn chỉnh điền vào đoạn\./g, '')
+    .replace('chỉ Part 1 mới cần, còn lại để rỗng', 'theo quy tắc 7')
+    .trim();
+  const ask = p === 'listen'
+    ? 'Việc cần làm: chuyển Part [1, 2, 3, 4] của đề. Tên file mp3: [ghi tên, ví dụ p1-01.mp3… hoặc một file cho mỗi bài].'
+    : 'Việc cần làm: chuyển toàn bộ Part ' + p + ' của đề.';
+  return CONVERT_HEAD + CONVERT_EXTRA[p] + '\nKHUÔN JSON:\n' + schema + '\n\n' + ask;
+}
 
 const SAMPLES = {
   listen: JSON.stringify([{
@@ -274,6 +318,13 @@ $('btn-prompt').addEventListener('click', function () {
   });
 });
 
+$('btn-prompt-convert').addEventListener('click', function () {
+  navigator.clipboard.writeText(convertPrompt(curPart)).then(function () {
+    $('prompt-ok').textContent = 'Đã copy. Sửa dòng "Việc cần làm" cuối câu nhắc, rồi gửi ChatGPT kèm file đề và file đáp án.';
+    setTimeout(function () { $('prompt-ok').textContent = ''; }, 6000);
+  });
+});
+
 $('btn-sample').addEventListener('click', function () {
   $('raw').value = SAMPLES[curPart];
 });
@@ -283,7 +334,7 @@ $('btn-sample').addEventListener('click', function () {
 $('file-input').addEventListener('change', async function () {
   for (const f of this.files) {
     const key = 'exam/' + curSet.id + '/' + f.name;
-    const { error } = await db.storage.from(BUCKET).upload(key, f, { upsert: true });
+    const { error } = await uploadMedia(key, f);
 
     const div = document.createElement('div');
     div.className = 'ww';
@@ -295,11 +346,26 @@ $('file-input').addEventListener('change', async function () {
   this.value = '';
 });
 
+// Công cụ lấy ảnh từ PDF: ảnh tải lên cùng chỗ với file nghe của bộ đề
+PdfCrop.mount($('pdf-crop'), {
+  onUpload: async function (name, blob) {
+    if (!curSet) return 'chưa mở bộ đề';
+    const key = 'exam/' + curSet.id + '/' + name;
+    const { error } = await uploadMedia(key, blob);
+    if (error) return error.message;
+    uploaded[name] = key;
+    const div = document.createElement('div');
+    div.className = 'ww';
+    div.textContent = 'Đã tải lên: ' + name;
+    $('upload-list').appendChild(div);
+    return null;
+  }
+});
+
 function urlOf(name) {
   if (!name) return null;
   const key = uploaded[name] || ('exam/' + curSet.id + '/' + name);
-  const { data } = db.storage.from(BUCKET).getPublicUrl(key);
-  return data ? data.publicUrl : null;
+  return mediaUrl(key);
 }
 
 // ---------- Đọc và kiểm tra dữ liệu ----------
@@ -309,7 +375,7 @@ $('btn-parse').addEventListener('click', function () {
   if (!raw) return say('Bạn dán dữ liệu vào ô trên đã nhé.');
 
   try {
-    const clean = raw.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const clean = raw.replace(/C\u00d2N TI\u1ebeP\s*$/i, '').trim().replace(/^```(json)?/i, '').replace(/```$/, '').trim();
     parsed = JSON.parse(clean);
     if (!Array.isArray(parsed)) parsed = [parsed];
   } catch (e) {

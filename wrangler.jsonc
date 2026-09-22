@@ -1,9 +1,25 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pacedemy",
+  "main": "src/worker.js",
   "compatibility_date": "2026-09-01",
   "assets": {
     "directory": "./pacedemy",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // Hai đường dẫn này luôn đi qua Worker (file nghe/ảnh trên R2)
+    "run_worker_first": ["/media/*", "/api/*"]
+  },
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      // Tạo kho tên đúng như vầy trong Cloudflare → R2 trước khi deploy
+      "bucket_name": "pacedemy-media"
+    }
+  ],
+  "vars": {
+    // Hai giá trị công khai, giống hệt trong pacedemy/js/config.js
+    "SUPABASE_URL": "https://sniokhczcetdpxackzjl.supabase.co",
+    "SUPABASE_KEY": "sb_publishable_uuarfSrlgA7YQ9pVInAvKg_WEz9cXZp"
   }
 }

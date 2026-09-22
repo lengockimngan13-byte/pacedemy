@@ -4,7 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pacedemy — Luyện TOEIC theo nhịp của bạn</title>
-<meta name="description" content="Học từ vựng theo chủ đề, luyện từng Part Listening và Reading, thi thử có bấm giờ. Theo dõi tiến độ mỗi ngày.">
+<meta name="description" content="Học từ vựng theo chủ đề, luyện từng Part Listening và Reading, thi thử có bấm giờ. Nền tảng học của các lớp TOEIC do cô Kim Ngân dạy.">
+<link rel="canonical" href="https://www.pacedemy.com/">
+
+<!-- Ảnh và chữ hiện ra khi chia sẻ link qua Zalo, Facebook, Messenger -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.pacedemy.com/">
+<meta property="og:title" content="Pacedemy — Luyện TOEIC theo nhịp của bạn">
+<meta property="og:description" content="Từ vựng theo chủ đề, luyện từng Part 1–7, thi thử có bấm giờ và theo dõi tiến độ mỗi ngày.">
+<meta property="og:image" content="https://www.pacedemy.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -17,16 +30,19 @@
 <body class="home">
 
 <header class="wrap topbar">
-  <a class="brand" href="index.html">
+  <a class="brand" href="/">
     Pac<span class="brand-e">e</span>demy
   </a>
   <nav class="topbar-links">
+    <a class="hide-sm" href="#tinh-nang">Tính năng</a>
+    <a class="hide-sm" href="#hoi-dap">Hỏi đáp</a>
     <a href="login.html">Đăng nhập</a>
-    <a class="btn btn-gold" href="login.html?dangky=1">Tạo tài khoản</a>
+    <a class="btn btn-gold" href="#lien-he"><span class="hide-xs">Học cùng cô Ngân</span><span class="show-xs">Đăng ký học</span></a>
   </nav>
 </header>
 
 <main>
+  <!-- Chữ của hero sửa trong Teacher Studio → Chỉnh trang web -->
   <section class="wrap hero">
     <div class="hero-copy">
       <h1 id="hero-title">Luyện TOEIC theo nhịp của riêng bạn.</h1>
@@ -36,9 +52,10 @@
         rõ mình đang đứng ở đâu so với mục tiêu.
       </p>
       <div class="hero-actions">
-        <a class="btn btn-gold" href="login.html?dangky=1">Bắt đầu học miễn phí</a>
-        <a class="btn btn-line" href="login.html">Mình đã có tài khoản</a>
+        <a class="btn btn-gold" href="#lien-he">Đăng ký học cùng cô Ngân</a>
+        <a class="btn btn-line" href="login.html?dangky=1">Mình đã có mã lớp</a>
       </div>
+      <p class="hero-note">Pacedemy là nơi học của các lớp TOEIC do cô Ngân dạy. Vào lớp, cô gửi bạn mã 6 ký tự để mở toàn bộ phần học.</p>
     </div>
 
     <!-- Vòng lặp học tập -->
@@ -85,24 +102,138 @@
     </div>
   </section>
 
+  <!-- Tính năng. Ảnh chụp màn hình: đặt vào thư mục images/ đúng tên file,
+       chưa có ảnh thì khung ảnh tự ẩn, chữ vẫn hiện bình thường. -->
+  <section class="feat-sec" id="tinh-nang">
+    <div class="wrap">
+      <h2 class="sec-head">Trong Pacedemy có gì</h2>
+      <p class="sec-lead">Mọi thứ cần cho TOEIC Listening &amp; Reading nằm chung một chỗ, và cô nhìn thấy được tiến độ của từng bạn.</p>
+
+      <div class="feat-grid">
+        <article class="feat">
+          <img class="feat-shot" src="images/tinh-nang-tu-vung.jpg" alt="Thẻ từ vựng Pacedemy" loading="lazy" onerror="this.remove()">
+          <h3>Từ vựng theo chủ đề đề thi</h3>
+          <p>Thẻ lật có phát âm giọng Mỹ và giọng Anh, cụm từ đi kèm, câu ví dụ. Từ nào sắp quên sẽ tự quay lại đúng lúc, bạn không phải nhớ hôm nay ôn gì.</p>
+        </article>
+
+        <article class="feat">
+          <img class="feat-shot" src="images/tinh-nang-luyen-part.jpg" alt="Màn hình luyện Part" loading="lazy" onerror="this.remove()">
+          <h3>Luyện riêng từng Part 1–7</h3>
+          <p>Part 5 chia theo dạng ngữ pháp và từ vựng, làm xong câu nào có giải thích ngay câu đó. Nghe Part 1–4, đọc Part 6–7 với đoạn văn và câu hỏi đặt cạnh nhau.</p>
+        </article>
+
+        <article class="feat">
+          <img class="feat-shot" src="images/tinh-nang-thi-thu.jpg" alt="Màn hình thi thử" loading="lazy" onerror="this.remove()">
+          <h3>Thi thử 120 phút, ra điểm ước lượng</h3>
+          <p>Đồng hồ đếm ngược như phòng thi, hết giờ tự nộp. Kết quả tách riêng Nghe và Đọc, quy ra điểm TOEIC để bạn biết còn cách mục tiêu bao xa.</p>
+        </article>
+
+        <article class="feat">
+          <img class="feat-shot" src="images/tinh-nang-chuoi-ngay.jpg" alt="Lịch chuỗi ngày học" loading="lazy" onerror="this.remove()">
+          <h3>Mục tiêu mỗi ngày và lịch chuỗi ngày học</h3>
+          <p>Đặt số câu cần làm mỗi ngày. Ngày nào đạt mục tiêu được đóng dấu trên lịch tháng, nhìn lại là thấy mình đã chăm tới đâu.</p>
+        </article>
+
+        <article class="feat">
+          <img class="feat-shot" src="images/tinh-nang-shadowing.jpg" alt="Luyện nói theo" loading="lazy" onerror="this.remove()">
+          <h3>Luyện nói theo câu mẫu</h3>
+          <p>Nghe câu mẫu, đọc lại, máy chấm độ khớp từng từ. Giúp quen tai với nhịp câu tiếng Anh, hỗ trợ trực tiếp cho phần Nghe.</p>
+        </article>
+
+        <article class="feat">
+          <img class="feat-shot" src="images/tinh-nang-lop-hoc.jpg" alt="Bài tập trong lớp" loading="lazy" onerror="this.remove()">
+          <h3>Cô giao bài và nhận xét riêng</h3>
+          <p>Mỗi tuần cô giao bài kèm hạn nộp ngay trên trang học. Cô xem được bạn hay sai dạng nào để chỉnh lộ trình, và gửi nhận xét riêng cho từng bạn.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Giới thiệu giáo viên: bật/tắt và sửa chữ trong Teacher Studio → Chỉnh trang web.
+       Con số, kết quả học viên, liên hệ lấy từ Teacher Studio → Trang giới thiệu. -->
   <section class="who-sec" id="who-sec" style="display:none">
-    <div class="wrap who-in">
-      <img class="who-photo" id="who-photo" src="images/ngan.jpg" alt="Giáo viên Pacedemy" onerror="this.style.display='none'">
+    <div class="wrap">
+      <div class="who-in">
+        <img class="who-photo" id="who-photo" src="images/ngan.jpg" alt="Cô Kim Ngân" onerror="this.style.display='none'">
+        <div>
+          <span class="who-tag">Người đứng sau Pacedemy</span>
+          <h2 id="who-name">Lê Ngọc Kim Ngân</h2>
+          <p id="who-short">Mình là Ngân, mười năm dạy TOEIC cho người đi làm và sinh viên. Pacedemy là nơi mình đưa toàn bộ giáo trình tự soạn lên thành một lộ trình học có thể theo dõi được tiến độ.</p>
+        </div>
+      </div>
+      <div class="facts" id="who-facts" hidden></div>
+      <div id="who-results" hidden>
+        <h3 class="results-head">Học viên đã đi tới đâu</h3>
+        <div class="results-grid" id="who-results-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-sec" id="lien-he">
+    <div class="wrap contact-in">
       <div>
-        <span class="who-tag">Người đứng sau Pacedemy</span>
-        <h2 id="who-name">Lê Ngọc Kim Ngân</h2>
-        <p id="who-short">Mình là Ngân, mười năm dạy TOEIC cho người đi làm và sinh viên. Pacedemy là nơi mình đưa toàn bộ giáo trình tự soạn lên thành một lộ trình học có thể theo dõi được tiến độ.</p>
-        <a class="btn btn-gold" href="login.html?dangky=1">Học thử miễn phí</a>
+        <h2>Muốn học cùng cô Ngân?</h2>
+        <p>Cô nhận lớp 1-1 và lớp nhóm nhỏ, học trực tuyến qua Zoom hoặc Google Meet. Nhắn cho cô mức điểm hiện tại, điểm cần đạt và hạn thi, cô tư vấn lộ trình phù hợp.</p>
+        <p class="contact-sub">Vào lớp, bạn nhận mã để dùng toàn bộ Pacedemy trong suốt khoá học.</p>
+      </div>
+      <div class="contact-actions" id="reach-home">
+        <a class="btn btn-gold" href="mailto:contact@pacedemy.com">Gửi email cho cô</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-sec" id="hoi-dap">
+    <div class="wrap faq-in">
+      <h2 class="sec-head">Hỏi đáp</h2>
+      <div class="faq">
+        <details>
+          <summary>Ai dùng được Pacedemy?</summary>
+          <p>Học viên trong các lớp TOEIC của cô Ngân. Bạn tạo tài khoản, nhập mã lớp cô gửi, cô duyệt xong là toàn bộ phần học mở ra ngay trên trang học.</p>
+        </details>
+        <details>
+          <summary>Dùng Pacedemy có mất thêm phí không?</summary>
+          <p>Không. Pacedemy đi kèm khoá học, học viên trong lớp dùng toàn bộ tính năng mà không trả thêm gì. Học phí từng lớp cô sẽ báo khi tư vấn.</p>
+        </details>
+        <details>
+          <summary>Mình đang ở mức thấp thì học được không?</summary>
+          <p>Được. Từ vựng chia ba mức: cơ bản cho mục tiêu 400–500, trung cấp cho 600–700 và nâng cao cho 800 trở lên. Cô sẽ xếp lộ trình theo mức hiện tại của bạn.</p>
+        </details>
+        <details>
+          <summary>Học trên điện thoại được không?</summary>
+          <p>Được, trang tự co lại vừa màn hình điện thoại. Riêng phần luyện nói theo cần trình duyệt Chrome, vì Safari và Firefox chưa hỗ trợ nhận diện giọng nói.</p>
+        </details>
+        <details>
+          <summary>Điểm thi thử có giống điểm thi thật không?</summary>
+          <p>Đây là điểm ước lượng, quy đổi từ số câu đúng theo bảng quy đổi cô dùng trên lớp. Nó cho bạn biết khá sát mình đang ở đâu, nhưng điểm thật còn tuỳ đề và phong độ hôm thi.</p>
+        </details>
+        <details>
+          <summary>Pacedemy có luyện Speaking và Writing không?</summary>
+          <p>Không. Pacedemy tập trung vào TOEIC Listening &amp; Reading. Phần luyện nói theo chỉ để quen tai và luyện phát âm, hỗ trợ cho phần Nghe.</p>
+        </details>
       </div>
     </div>
   </section>
 </main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <a class="brand" href="/">Pac<span class="brand-e">e</span>demy</a>
+    <nav class="foot-links">
+      <a href="#lien-he">Liên hệ</a>
+      <a href="privacy.html">Chính sách bảo mật</a>
+      <a href="login.html">Đăng nhập</a>
+    </nav>
+    <span class="foot-copy">© 2026 Pacedemy</span>
+  </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script src="js/toast.js"></script>
 <script src="js/layout-settings.js"></script>
 <script src="js/site-content.js"></script>
+<script src="js/teacher-info.js"></script>
+<script src="js/home.js"></script>
 <script src="js/cycle.js"></script>
 </body>
 </html>

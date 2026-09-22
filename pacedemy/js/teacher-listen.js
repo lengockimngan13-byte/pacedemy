@@ -4,7 +4,7 @@
 // Một phần tử JSON = một bài nghe (một file âm thanh) kèm các câu hỏi của bài đó.
 // ============================================================
 
-const BUCKET = 'audio';
+// File nghe và ảnh lưu trên Cloudflare R2 (js/media.js), thư mục listen/
 
 let me = null;
 let sets = [];          // dữ liệu đã đọc từ ô dán
@@ -267,10 +267,7 @@ $('btn-upload').addEventListener('click', async function () {
 
   for (const f of list) {
     const key = slug(f.name);
-    const { error } = await db.storage.from(BUCKET).upload(key, f, {
-      upsert: true,
-      contentType: f.type || undefined
-    });
+    const { error } = await uploadMedia('listen/' + key, f);
 
     rows.push({ key: key, ok: !error, msg: error ? error.message : '' });
     if (!error && uploaded.indexOf(key) === -1) uploaded.push(key);
@@ -504,8 +501,7 @@ function testNo() {
 function urlOf(name) {
   if (!name) return null;
   if (/^https?:\/\//i.test(name)) return name;
-  const { data } = db.storage.from(BUCKET).getPublicUrl(slug(name));
-  return data ? data.publicUrl : null;
+  return mediaUrl('listen/' + slug(name));
 }
 
 $('btn-save').addEventListener('click', async function () {
@@ -811,9 +807,9 @@ async function uploadOne(inp) {
 
   // Tên file tự sinh theo id bài, không phụ thuộc tên gốc nên không sợ trùng
   const ext = (f.name.split('.').pop() || '').toLowerCase();
-  const key = 'set-' + setId + '-' + kind + '-' + Date.now() + '.' + ext;
+  const key = 'listen/set-' + setId + '-' + kind + '-' + Date.now() + '.' + ext;
 
-  const { error: upErr } = await db.storage.from(BUCKET).upload(key, f, { upsert: true });
+  const { error: upErr } = await uploadMedia(key, f);
 
   if (upErr) {
     label.childNodes[0].nodeValue = oldText;
@@ -821,9 +817,8 @@ async function uploadOne(inp) {
     return;
   }
 
-  const { data: pub } = db.storage.from(BUCKET).getPublicUrl(key);
   const patch = {};
-  patch[kind === 'audio' ? 'audio_url' : 'image_url'] = pub ? pub.publicUrl : null;
+  patch[kind === 'audio' ? 'audio_url' : 'image_url'] = mediaUrl(key);
 
   const { error: dbErr } = await db.from('listening_sets').update(patch).eq('id', setId);
 

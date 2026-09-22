@@ -55,9 +55,14 @@
       <div class="tbox">
         <h3>Bước 1 · Lấy câu nhắc</h3>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btn-line" id="btn-prompt">Copy câu nhắc</button>
+          <button class="btn btn-gold" id="btn-prompt-convert">Chuyển đề có sẵn</button>
+          <button class="btn btn-line" id="btn-prompt">Soạn đề mới</button>
           <button class="btn btn-line" id="btn-sample">Xem ví dụ mẫu</button>
         </div>
+        <p style="margin:10px 0 0;font-size:0.88rem;color:#4A635E;line-height:1.6">
+          <b>Chuyển đề có sẵn:</b> gửi ChatGPT câu nhắc này kèm file PDF đề và file đáp án/lời giải.
+          AI giữ nguyên văn đề, lấy đáp án theo file của bạn, và viết lời giải tiếng Việt cho từng câu.
+        </p>
         <span id="prompt-ok" style="display:block;margin-top:10px;font-size:0.88rem;color:var(--teal)"></span>
       </div>
 
@@ -66,6 +71,15 @@
         <h3>Bước 2 · Tải file mp3 và ảnh lên trước</h3>
         <input type="file" id="file-input" multiple accept="audio/*,image/*">
         <div id="upload-list" style="margin-top:10px"></div>
+
+        <details class="pc-wrap" id="pdf-box">
+          <summary>Lấy ảnh thẳng từ file PDF của đề (không cần tự cắt)</summary>
+          <p class="pc-hint" style="margin:10px 0 14px">
+            Ảnh Part 1 đặt tên theo số câu: q1.jpg đến q6.jpg. Bài Part 3-4 có hình thì đặt theo số câu đầu tiên của bài,
+            ví dụ q62.jpg. Câu nhắc "Chuyển đề có sẵn" dùng đúng cách đặt tên này.
+          </p>
+          <div id="pdf-crop"></div>
+        </details>
       </div>
 
       <div class="field">
@@ -92,6 +106,8 @@
 <script src="js/toast.js"></script>
 <script src="js/layout-settings.js"></script>
 <script src="js/teacher-nav.js"></script>
+<script src="js/media.js"></script>
+<script src="js/pdf-crop.js"></script>
 <script src="js/teacher-exam.js"></script>
 </body>
 </html>
