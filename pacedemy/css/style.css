@@ -4091,3 +4091,19 @@ html { scroll-behavior: smooth; }
 .pc-item input { padding: 6px 8px; border: 1.5px solid var(--line); border-radius: var(--r); font-family: ui-monospace, monospace; font-size: 0.85rem; }
 .pc-item.is-done { border-color: var(--teal); }
 .pc-ok { font-size: 0.82rem; color: var(--teal); font-weight: 600; }
+
+/* Tải mp3 theo thứ tự chuẩn đề TOEIC */
+.ao-start { padding: 5px 8px; border: 1.5px solid var(--line); border-radius: var(--r); font-family: var(--ui); }
+.ao-list { margin: 14px 0; border: 1px solid var(--line); border-radius: var(--r); max-height: 360px; overflow-y: auto; }
+.ao-item { display: grid; grid-template-columns: 90px 160px 1fr auto; gap: 10px; align-items: center;
+           padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+.ao-item:last-child { border-bottom: 0; }
+.ao-item.is-done { background: var(--mist); }
+.ao-name { font-family: ui-monospace, monospace; font-weight: 600; }
+.ao-slot { color: #4A635E; }
+.ao-file { color: #6C837E; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ao-btns { display: flex; gap: 6px; }
+@media (max-width: 700px) {
+  .ao-item { grid-template-columns: 1fr auto; row-gap: 4px; }
+  .ao-slot, .ao-file { grid-column: 1 / -1; }
+}

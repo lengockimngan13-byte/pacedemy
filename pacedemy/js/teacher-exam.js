@@ -106,7 +106,8 @@ const CONVERT_EXTRA = {
     '6. Lời thoại (transcript) lấy từ file lời giải/script. transcript_vi là bản dịch tiếng Việt.\n' +
     '7. image_file: Part 1 câu số N ghi "qN.jpg" (ví dụ câu 3 là "q3.jpg"). Bài Part 3-4 có hình ' +
     'thì ghi "qN.jpg" với N là số câu đầu tiên của bài. Các bài khác để rỗng "".\n' +
-    '8. audio_file ghi theo tên file mp3 mình ghi ở dòng "Việc cần làm".\n',
+    '8. audio_file ghi "qN.mp3" với N là số câu đầu tiên của bài: Part 1-2 là số câu đó ' +
+    '(câu 7 là "q7.mp3"), Part 3-4 là số câu đầu của bài (bài câu 32-34 là "q32.mp3").\n',
   5: '',
   6: '6. Chỗ trống trong đoạn văn ghi dạng ---131---, đúng số câu của đề.\n',
   7: '6. Văn bản dạng bảng, biểu mẫu thì chép lại thành từng dòng chữ, giữ đủ thông tin.\n'
@@ -124,7 +125,7 @@ function convertPrompt(p) {
     .replace('chỉ Part 1 mới cần, còn lại để rỗng', 'theo quy tắc 7')
     .trim();
   const ask = p === 'listen'
-    ? 'Việc cần làm: chuyển Part [1, 2, 3, 4] của đề. Tên file mp3: [ghi tên, ví dụ p1-01.mp3… hoặc một file cho mỗi bài].'
+    ? 'Việc cần làm: chuyển Part [1, 2, 3, 4] của đề.'
     : 'Việc cần làm: chuyển toàn bộ Part ' + p + ' của đề.';
   return CONVERT_HEAD + CONVERT_EXTRA[p] + '\nKHUÔN JSON:\n' + schema + '\n\n' + ask;
 }
@@ -346,21 +347,25 @@ $('file-input').addEventListener('change', async function () {
   this.value = '';
 });
 
-// Công cụ lấy ảnh từ PDF: ảnh tải lên cùng chỗ với file nghe của bộ đề
-PdfCrop.mount($('pdf-crop'), {
-  onUpload: async function (name, blob) {
-    if (!curSet) return 'chưa mở bộ đề';
-    const key = 'exam/' + curSet.id + '/' + name;
-    const { error } = await uploadMedia(key, blob);
-    if (error) return error.message;
-    uploaded[name] = key;
-    const div = document.createElement('div');
-    div.className = 'ww';
-    div.textContent = 'Đã tải lên: ' + name;
-    $('upload-list').appendChild(div);
-    return null;
-  }
-});
+// Tải file lên cho bộ đề đang mở, dùng chung cho hai công cụ bên dưới
+async function putForSet(name, blob) {
+  if (!curSet) return 'chưa mở bộ đề';
+  const key = 'exam/' + curSet.id + '/' + name;
+  const { error } = await uploadMedia(key, blob);
+  if (error) return error.message;
+  uploaded[name] = key;
+  const div = document.createElement('div');
+  div.className = 'ww';
+  div.textContent = 'Đã tải lên: ' + name;
+  $('upload-list').appendChild(div);
+  return null;
+}
+
+// Ảnh cắt từ PDF
+PdfCrop.mount($('pdf-crop'), { onUpload: putForSet });
+
+// File mp3 đặt tên theo thứ tự chuẩn đề TOEIC
+AudioOrder.mount($('audio-order'), { onUpload: putForSet });
 
 function urlOf(name) {
   if (!name) return null;
