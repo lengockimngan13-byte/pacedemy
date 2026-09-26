@@ -16,6 +16,7 @@ let reviewMode = false; // đang ở chế độ xem lại sau khi nộp bài ha
 let deadline = 0;
 let tick = null;
 let startAt = 0;
+let luyenTap = false;   // đang ở chế độ Luyện tập: không bấm giờ, không tính vào lịch sử thi
 
 const SECONDS_TOTAL = 1 * 3600 + 59 * 60; // 01:59:00, đúng nhịp thi thật
 
@@ -119,50 +120,269 @@ function countByPart() {
 
 function showStart() {
   const n = countByPart();
-  const total = screens.reduce(function (m, s) { return m + s.questions.length; }, 0);
+  const nNghe = (n[1] || 0) + (n[2] || 0) + (n[3] || 0) + (n[4] || 0);
+  const nDoc  = (n[5] || 0) + (n[6] || 0) + (n[7] || 0);
+  const total = nNghe + nDoc;
 
-  const rows = [1, 2, 3, 4, 5, 6, 7].map(function (p) {
-    return '<div class="wrong-q" style="display:flex;align-items:center;gap:12px;padding:10px 14px">' +
-      '<span style="flex:1">Part ' + p + '</span>' +
-      '<span class="stat-lab">' + (n[p] || 0) + ' câu</span></div>';
-  }).join('');
+  const phut = Math.round(SECONDS_TOTAL / 60);
 
   $('view-pick').classList.add('hidden');
   $('view-start').classList.remove('hidden');
 
   $('start-info').innerHTML =
-    '<div class="greet"><h1>' + esc(examSet.name) + '</h1>' +
-      '<p>Bộ đề này có ' + total + ' câu. Thời gian làm bài 1 giờ 59 phút, hết giờ tự nộp.</p></div>' +
-    '<div class="tbox">' + rows +
-      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">' +
-        '<button class="btn btn-gold" id="btn-go">Bắt đầu làm bài</button>' +
-        '<button class="btn btn-line" id="btn-other">Chọn bộ đề khác</button>' +
-      '</div></div>';
+    '<div class="ex-head">' +
+      '<h1>' + esc(examSet.name) + '</h1>' +
+      '<div class="ex-acts">' +
+        '<button class="btn btn-gold" id="btn-go">Bắt đầu thi</button>' +
+        '<button class="btn btn-line" data-tab="luyen">Luyện tập</button>' +
+        '<button class="btn btn-line" data-tab="lichsu">Lịch sử thi</button>' +
+        '<button class="btn btn-line" data-tab="causai">Câu sai</button>' +
+        '<button class="btn btn-line" data-tab="ghichu">Sổ ghi chú</button>' +
+      '</div>' +
+      '<button class="btn-quiet ex-back" id="btn-other">← Chọn bộ đề khác</button>' +
+    '</div>' +
 
-  $('btn-go').addEventListener('click', begin);
+    '<div class="ex-tiles">' +
+      '<div class="ex-tile"><span>Số câu</span><b>' + total + ' câu</b></div>' +
+      '<div class="ex-tile gold"><span>Thời gian</span><b>' + phut + ' phút</b></div>' +
+    '</div>' +
+
+    '<div class="ex-secs">' +
+      secCard('Phần Nghe', 'Part 1 đến 4', nNghe, [1, 2, 3, 4], n) +
+      secCard('Phần Đọc', 'Part 5 đến 7', nDoc, [5, 6, 7], n) +
+    '</div>' +
+
+    '<div class="tbox ex-guide">' +
+      '<h3>Trước khi bắt đầu</h3>' +
+      '<ul>' +
+        '<li>Bài có ' + total + ' câu, chia 7 Part: 4 Part Nghe và 3 Part Đọc.</li>' +
+        '<li>Đồng hồ chạy ' + phut + ' phút cho cả bài, hết giờ tự nộp.</li>' +
+        '<li>Câu nào phân vân thì bấm cờ đánh dấu, cuối giờ quay lại xem.</li>' +
+        '<li>Phần Nghe mỗi bài nghe được một lượt, nghe xong là chuyển.</li>' +
+        '<li>Nộp xong có điểm TOEIC ước lượng và giải thích từng câu.</li>' +
+        '<li>Muốn làm thong thả không bấm giờ thì chọn Luyện tập.</li>' +
+      '</ul>' +
+    '</div>' +
+
+    '<div id="ex-panel"></div>';
+
+  $('btn-go').addEventListener('click', function () { begin(false); });
   $('btn-other').addEventListener('click', function () {
     $('view-start').classList.add('hidden');
     $('view-pick').classList.remove('hidden');
+  });
+
+  $('start-info').querySelectorAll('button[data-tab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const dang = b.classList.contains('on');
+      $('start-info').querySelectorAll('button[data-tab]').forEach(function (x) { x.classList.remove('on'); });
+      if (dang) { $('ex-panel').innerHTML = ''; return; }
+      b.classList.add('on');
+      if (b.dataset.tab === 'luyen')  return panelLuyen();
+      if (b.dataset.tab === 'lichsu') return panelLichSu();
+      if (b.dataset.tab === 'causai') return panelCauSai();
+      if (b.dataset.tab === 'ghichu') return panelGhiChu();
+    });
+  });
+}
+
+function secCard(ten, dai, soCau, parts, n) {
+  const rows = parts.map(function (p) {
+    return '<div class="ex-row"><span>Part ' + p + '</span><b>' + (n[p] || 0) + ' câu</b></div>';
+  }).join('');
+
+  return '<div class="tbox ex-sec">' +
+    '<h3>' + ten + '</h3>' +
+    '<p class="ex-sec-sub">' + dai + ' · ' + soCau + ' câu</p>' +
+    rows +
+  '</div>';
+}
+
+function panelBox(tieuDe, than) {
+  $('ex-panel').innerHTML = '<div class="tbox ex-panel"><h3>' + tieuDe + '</h3>' + than + '</div>';
+}
+
+// ---------- Luyện tập ----------
+
+function panelLuyen() {
+  panelBox('Luyện tập',
+    '<p class="ex-p">Làm y hệt đề thi nhưng không bấm giờ, rời trang giữa chừng cũng không sao. ' +
+    'Nộp xong xem được đáp án và giải thích từng câu. Lần làm này không tính vào Lịch sử thi.</p>' +
+    '<button class="btn btn-ink" id="btn-luyen">Vào luyện tập</button>');
+
+  $('btn-luyen').addEventListener('click', function () { begin(true); });
+}
+
+// ---------- Lịch sử thi ----------
+
+async function panelLichSu() {
+  panelBox('Lịch sử thi', '<p class="empty">Đang tải…</p>');
+
+  const { data, error } = await db.from('mock_tests')
+    .select('submitted_at, seconds_used, listening_correct, reading_correct, total_questions')
+    .eq('user_id', me.id).eq('exam_set_id', examSet.id)
+    .not('submitted_at', 'is', null)
+    .order('submitted_at', { ascending: false }).limit(30);
+
+  if (error) return panelBox('Lịch sử thi', '<p class="empty">Không tải được: ' + esc(error.message) + '</p>');
+
+  if (!data || !data.length) {
+    return panelBox('Lịch sử thi',
+      '<p class="empty">Bạn chưa thi bộ đề này lần nào. Thi xong lần đầu, kết quả sẽ nằm ở đây để so với các lần sau.</p>');
+  }
+
+  const rows = data.map(function (m) {
+    const d = new Date(m.submitted_at);
+    const dung = (m.listening_correct || 0) + (m.reading_correct || 0);
+    const pct = m.total_questions ? Math.round(dung / m.total_questions * 100) : 0;
+    return '<div class="ex-hist">' +
+      '<span class="ex-when">' + d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() + '</span>' +
+      '<span class="ex-score">' + dung + '/' + (m.total_questions || 0) + '</span>' +
+      '<span class="stat-lab">' + pct + '%</span>' +
+      '<span class="stat-lab">Nghe ' + (m.listening_correct || 0) + ' · Đọc ' + (m.reading_correct || 0) + '</span>' +
+      '<span class="stat-lab">' + Math.round((m.seconds_used || 0) / 60) + ' phút</span>' +
+    '</div>';
+  }).join('');
+
+  panelBox('Lịch sử thi', '<p class="ex-p">' + data.length + ' lần thi bộ đề này.</p>' + rows);
+}
+
+// ---------- Câu sai ----------
+
+async function panelCauSai() {
+  panelBox('Câu sai', '<p class="empty">Đang tải…</p>');
+
+  const all = allQuestions();
+  const qById = {};
+  for (const q of all) qById[q.id] = q;
+
+  const { data: atts } = await db.from('attempts')
+    .select('id').eq('user_id', me.id)
+    .order('id', { ascending: false }).limit(200);
+
+  const ids = (atts || []).map(function (a) { return a.id; });
+  if (!ids.length) {
+    return panelBox('Câu sai', '<p class="empty">Chưa có dữ liệu. Làm bộ đề này một lần đi đã.</p>');
+  }
+
+  let sai = [];
+  for (let i = 0; i < ids.length; i += 100) {
+    const { data } = await db.from('attempt_answers')
+      .select('exam_question_id, selected')
+      .in('attempt_id', ids.slice(i, i + 100))
+      .eq('is_correct', false)
+      .in('exam_question_id', all.map(function (q) { return q.id; }));
+    sai = sai.concat(data || []);
+  }
+
+  if (!sai.length) {
+    return panelBox('Câu sai',
+      '<p class="empty">Không có câu nào sai trong bộ đề này. Hoặc bạn chưa làm, hoặc làm đúng hết.</p>');
+  }
+
+  // Câu nào sai nhiều lần thì xếp lên trước
+  const dem = {};
+  const chon = {};
+  for (const x of sai) {
+    dem[x.exam_question_id] = (dem[x.exam_question_id] || 0) + 1;
+    if (x.selected) chon[x.exam_question_id] = x.selected;
+  }
+
+  const ds = Object.keys(dem)
+    .filter(function (id) { return qById[id]; })
+    .sort(function (a, b) { return dem[b] - dem[a]; });
+
+  const html = ds.map(function (id) {
+    const q = qById[id];
+    const o = q.options || {};
+    const my = chon[id];
+
+    const opts = ['A', 'B', 'C', 'D'].map(function (L) {
+      if (!o[L]) return '';
+      const dung = L === q.correct_answer;
+      const daChon = L === my;
+      return '<div class="qd-opt' + (dung ? ' is-right' : '') + (daChon && !dung ? ' is-wrong' : '') + '">' +
+        '<span class="qd-letter">' + L + '</span><span class="qd-text">' + esc(o[L]) + '</span>' +
+        (daChon ? '<span class="qd-tag">bạn chọn</span>' : '') +
+        (dung && !daChon ? '<span class="qd-tag">đáp án đúng</span>' : '') +
+      '</div>';
+    }).join('');
+
+    return '<div class="qd">' +
+      '<div class="qd-head">' +
+        '<span class="qd-no">Part ' + (q.part || '?') + '</span>' +
+        (dem[id] > 1 ? '<span class="qd-mark no">sai ' + dem[id] + ' lần</span>' : '') +
+        (q.topic_tag ? '<span class="stat-lab">' + esc(q.topic_tag) + '</span>' : '') +
+      '</div>' +
+      (q.question_text ? '<p class="qd-q">' + esc(q.question_text) + '</p>' : '') +
+      opts +
+      (q.explanation ? '<p class="qd-why">' + esc(q.explanation) + '</p>' : '') +
+    '</div>';
+  }).join('');
+
+  panelBox('Câu sai', '<p class="ex-p">' + ds.length + ' câu bạn từng làm sai, câu sai nhiều lần xếp lên trước.</p>' + html);
+}
+
+// ---------- Sổ ghi chú ----------
+
+async function panelGhiChu() {
+  panelBox('Sổ ghi chú', '<p class="empty">Đang tải…</p>');
+
+  const { data } = await db.from('exam_notes')
+    .select('content').eq('user_id', me.id).eq('exam_set_id', examSet.id).maybeSingle();
+
+  panelBox('Sổ ghi chú',
+    '<p class="ex-p">Ghi lại từ mới, bẫy hay dính, mẹo của riêng bạn cho bộ đề này. ' +
+    'Chỉ mình bạn đọc được.</p>' +
+    '<textarea id="note-text" class="ex-note" placeholder="Ví dụ: câu 132 bẫy chỗ although với despite…">' +
+      esc((data && data.content) || '') + '</textarea>' +
+    '<div class="ex-note-bar">' +
+      '<button class="btn btn-ink" id="btn-note-save">Lưu ghi chú</button>' +
+      '<span class="stat-lab" id="note-msg"></span>' +
+    '</div>');
+
+  $('btn-note-save').addEventListener('click', async function () {
+    this.disabled = true;
+    const { error } = await db.from('exam_notes').upsert({
+      user_id: me.id,
+      exam_set_id: examSet.id,
+      content: $('note-text').value,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id,exam_set_id' });
+    this.disabled = false;
+
+    if (error) { toast('Không lưu được: ' + error.message, 'bad'); return; }
+    toast('Đã lưu ghi chú.', 'good');
+    $('note-msg').textContent = 'Đã lưu lúc ' + new Date().toLocaleTimeString('vi-VN').slice(0, 5);
   });
 }
 
 // ---------- Vào bài ----------
 
-function begin() {
+function begin(lt) {
+  luyenTap = !!lt;
   cur = 0;
   picked = {};
+  marked = {};
+  reviewMode = false;
   startAt = Date.now();
   deadline = startAt + SECONDS_TOTAL * 1000;
 
   $('view-start').classList.add('hidden');
   $('view-test').classList.remove('hidden');
-  $('timer').classList.remove('hidden');
   $('link-out').classList.add('hidden');
 
-  window.onbeforeunload = function () { return 'Bài thi đang làm dở. Rời trang là mất bài.'; };
+  // Luyện tập thì bỏ đồng hồ và bỏ luôn lời cảnh báo rời trang
+  $('timer').classList.toggle('hidden', luyenTap);
+
+  if (!luyenTap) {
+    window.onbeforeunload = function () { return 'Bài thi đang làm dở. Rời trang là mất bài.'; };
+  }
 
   drawTabs();
   openScreen(0);
+
+  if (luyenTap) return;
 
   tick = setInterval(function () {
     const left = Math.max(0, deadline - Date.now());
@@ -480,7 +700,8 @@ async function submit(auto) {
   }
 
   $('result').innerHTML =
-    '<div class="greet"><h1>' + (auto ? 'Hết giờ, bài đã tự nộp' : 'Đã nộp bài') + '</h1>' +
+    '<div class="greet"><h1>' + (auto ? 'Hết giờ, bài đã tự nộp'
+                                      : (luyenTap ? 'Xong buổi luyện tập' : 'Đã nộp bài')) + '</h1>' +
     '<p>' + esc(examSet.name) + ' · làm hết ' + Math.floor(secs / 60) + ' phút ' + (secs % 60) + ' giây' +
     (left ? ', bỏ trống ' + left + ' câu' : '') + '.</p></div>' +
     '<section class="stats">' + statCards.join('') + '</section>' +
@@ -492,7 +713,8 @@ async function submit(auto) {
 
   $('btn-review').addEventListener('click', enterReview);
 
-  const { error: mockErr } = await db.from('mock_tests').insert({
+  // Luyện tập không tính vào Lịch sử thi
+  const { error: mockErr } = luyenTap ? { error: null } : await db.from('mock_tests').insert({
     user_id: me.id, exam_set_id: examSet.id,
     started_at: new Date(startAt).toISOString(),
     submitted_at: new Date().toISOString(),
@@ -504,7 +726,7 @@ async function submit(auto) {
   if (mockErr) toast('Không lưu được kết quả thi thử: ' + mockErr.message, 'bad');
 
   const { data: att, error: attErr } = await db.from('attempts').insert({
-    user_id: me.id, mode: 'mock', total_questions: all.length,
+    user_id: me.id, mode: luyenTap ? 'practice' : 'mock', total_questions: all.length,
     correct_count: lOk + rOk, seconds_used: secs, submitted_at: new Date().toISOString()
   }).select('id').single();
 

@@ -4253,3 +4253,59 @@ html { scroll-behavior: smooth; }
   .fc-lab  { font-size: 24px; }
   .fc-tick { font-size: 20px; }
 }
+
+/* ============================================================
+   MÀN HÌNH TRƯỚC KHI THI (thi thử)
+   ============================================================ */
+
+.ex-head { margin-bottom: 18px; }
+.ex-head h1 {
+  margin: 0 0 14px; font-family: var(--disp);
+  font-size: clamp(1.6rem, 3.4vw, 2.1rem); font-weight: 700; letter-spacing: -0.025em;
+}
+.ex-acts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.ex-back { display: inline-block; margin-top: 14px; }
+.ex-acts .btn-line.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.ex-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.ex-tile {
+  background: #E9F3F0; border: 1.5px solid #CFE4DF; border-radius: var(--r); padding: 14px 18px;
+}
+.ex-tile.gold { background: var(--gold-dim); border-color: #EFD9AC; }
+.ex-tile span { display: block; font-size: 0.84rem; color: #4A635E; margin-bottom: 3px; }
+.ex-tile b { font-family: var(--disp); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+
+.ex-secs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.ex-sec { margin: 0; }
+.ex-sec-sub { margin: -4px 0 12px; font-size: 0.88rem; color: #6C837E; }
+.ex-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 0; border-top: 1px solid var(--line); font-size: 0.92rem;
+}
+.ex-row b { font-weight: 600; }
+
+.ex-guide ul { margin: 0; padding-left: 20px; }
+.ex-guide li { font-size: 0.93rem; line-height: 1.75; color: #3C544F; }
+
+.ex-panel { margin-top: 14px; }
+.ex-p { margin: 0 0 14px; font-size: 0.93rem; line-height: 1.65; color: #4A635E; }
+
+.ex-hist {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 10px 0; border-top: 1px solid var(--line); font-size: 0.9rem;
+}
+.ex-when { min-width: 92px; font-weight: 600; }
+.ex-score { font-family: var(--disp); font-weight: 700; font-size: 1.05rem; }
+
+.ex-note {
+  width: 100%; min-height: 180px; padding: 12px 14px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  font-family: var(--ui); font-size: 0.95rem; line-height: 1.65; resize: vertical;
+}
+.ex-note-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+
+@media (max-width: 680px) {
+  .ex-tiles, .ex-secs { grid-template-columns: 1fr; }
+  .ex-acts .btn, .ex-acts .btn-line { flex: 1 1 calc(50% - 5px); text-align: center; }
+  .ex-acts .btn { flex: 1 1 calc(50% - 5px); }
+}
