@@ -511,8 +511,11 @@ async function submit(auto) {
   if (attErr) toast('Không lưu được nhật ký thi thử: ' + attErr.message, 'bad');
 
   if (att) {
+    // exam_question_id trỏ vào bảng exam_questions; cột question_id cũ
+    // chỉ nhận câu của ngân hàng luyện đề nên để trống.
     const rows = all.map(function (q) {
-      return { attempt_id: att.id, question_id: null, selected: picked[q.id] || null,
+      return { attempt_id: att.id, question_id: null, exam_question_id: q.id,
+        selected: picked[q.id] || null,
         is_correct: picked[q.id] === q.correct_answer };
     });
     for (let i = 0; i < rows.length; i += 100) {

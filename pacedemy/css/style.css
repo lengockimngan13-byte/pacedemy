@@ -4107,3 +4107,50 @@ html { scroll-behavior: smooth; }
   .ao-item { grid-template-columns: 1fr auto; row-gap: 4px; }
   .ao-slot, .ao-file { grid-column: 1 / -1; }
 }
+
+/* ============================================================
+   HỒ SƠ HỌC VIÊN — TAB TỪNG CÂU
+   ============================================================ */
+
+.att { border: 1.5px solid var(--line); border-radius: var(--r); margin-bottom: 10px; background: var(--paper); }
+.att > summary {
+  list-style: none; cursor: pointer; padding: 12px 16px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 0.92rem;
+}
+.att > summary::-webkit-details-marker { display: none; }
+.att > summary:hover { background: var(--mist); }
+.att[open] > summary { border-bottom: 1px solid var(--line); }
+.att-when { font-weight: 600; min-width: 116px; }
+.att-mode { flex: 1; min-width: 130px; color: #4A635E; }
+.att-score { font-weight: 600; }
+.att-time { color: #6C837E; }
+.att-body { padding: 14px 16px 6px; }
+
+.qd { border-top: 1px solid var(--line); padding: 14px 0; }
+.qd:first-child { border-top: 0; padding-top: 0; }
+.qd-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.qd-no { font-weight: 600; font-size: 0.9rem; }
+.qd-mark { font-size: 0.78rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+.qd-mark.ok { background: #E3F0EC; color: #1F6B5E; }
+.qd-mark.no { background: #F7E2DD; color: var(--danger); }
+.qd-q { margin: 0 0 10px; font-size: 0.96rem; line-height: 1.6; }
+.qd-opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 7px 10px; border-radius: var(--r); font-size: 0.92rem; line-height: 1.5;
+}
+.qd-opt.is-right { background: #E9F3F0; }
+.qd-opt.is-wrong { background: #FBEDEA; }
+.qd-letter { font-weight: 700; min-width: 16px; }
+.qd-text { flex: 1; }
+.qd-tag { font-size: 0.75rem; color: #4A635E; white-space: nowrap; padding-top: 2px; }
+.qd-why {
+  margin: 10px 0 0; padding-left: 12px; border-left: 3px solid var(--gold);
+  font-size: 0.9rem; line-height: 1.6; color: #3C544F;
+}
+
+@media (max-width: 640px) {
+  .att > summary { gap: 8px; }
+  .att-when, .att-mode, .att-score, .att-time { min-width: 0; }
+  .att-mode { flex: 1 1 100%; order: 3; }
+  .qd-tag { flex: 1 1 100%; padding-left: 26px; }
+}

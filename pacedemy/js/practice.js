@@ -77,8 +77,12 @@ function shuffle(a) {
 
 // ---------- Hiển thị câu hỏi ----------
 
+// Mốc bắt đầu của câu đang hiển thị, để đo học viên dừng bao lâu ở câu đó
+let qStart = 0;
+
 function render() {
   const q = queue[at];
+  qStart = Date.now();
 
   $('counter').textContent = 'Câu ' + (at + 1) + ' / ' + queue.length;
   $('progress').style.width = (at / queue.length * 100) + '%';
@@ -177,7 +181,8 @@ async function saveAnswer(q, chose, ok) {
     attempt_id: attemptId,
     question_id: q.id,
     selected: chose,
-    is_correct: ok
+    is_correct: ok,
+    ms_used: qStart ? Date.now() - qStart : null
   });
 
   if (ansErr) toast('Không lưu được câu trả lời: ' + ansErr.message, 'bad');

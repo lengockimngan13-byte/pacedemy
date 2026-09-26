@@ -10,6 +10,7 @@ let prof = null;
 let atts = [];      // toàn bộ buổi học
 let mocks = [];     // các lần thi thử
 let wrongs = null;  // lười nạp, chỉ khi mở tab Dạng hay sai
+let detail = {};    // chi tiết từng câu của một buổi, nạp khi giáo viên bấm mở
 let vocab = null;   // lười nạp
 
 const $ = function (id) { return document.getElementById(id); };
@@ -114,6 +115,7 @@ function show(t) {
   if (t === 'thi-thu')   return tabMock();
   if (t === 'tu-vung')   return tabVocab();
   if (t === 'hay-sai')   return tabWrong();
+  if (t === 'tung-cau')  return tabDetail();
   if (t === 'nhat-ky')   return tabLog();
 }
 
@@ -448,6 +450,161 @@ async function tabWrong() {
             return row(esc(x.tag), bar(x.pct), x.ok + '/' + x.n, x.pct + '%');
           }).join(''))
       : '');
+}
+
+// ---------- Từng câu ----------
+//
+// Liệt kê các buổi có lưu chi tiết câu trả lời. Bấm một buổi thì mới
+// tải câu hỏi của buổi đó, để không kéo cả ngàn câu về một lúc.
+
+const MODE_NAME = {
+  practice: 'Luyện đề',
+  mock: 'Thi thử',
+  exam: 'Thi thử',
+  vocab: 'Kiểm tra từ vựng',
+  vocab_colloc: 'Kiểm tra cụm từ',
+  vocab_synonym: 'Kiểm tra cách nói khác',
+  review: 'Ôn từ tới hạn',
+  flashcard: 'Học thẻ từ vựng',
+  extra: 'Luyện trộn'
+};
+
+function when(iso) {
+  const d = new Date(iso);
+  return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() + ' ' +
+    String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+function mmss(sec) {
+  const s = Math.max(0, Math.round(sec || 0));
+  return Math.floor(s / 60) + ' phút ' + (s % 60) + ' giây';
+}
+
+function tabDetail() {
+  // Chỉ những buổi có ghi lại từng câu mới mở xem chi tiết được
+  const list = atts.filter(function (a) {
+    return a.mode === 'practice' || a.mode === 'mock' || a.mode === 'exam';
+  });
+
+  if (!list.length) {
+    $('body').innerHTML = '<p class="empty">Chưa có buổi nào lưu chi tiết từng câu. ' +
+      'Phần luyện đề, luyện nghe, luyện đọc và thi thử mới có dữ liệu này.</p>';
+    return;
+  }
+
+  $('body').innerHTML =
+    '<p class="review-note" style="margin:0 0 12px">Bấm một buổi để xem học viên trả lời từng câu ra sao.</p>' +
+    list.map(function (a) {
+      const pct = a.total_questions ? Math.round((a.correct_count || 0) / a.total_questions * 100) : 0;
+      return '<details class="att" data-id="' + esc(a.id) + '">' +
+        '<summary>' +
+          '<span class="att-when">' + esc(when(a.submitted_at)) + '</span>' +
+          '<span class="att-mode">' + esc(MODE_NAME[a.mode] || a.mode) +
+            (a.part ? ' · Part ' + a.part : '') + '</span>' +
+          '<span class="att-score">' + (a.correct_count || 0) + '/' + (a.total_questions || 0) +
+            ' · ' + pct + '%</span>' +
+          '<span class="att-time">' + mmss(a.seconds_used) + '</span>' +
+        '</summary>' +
+        '<div class="att-body"><p class="empty">Bấm để tải…</p></div>' +
+      '</details>';
+    }).join('');
+
+  $('body').querySelectorAll('details.att').forEach(function (d) {
+    d.addEventListener('toggle', function () {
+      if (d.open) loadDetail(d);
+    });
+  });
+}
+
+async function loadDetail(d) {
+  const id = d.dataset.id;
+  const box = d.querySelector('.att-body');
+
+  if (detail[id]) { box.innerHTML = detail[id]; return; }
+
+  box.innerHTML = '<p class="empty">Đang tải…</p>';
+
+  const { data: ans, error } = await db.from('attempt_answers')
+    .select('question_id, exam_question_id, selected, is_correct, ms_used')
+    .eq('attempt_id', id);
+
+  if (error) {
+    box.innerHTML = '<p class="empty">Không tải được: ' + esc(error.message) + '</p>';
+    return;
+  }
+  if (!ans || !ans.length) {
+    box.innerHTML = '<p class="empty">Buổi này không lưu chi tiết từng câu.</p>';
+    return;
+  }
+
+  // Câu luyện đề nằm bảng questions, câu thi thử nằm bảng exam_questions
+  const qIds = [...new Set(ans.map(function (x) { return x.question_id; }).filter(Boolean))];
+  const eIds = [...new Set(ans.map(function (x) { return x.exam_question_id; }).filter(Boolean))];
+
+  const cols = 'id, part, question_text, options, correct_answer, explanation, topic_tag';
+  const [qRes, eRes] = await Promise.all([
+    qIds.length ? db.from('questions').select(cols).in('id', qIds) : Promise.resolve({ data: [] }),
+    eIds.length ? db.from('exam_questions').select(cols).in('id', eIds) : Promise.resolve({ data: [] })
+  ]);
+
+  const info = {};
+  for (const q of (qRes.data || [])) info['q' + q.id] = q;
+  for (const q of (eRes.data || [])) info['e' + q.id] = q;
+
+  const html = ans.map(function (x, i) { return oneQuestion(x, info, i + 1); }).join('');
+  const old = ans.filter(function (x) { return !x.question_id && !x.exam_question_id; }).length;
+
+  detail[id] = html + (old
+    ? '<p class="review-note">' + old + ' câu của buổi này được làm trước khi web lưu mã câu hỏi, ' +
+      'nên chỉ còn đúng/sai chứ không xem lại được nội dung.</p>'
+    : '');
+  box.innerHTML = detail[id];
+}
+
+function oneQuestion(x, info, no) {
+  const q = info[x.question_id ? 'q' + x.question_id : 'e' + x.exam_question_id];
+  const ok = x.is_correct;
+  const secs = x.ms_used != null ? Math.round(x.ms_used / 1000) : null;
+
+  let head =
+    '<div class="qd-head">' +
+      '<span class="qd-no">Câu ' + no + '</span>' +
+      '<span class="qd-mark ' + (ok ? 'ok' : 'no') + '">' + (ok ? 'Đúng' : 'Sai') + '</span>' +
+      (q && q.part ? '<span class="stat-lab">Part ' + q.part + '</span>' : '') +
+      (q && q.topic_tag ? '<span class="stat-lab">' + esc(q.topic_tag) + '</span>' : '') +
+      (secs != null ? '<span class="stat-lab">' + secs + ' giây</span>' : '') +
+    '</div>';
+
+  if (!q) {
+    return '<div class="qd">' + head +
+      '<p class="ww">Học viên chọn ' + esc(x.selected || 'bỏ trống') +
+      '. Câu hỏi này không còn trong ngân hàng đề.</p></div>';
+  }
+
+  const o = q.options || {};
+  const chose = x.selected;
+  const right = q.correct_answer;
+
+  let opts = '';
+  for (const k of ['A', 'B', 'C', 'D']) {
+    if (o[k] == null) continue;
+    const isRight = k === right;
+    const isChose = k === chose;
+    opts +=
+      '<div class="qd-opt' + (isRight ? ' is-right' : '') + (isChose && !isRight ? ' is-wrong' : '') + '">' +
+        '<span class="qd-letter">' + k + '</span>' +
+        '<span class="qd-text">' + esc(o[k]) + '</span>' +
+        (isChose ? '<span class="qd-tag">học viên chọn</span>' : '') +
+        (isRight && !isChose ? '<span class="qd-tag">đáp án đúng</span>' : '') +
+      '</div>';
+  }
+
+  return '<div class="qd">' + head +
+    (q.question_text ? '<p class="qd-q">' + esc(q.question_text) + '</p>' : '') +
+    opts +
+    (!chose ? '<p class="ww" style="margin:8px 0 0">Học viên bỏ trống câu này.</p>' : '') +
+    (!ok && q.explanation ? '<p class="qd-why">' + esc(q.explanation) + '</p>' : '') +
+  '</div>';
 }
 
 // ---------- Nhật ký ----------

@@ -158,8 +158,12 @@ $('btn-start').addEventListener('click', function () {
 
 // ---------- Hiển thị một câu ----------
 
+// Mốc bắt đầu của câu đang hiển thị
+let qStart = 0;
+
 function render() {
   const item = queue[at];
+  qStart = Date.now();
   const s = item.set;
   const q = item.q;
 
@@ -337,7 +341,8 @@ async function saveAnswer(q, chose, ok) {
     attempt_id: attemptId,
     question_id: q.id,
     selected: chose,
-    is_correct: ok
+    is_correct: ok,
+    ms_used: qStart ? Date.now() - qStart : null
   });
 
   if (ansErr) toast('Không lưu được câu trả lời: ' + ansErr.message, 'bad');
