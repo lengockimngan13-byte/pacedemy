@@ -182,7 +182,7 @@ async function saveAnswer(q, chose, ok) {
     question_id: q.id,
     selected: chose,
     is_correct: ok,
-    ms_used: qStart ? Date.now() - qStart : null
+    seconds_spent: qStart ? Math.round((Date.now() - qStart) / 1000) : null
   });
 
   if (ansErr) toast('Không lưu được câu trả lời: ' + ansErr.message, 'bad');

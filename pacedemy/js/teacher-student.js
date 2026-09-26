@@ -525,7 +525,7 @@ async function loadDetail(d) {
   box.innerHTML = '<p class="empty">Đang tải…</p>';
 
   const { data: ans, error } = await db.from('attempt_answers')
-    .select('question_id, exam_question_id, selected, is_correct, ms_used')
+    .select('question_id, exam_question_id, selected, is_correct, seconds_spent')
     .eq('attempt_id', id);
 
   if (error) {
@@ -564,7 +564,7 @@ async function loadDetail(d) {
 function oneQuestion(x, info, no) {
   const q = info[x.question_id ? 'q' + x.question_id : 'e' + x.exam_question_id];
   const ok = x.is_correct;
-  const secs = x.ms_used != null ? Math.round(x.ms_used / 1000) : null;
+  const secs = x.seconds_spent != null ? x.seconds_spent : null;
 
   let head =
     '<div class="qd-head">' +
