@@ -4199,15 +4199,20 @@ html { scroll-behavior: smooth; }
 }
 
 /* ============================================================
-   ĐƯỜNG CONG QUÊN LÃNG (trang học)
+   TRÍ NHỚ CỦA HỌC VIÊN (trang học)
    ============================================================ */
+
+.fc-hero { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
+.fc-big { display: flex; align-items: baseline; gap: 10px; }
+.fc-big b { font-family: var(--disp); font-size: 2.6rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.fc-big i { font-style: normal; font-size: 1.3rem; font-weight: 600; color: #6C837E; }
+.fc-big span { font-size: 0.9rem; color: #4A635E; }
+.fc-bar { flex: 1; min-width: 160px; height: 10px; background: var(--mist);
+          border-radius: 999px; overflow: hidden; }
+.fc-bar span { display: block; height: 100%; background: #0B9184; border-radius: 999px; }
 
 .fc { margin-bottom: 20px; }
 .fc-sub { margin: 0 0 16px; font-size: 0.93rem; line-height: 1.65; color: #4A635E; max-width: 46rem; }
-
-.fc-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 8px; font-size: 0.86rem; color: #3C544F; }
-.fc-legend span { display: flex; align-items: center; gap: 7px; }
-.fc-legend i { width: 14px; height: 3px; border-radius: 2px; flex: none; }
 
 .fc-wrap { position: relative; }
 .fc-svg { display: block; width: 100%; height: auto; touch-action: none; }
@@ -4247,5 +4252,4 @@ html { scroll-behavior: smooth; }
 @media (max-width: 620px) {
   .fc-lab  { font-size: 24px; }
   .fc-tick { font-size: 20px; }
-  .fc-legend { gap: 6px 18px; }
 }
