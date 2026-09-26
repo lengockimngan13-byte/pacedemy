@@ -8,6 +8,11 @@ let sets = [];
 
 const $ = function (id) { return document.getElementById(id); };
 
+// Trang Part 6 và trang Part 7 dùng chung file này. Mỗi trang HTML khai
+// báo window.ONLY_PART để biết mình đang làm part nào. Không khai báo thì
+// chạy như cũ, nhận cả hai part.
+const ONLY = (window.ONLY_PART === 6 || window.ONLY_PART === 7) ? window.ONLY_PART : null;
+
 const P6 =
 'Mình có một web học TOEIC. Hãy soạn đề Part 6 và trả về DUY NHẤT một khối JSON, ' +
 'không thêm lời dẫn, không thêm dấu ```.\n\n' +
@@ -233,8 +238,15 @@ const SAMPLE_7 = JSON.stringify([
   loadHave();
 })();
 
-$('btn-p6').addEventListener('click', function () { copyPrompt(P6, 'Part 6'); });
-$('btn-p7').addEventListener('click', function () { copyPrompt(P7, 'Part 7'); });
+if ($('btn-p6')) $('btn-p6').addEventListener('click', function () { copyPrompt(P6, 'Part 6'); });
+if ($('btn-p7')) $('btn-p7').addEventListener('click', function () { copyPrompt(P7, 'Part 7'); });
+
+// Trang riêng từng part chỉ có một nút câu nhắc và một nút ví dụ
+if ($('btn-prompt')) {
+  $('btn-prompt').addEventListener('click', function () {
+    copyPrompt(ONLY === 6 ? P6 : P7, 'Part ' + ONLY);
+  });
+}
 
 function copyPrompt(text, name) {
   navigator.clipboard.writeText(text).then(function () {
@@ -244,15 +256,22 @@ function copyPrompt(text, name) {
   });
 }
 
-$('btn-sample-6').addEventListener('click', function () {
+if ($('btn-sample-6')) $('btn-sample-6').addEventListener('click', function () {
   $('raw').value = SAMPLE_6;
   say('Đây là một đoạn Part 6 làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
 });
 
-$('btn-sample-7').addEventListener('click', function () {
+if ($('btn-sample-7')) $('btn-sample-7').addEventListener('click', function () {
   $('raw').value = SAMPLE_7;
   say('Đây là một bài Part 7 làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
 });
+
+if ($('btn-sample')) {
+  $('btn-sample').addEventListener('click', function () {
+    $('raw').value = ONLY === 6 ? SAMPLE_6 : SAMPLE_7;
+    say('Đây là một đoạn Part ' + ONLY + ' làm mẫu. Bấm Xem trước để thấy cách hệ thống đọc dữ liệu.', 'good');
+  });
+}
 
 // Số Test giáo viên nhập ở Bước 3 — áp cho mọi đoạn lưu trong lượt này
 function testNo() {
@@ -293,7 +312,7 @@ function readJson(raw) {
     const qs = Array.isArray(o.questions) ? o.questions : [];
 
     return {
-      part: parseInt(o.part || 7, 10),
+      part: parseInt(o.part || ONLY || 7, 10),
       title: (o.title || '').trim(),
       doc_type: (o.doc_type || '').trim(),
       passage_text: (o.passage_text || '').trim(),
@@ -328,6 +347,9 @@ function check(list) {
     const p = [];
 
     if ([6, 7].indexOf(s.part) === -1) p.push('part phải là 6 hoặc 7');
+    else if (ONLY && s.part !== ONLY) {
+      p.push('đoạn này là Part ' + s.part + ', hãy dán ở trang Nhập đề Part ' + s.part);
+    }
     if (!s.title) p.push('thiếu tên đoạn');
     if (!s.passage_text) p.push('thiếu nội dung đoạn đọc');
     if (!s.questions.length) p.push('đoạn này chưa có câu hỏi nào');
@@ -482,57 +504,120 @@ $('btn-save').addEventListener('click', async function () {
 
 // ---------- Đoạn đọc đã có ----------
 
-async function loadHave() {
-  const { data: rs } = await db
-    .from('reading_sets').select('id, part, title, doc_type, is_active, created_at')
-    .order('created_at', { ascending: false }).limit(60);
+let have = [];   // các đoạn đã tải về
 
-  if (!rs || !rs.length) {
-    $('have').innerHTML = '<p class="empty">Chưa có đoạn đọc nào.</p>';
+async function loadHave() {
+  $('have').innerHTML = '<p class="empty">Đang tải…</p>';
+
+  let q = db.from('reading_sets')
+    .select('id, part, title, doc_type, test_no, is_active, created_at');
+
+  if (ONLY) q = q.eq('part', ONLY);
+
+  const { data: rs, error } = await q.order('created_at', { ascending: false }).limit(500);
+
+  if (error) {
+    $('have').innerHTML = '<p class="empty">Không tải được danh sách: ' + esc(error.message) + '</p>';
     return;
   }
 
-  const { data: qs } = await db
-    .from('questions').select('rset_id')
-    .in('rset_id', rs.map(function (r) { return r.id; }));
+  have = rs || [];
 
-  const n = {};
-  for (const q of (qs || [])) n[q.rset_id] = (n[q.rset_id] || 0) + 1;
-
-  let html = '';
-
-  for (const r of rs) {
-    html +=
-      '<div class="wrong-q" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap' +
-        (r.is_active ? '' : ';opacity:0.55') + '">' +
-        '<span class="q-tag" style="margin:0">Part ' + r.part + '</span>' +
-        '<span style="flex:1;min-width:170px;font-weight:600">' + esc(r.title) + '</span>' +
-        (r.doc_type ? '<span class="stat-lab">' + esc(r.doc_type) + '</span>' : '') +
-        '<span class="stat-lab">' + (n[r.id] || 0) + ' câu</span>' +
-        '<button class="btn-sm" data-tog="' + r.id + '" data-on="' + r.is_active + '">' +
-          (r.is_active ? 'Tạm ẩn' : 'Mở lại') + '</button>' +
-        '<button class="btn-sm" data-del="' + r.id + '">Xoá</button>' +
-      '</div>';
+  if (!have.length) {
+    $('have').innerHTML = '<p class="empty">Chưa có đoạn đọc nào.</p>';
+    if ($('f-test')) fillFilters();
+    return;
   }
 
-  $('have').innerHTML = html;
+  // Đếm số câu hỏi của từng đoạn
+  const ids = have.map(function (r) { return r.id; });
+  const n = {};
+  for (let i = 0; i < ids.length; i += 200) {
+    const { data: qs } = await db.from('questions')
+      .select('rset_id').in('rset_id', ids.slice(i, i + 200));
+    for (const x of (qs || [])) n[x.rset_id] = (n[x.rset_id] || 0) + 1;
+  }
+  have.forEach(function (r) { r.nq = n[r.id] || 0; });
 
-  $('have').querySelectorAll('button[data-tog]').forEach(function (b) {
-    b.addEventListener('click', async function () {
-      await db.from('reading_sets')
-        .update({ is_active: b.dataset.on !== 'true' }).eq('id', b.dataset.tog);
-      loadHave();
-    });
-  });
+  fillFilters();
+  drawHave();
+}
 
-  $('have').querySelectorAll('button[data-del]').forEach(function (b) {
-    b.addEventListener('click', async function () {
-      if (!confirm('Xoá hẳn đoạn này và toàn bộ câu hỏi của nó?')) return;
-      await db.from('reading_sets').delete().eq('id', b.dataset.del);
-      loadHave();
-    });
+function fillFilters() {
+  if (!$('f-test')) return;
+
+  const testList = [...new Set(have.map(function (r) { return r.test_no; })
+    .filter(function (x) { return x != null; }))].sort(function (a, b) { return a - b; });
+
+  const keep = $('f-test').value;
+  $('f-test').innerHTML = '<option value="">Tất cả số Test</option>' +
+    '<option value="none">Chưa gắn số Test</option>' +
+    testList.map(function (t) { return '<option value="' + t + '">Test ' + t + '</option>'; }).join('');
+  $('f-test').value = keep;
+}
+
+function filtered() {
+  const test = $('f-test') ? $('f-test').value : '';
+  const state = $('f-state') ? $('f-state').value : '';
+  const text = $('f-text') ? $('f-text').value.trim().toLowerCase() : '';
+
+  return have.filter(function (r) {
+    if (test === 'none' && r.test_no != null) return false;
+    if (test && test !== 'none' && String(r.test_no) !== test) return false;
+    if (state === 'on' && !r.is_active) return false;
+    if (state === 'off' && r.is_active) return false;
+    if (text && (r.title || '').toLowerCase().indexOf(text) === -1) return false;
+    return true;
   });
 }
+
+function drawHave() {
+  const list = filtered();
+
+  BulkList.render($('have'), {
+    noun: 'đoạn',
+    emptyText: have.length ? 'Không có đoạn nào khớp bộ lọc.' : 'Chưa có đoạn đọc nào.',
+    items: list.map(function (r) {
+      return {
+        id: r.id,
+        active: r.is_active,
+        html:
+          '<span class="bulk-title">' + esc(r.title) + '</span>' +
+          '<span class="bulk-meta">' +
+            (ONLY ? '' : '<span>Part ' + r.part + '</span>') +
+            (r.doc_type ? '<span>' + esc(r.doc_type) + '</span>' : '') +
+            '<span>' + (r.nq || 0) + ' câu</span>' +
+            (r.test_no != null ? '<span>Test ' + r.test_no + '</span>' : '') +
+            (r.is_active ? '' : '<span>đang ẩn</span>') +
+          '</span>'
+      };
+    }),
+    onSetActive: async function (ids, active) {
+      const { error } = await db.from('reading_sets').update({ is_active: active }).in('id', ids);
+      return error ? error.message : null;
+    },
+    onSetTest: async function (ids, n) {
+      const { error } = await db.from('reading_sets').update({ test_no: n }).in('id', ids);
+      return error ? error.message : null;
+    },
+    onDelete: async function (ids) {
+      for (let i = 0; i < ids.length; i += 100) {
+        const { error } = await db.from('reading_sets').delete().in('id', ids.slice(i, i + 100));
+        if (error) return error.message;
+      }
+      return null;
+    },
+    onDone: loadHave
+  });
+}
+
+['f-test', 'f-state'].forEach(function (id) {
+  const el = $(id);
+  if (el) el.addEventListener('change', drawHave);
+});
+
+if ($('f-text')) $('f-text').addEventListener('input', drawHave);
+if ($('f-reload')) $('f-reload').addEventListener('click', loadHave);
 
 function esc(s) {
   return String(s == null ? '' : s)

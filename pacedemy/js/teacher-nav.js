@@ -16,8 +16,11 @@
       icon: '<path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zm16 0h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7z"/>' },
     { href: 'teacher-import.html',  label: 'Nhập đề Part 5',
       icon: '<path d="M5 3h11l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 9h8v2H8zm0 4h6v2H8z"/>' },
-    { href: 'teacher-reading.html', label: 'Nhập đề Part 6-7',
+    { href: 'teacher-p6.html', label: 'Nhập đề Part 6',
       icon: '<path d="M4 5h8v15H4zm16 0h-8v15h8z"/>' },
+
+    { href: 'teacher-p7.html', label: 'Nhập đề Part 7',
+      icon: '<path d="M4 4h16v16H4zm3 4h10M7 12h10M7 16h6"/>' },
     { href: 'teacher-listen.html',  label: 'Nhập bài nghe',
       icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' },
     { href: 'teacher-extra.html',   label: 'Nhập Ôn tổng hợp',

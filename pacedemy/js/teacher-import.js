@@ -46,6 +46,8 @@ const PROMPT =
 
   const { data: t } = await db.from('question_tags').select('tag').eq('part', 5);
   tags = (t || []).map(function (x) { return x.tag; });
+
+  loadHave();
 })();
 
 // ---------- Câu nhắc ----------
@@ -230,7 +232,119 @@ $('btn-save').addEventListener('click', async function () {
   $('raw').value = '';
   $('preview').innerHTML = '';
   $('btn-save').classList.add('hidden');
+  loadHave();
 });
+
+
+// ============================================================
+// Câu Part 5 đã có — lọc, chọn hàng loạt, sửa và xoá cả loạt
+// ============================================================
+
+let have = [];   // toàn bộ câu Part 5 đã tải về
+
+async function loadHave() {
+  $('have').innerHTML = '<p class="empty">Đang tải…</p>';
+
+  const { data, error } = await db.from('questions')
+    .select('id, question_text, topic_tag, test_no, is_active, created_at')
+    .eq('part', 5)
+    .order('created_at', { ascending: false })
+    .limit(1000);
+
+  if (error) {
+    $('have').innerHTML = '<p class="empty">Không tải được danh sách: ' + esc(error.message) + '</p>';
+    return;
+  }
+
+  have = data || [];
+  fillFilters();
+  drawHave();
+}
+
+// Đổ sẵn các dạng và số Test đang có vào hai ô lọc
+function fillFilters() {
+  const tagList = [...new Set(have.map(function (r) { return r.topic_tag; }).filter(Boolean))].sort();
+  const testList = [...new Set(have.map(function (r) { return r.test_no; })
+    .filter(function (x) { return x != null; }))].sort(function (a, b) { return a - b; });
+
+  const keepTag = $('f-tag').value;
+  const keepTest = $('f-test').value;
+
+  $('f-tag').innerHTML = '<option value="">Tất cả các dạng</option>' +
+    tagList.map(function (t) { return '<option value="' + esc(t) + '">' + esc(t) + '</option>'; }).join('');
+  $('f-test').innerHTML = '<option value="">Tất cả số Test</option>' +
+    '<option value="none">Chưa gắn số Test</option>' +
+    testList.map(function (t) { return '<option value="' + t + '">Test ' + t + '</option>'; }).join('');
+
+  $('f-tag').value = keepTag;
+  $('f-test').value = keepTest;
+}
+
+function filtered() {
+  const tag = $('f-tag').value;
+  const test = $('f-test').value;
+  const state = $('f-state').value;
+  const text = $('f-text').value.trim().toLowerCase();
+
+  return have.filter(function (r) {
+    if (tag && r.topic_tag !== tag) return false;
+    if (test === 'none' && r.test_no != null) return false;
+    if (test && test !== 'none' && String(r.test_no) !== test) return false;
+    if (state === 'on' && !r.is_active) return false;
+    if (state === 'off' && r.is_active) return false;
+    if (text && (r.question_text || '').toLowerCase().indexOf(text) === -1) return false;
+    return true;
+  });
+}
+
+function drawHave() {
+  const list = filtered();
+
+  BulkList.render($('have'), {
+    noun: 'câu',
+    emptyText: have.length
+      ? 'Không có câu nào khớp bộ lọc.'
+      : 'Chưa có câu Part 5 nào trong ngân hàng đề.',
+    items: list.map(function (r) {
+      return {
+        id: r.id,
+        active: r.is_active,
+        html:
+          '<span class="bulk-title">' + esc(r.question_text || '(không có nội dung)') + '</span>' +
+          '<span class="bulk-meta">' +
+            (r.topic_tag ? '<span>' + esc(r.topic_tag) + '</span>' : '<span>chưa gắn dạng</span>') +
+            (r.test_no != null ? '<span>Test ' + r.test_no + '</span>' : '') +
+            (r.is_active ? '' : '<span>đang ẩn</span>') +
+          '</span>'
+      };
+    }),
+    onSetActive: async function (ids, active) {
+      const { error } = await db.from('questions').update({ is_active: active }).in('id', ids);
+      return error ? error.message : null;
+    },
+    onSetTest: async function (ids, n) {
+      const { error } = await db.from('questions').update({ test_no: n }).in('id', ids);
+      return error ? error.message : null;
+    },
+    onDelete: async function (ids) {
+      // Xoá theo từng mẻ cho khỏi quá dài khi chọn cả ngàn câu
+      for (let i = 0; i < ids.length; i += 200) {
+        const { error } = await db.from('questions').delete().in('id', ids.slice(i, i + 200));
+        if (error) return error.message;
+      }
+      return null;
+    },
+    onDone: loadHave
+  });
+}
+
+['f-tag', 'f-test', 'f-state'].forEach(function (id) {
+  const el = $(id);
+  if (el) el.addEventListener('change', drawHave);
+});
+
+if ($('f-text')) $('f-text').addEventListener('input', drawHave);
+if ($('f-reload')) $('f-reload').addEventListener('click', loadHave);
 
 // Số Test giáo viên nhập ở Bước 3 — áp cho mọi câu lưu trong lượt này
 function testNo() {

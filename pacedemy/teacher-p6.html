@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nhập đề Part 5 — Pacedemy</title>
+<title>Nhập đề Part 6 — Pacedemy</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <meta name="theme-color" content="#0C2422">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,24 +23,23 @@
 
   <section class="hidden" id="view-main">
     <div class="greet">
-      <h1>Nhập đề Part 5</h1>
-      <p>Câu hoàn thành câu, mỗi câu một chỗ trống và bốn phương án. Dán dữ liệu, xem trước rồi lưu.</p>
+      <h1>Nhập đề Part 6</h1>
+      <p>Mỗi đoạn có bốn chỗ trống và bốn câu hỏi. Chỗ trống viết dạng ---131---, số chỗ trống phải bằng số câu hỏi.</p>
     </div>
 
     <div class="tbox">
-      <h3>Cách dùng</h3>
-      <p style="margin:0 0 10px;font-size:0.94rem;line-height:1.65">
-        Gửi file PDF hoặc Word cho Claude trong khung chat, kèm câu nhắc ở nút bên dưới.
-        Claude trả về một khối dữ liệu, Ngân copy rồi dán vào ô này.
-      </p>
-      <button class="btn btn-line" id="btn-prompt">Copy câu nhắc cho Claude</button>
-      <span id="prompt-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+      <h3>Bước 1 · Lấy câu nhắc cho ChatGPT</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-line" id="btn-prompt">Copy câu nhắc Part 6</button>
+        <button class="btn btn-line" id="btn-sample">Xem ví dụ mẫu</button>
+      </div>
+      <span id="prompt-ok" style="display:block;margin-top:10px;font-size:0.88rem;color:var(--teal)"></span>
     </div>
 
     <div class="field">
-      <label for="raw">Dữ liệu câu hỏi</label>
-      <textarea id="raw" style="min-height:220px;font-family:ui-monospace,monospace;font-size:0.88rem"
-        placeholder='Dán khối JSON Claude trả về, hoặc mỗi câu một dòng ngăn bằng dấu |'></textarea>
+      <label for="raw">Bước 2 · Dữ liệu đề</label>
+      <textarea id="raw" style="min-height:280px;font-family:ui-monospace,monospace;font-size:0.86rem;width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r)"
+        placeholder="Dán khối dữ liệu ChatGPT trả về vào đây"></textarea>
     </div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
@@ -57,17 +55,16 @@
     <div id="note" class="note hidden"></div>
     <div id="preview"></div>
 
-    <div class="section-head" style="margin-top:34px"><h2>Câu Part 5 đã có</h2></div>
+    <div class="section-head" style="margin-top:34px"><h2>Đoạn Part 6 đã có</h2></div>
 
     <div class="filter-bar">
-      <select id="f-tag"><option value="">Tất cả các dạng</option></select>
       <select id="f-test"><option value="">Tất cả số Test</option></select>
       <select id="f-state">
         <option value="">Đang hiện và đang ẩn</option>
-        <option value="on">Chỉ câu đang hiện</option>
-        <option value="off">Chỉ câu đang ẩn</option>
+        <option value="on">Chỉ đoạn đang hiện</option>
+        <option value="off">Chỉ đoạn đang ẩn</option>
       </select>
-      <input type="search" id="f-text" placeholder="Tìm trong nội dung câu">
+      <input type="search" id="f-text" placeholder="Tìm theo tên đoạn">
       <button class="btn-sm" type="button" id="f-reload">Tải lại</button>
     </div>
 
@@ -83,6 +80,7 @@
 <script src="js/layout-settings.js"></script>
 <script src="js/teacher-nav.js"></script>
 <script src="js/bulk-list.js"></script>
-<script src="js/teacher-import.js"></script>
+<script>window.ONLY_PART = 6;</script>
+<script src="js/teacher-reading.js"></script>
 </body>
 </html>
