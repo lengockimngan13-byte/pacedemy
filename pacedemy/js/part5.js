@@ -52,9 +52,13 @@ async function build() {
     seen[t.skill_group].push(t);
   }
 
+  // Mỗi nhóm một màu nhãn, theo thứ tự xuất hiện
+  const BAND = { 'Từ loại': 'band-3', 'Ngữ pháp': 'band-1', 'Từ vựng': 'band-2' };
+
   let html = '';
 
-  for (const g of groups) {
+  for (const gi in groups) {
+    const g = groups[gi];
     const list = seen[g];
     let totalG = 0;
     for (const t of list) totalG += (countBy[t.tag] || 0);
@@ -63,7 +67,7 @@ async function build() {
       '<section class="level-block">' +
         '<div class="level-head">' +
           '<h2>' + esc(g) + '</h2>' +
-          '<span class="level-band ' + (g === 'Ngữ pháp' ? 'band-1' : 'band-2') + '">' +
+          '<span class="level-band ' + (BAND[g] || ('band-' + ((gi % 3) + 1))) + '">' +
             totalG + ' câu</span>' +
         '</div>' +
         '<div class="set-grid">';

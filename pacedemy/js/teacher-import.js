@@ -21,10 +21,13 @@ const PROMPT =
 '  "explanation": "giải thích bằng tiếng Việt, nói rõ quy tắc chứ không chỉ nêu đáp án",\n' +
 '  "translation_vi": "nghĩa tiếng Việt của cả câu sau khi đã điền đáp án đúng",\n' +
 '  "key_point": "cấu trúc hoặc cụm từ cần nhớ, viết ngắn dạng: cụm tiếng Anh = nghĩa tiếng Việt",\n' +
-'  "topic_tag": "một trong các dạng: Chia từ loại | Động từ - thì và thể | Hoà hợp chủ ngữ động từ | ' +
-'Danh động từ và nguyên mẫu | Mệnh đề quan hệ | Rút gọn mệnh đề quan hệ | Mệnh đề phân từ | Đại từ | ' +
-'Mạo từ và lượng từ | So sánh | Câu điều kiện và giả định | Đảo ngữ | Liên từ và mệnh đề | Giới từ | ' +
-'Từ nối | Chọn từ đúng nghĩa | Cụm từ cố định | Cụm động từ",\n' +
+'  "topic_tag": "một trong các dạng: Chia từ loại | Danh từ | Tính từ | Trạng từ | ' +
+'Động từ - thì và thể | Chủ động - bị động | Hoà hợp chủ ngữ động từ | Danh động từ và nguyên mẫu | ' +
+'Câu mệnh lệnh | Mệnh đề quan hệ | Rút gọn mệnh đề quan hệ | Mệnh đề phân từ | Mệnh đề trạng ngữ | ' +
+'Đại từ | Mạo từ và lượng từ | So sánh | Câu điều kiện và giả định | Đảo ngữ | Liên từ và mệnh đề | ' +
+'Giới từ | Từ nối | Chọn từ đúng nghĩa | Cụm từ cố định | Cụm động từ",\n' +
+'Chọn Danh từ, Tính từ hoặc Trạng từ khi bốn phương án là các dạng của cùng một họ từ và ' +
+'chỗ trống chỉ nhận đúng một loại. Dùng "Chia từ loại" khi câu trộn nhiều loại từ khác nhau.\n' +
 '  "difficulty": 2\n' +
 '}\n\n' +
 'Lưu ý quan trọng: ba phương án sai phải hợp lý nhưng chỉ có đúng một đáp án dùng được. ' +
@@ -354,10 +357,13 @@ function testNo() {
 }
 
 const VOCAB_TAGS = ['Giới từ', 'Từ nối', 'Chọn từ đúng nghĩa', 'Cụm từ cố định', 'Cụm động từ'];
+const WORD_TAGS  = ['Chia từ loại', 'Danh từ', 'Tính từ', 'Trạng từ'];
 
 function groupOf(tag) {
   if (!tag) return null;
-  return VOCAB_TAGS.indexOf(tag) !== -1 ? 'Từ vựng' : 'Ngữ pháp';
+  if (VOCAB_TAGS.indexOf(tag) !== -1) return 'Từ vựng';
+  if (WORD_TAGS.indexOf(tag) !== -1) return 'Từ loại';
+  return 'Ngữ pháp';
 }
 
 function esc(s) {
