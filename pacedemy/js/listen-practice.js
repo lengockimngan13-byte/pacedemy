@@ -15,6 +15,7 @@ let setId = null;
 
 let queue = [];       // [{ set, q }]
 let at = 0;
+let marks = [];   // kết quả từng câu, để vẽ thanh tiến độ
 let right = 0;
 let xp = 0;
 let wrongs = [];
@@ -167,8 +168,7 @@ function render() {
   const s = item.set;
   const q = item.q;
 
-  $('counter').textContent = 'Câu ' + (at + 1) + ' / ' + queue.length;
-  $('progress').style.width = (at / queue.length * 100) + '%';
+  QuizProgress.draw({ at: at, total: queue.length, marks: marks });
   $('after').classList.add('hidden');
   $('script-box').innerHTML = '';
   $('vocab-box').innerHTML = '';
@@ -254,6 +254,8 @@ async function answer(k) {
   const s = item.set;
   const opts = q.options || {};
   const ok = (k === q.correct_answer);
+  marks[at] = ok ? 'ok' : 'no';
+  QuizProgress.draw({ at: at, total: queue.length, marks: marks });
 
   $('btn-submit').classList.add('hidden');
 

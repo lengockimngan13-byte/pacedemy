@@ -12,6 +12,7 @@ let part = 5;
 let dang = null;
 let queue = [];
 let at = 0;
+let marks = [];   // kết quả từng câu, để vẽ thanh tiến độ
 let right = 0;
 let xp = 0;
 let wrongs = [];
@@ -84,8 +85,7 @@ function render() {
   const q = queue[at];
   qStart = Date.now();
 
-  $('counter').textContent = 'Câu ' + (at + 1) + ' / ' + queue.length;
-  $('progress').style.width = (at / queue.length * 100) + '%';
+  QuizProgress.draw({ at: at, total: queue.length, marks: marks });
   $('after').classList.add('hidden');
 
   $('q-text').innerHTML = blankify(q.question_text);
@@ -120,6 +120,8 @@ function fillBlank(text, word) {
 async function answer(k) {
   const q = queue[at];
   const ok = (k === q.correct_answer);
+  marks[at] = ok ? 'ok' : 'no';
+  QuizProgress.draw({ at: at, total: queue.length, marks: marks });
 
   $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
     b.classList.add('disabled');

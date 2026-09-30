@@ -123,7 +123,7 @@ function showCard(c) {
 function renderDeckCard() {
   const w = deck[at];
   $('sh-counter').textContent = 'Bài ' + (at + 1) + ' / ' + deck.length + (w.title ? ' · ' + w.title : '');
-  $('sh-progress').style.width = (at / deck.length * 100) + '%';
+  $('sh-progress').style.width = ((at + 1) / deck.length * 100) + '%';
   showCard({ en: w.transcript, vi: w.transcript_vi || '', audioUrl: w.audio_url });
 }
 

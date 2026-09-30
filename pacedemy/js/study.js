@@ -17,6 +17,7 @@ const GAP_MINUTES = { 1: 10, 2: 1440, 3: 4320, 4: 10080, 5: 30240 };
 let me = null;
 let queue = [];
 let at = 0;
+let marks = [];   // kết quả từng câu, để vẽ thanh tiến độ
 let right = 0;
 let xp = 0;
 let wrongWords = [];
@@ -286,8 +287,7 @@ function render() {
   const w = queue[at];
   locked = false;
 
-  $('counter').textContent = 'Câu ' + (at + 1) + ' / ' + queue.length;
-  $('progress').style.width = (at / queue.length * 100) + '%';
+  QuizProgress.draw({ at: at, total: queue.length, marks: marks });
 
   let boxHtml = '';
   let opts = [];
@@ -336,6 +336,8 @@ function answer(i) {
 
   const w = queue[at];
   const ok = kind === 'nghia' ? (w.choices[i].id === w.id) : (w.optChoices[i] === w.optCorrect);
+  marks[at] = ok ? 'ok' : 'no';
+  QuizProgress.draw({ at: at, total: queue.length, marks: marks });
 
   if (ok) { right++; xp += XP_RIGHT; }
   else { xp += XP_WRONG; wrongWords.push(w); }

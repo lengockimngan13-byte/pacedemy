@@ -14,6 +14,7 @@ const XP_WRONG = 0;
 let me = null;
 let queue = [];
 let at = 0;
+let marks = [];   // kết quả từng câu, để vẽ thanh tiến độ
 let right = 0;
 let xp = 0;
 let started = null;
@@ -103,8 +104,7 @@ function fillBlank(text, word) {
 function render() {
   const item = queue[at];
 
-  $('counter').textContent = 'Câu ' + (at + 1) + ' / ' + queue.length;
-  $('progress').style.width = (at / queue.length * 100) + '%';
+  QuizProgress.draw({ at: at, total: queue.length, marks: marks });
   $('kind-badge').textContent = KIND_LABEL[item.kind] || '';
   $('after').classList.add('hidden');
 
@@ -140,6 +140,8 @@ function render() {
 function answer(k) {
   const item = queue[at];
   const ok = k === item.correctKey;
+  marks[at] = ok ? 'ok' : 'no';
+  QuizProgress.draw({ at: at, total: queue.length, marks: marks });
 
   $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
     b.classList.add('disabled');

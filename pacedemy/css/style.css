@@ -4309,3 +4309,38 @@ html { scroll-behavior: smooth; }
   .ex-acts .btn, .ex-acts .btn-line { flex: 1 1 calc(50% - 5px); text-align: center; }
   .ex-acts .btn { flex: 1 1 calc(50% - 5px); }
 }
+
+/* ============================================================
+   THANH TIẾN ĐỘ LÀM BÀI
+   ============================================================ */
+
+/* Dòng chữ Câu mấy / còn mấy câu */
+#counter { font-size: 0.9rem; color: #4A635E; }
+#counter b { font-family: var(--disp); font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+.qp-left { color: #6C837E; }
+.qp-score { color: var(--teal); font-weight: 600; }
+
+/* Khi chia ô: thanh liền biến thành một dãy ô, mỗi ô là một câu */
+.study-bar.qp-o {
+  height: 10px; background: none; border-radius: 0;
+  display: flex; gap: 3px;
+}
+.study-bar.qp-o .qp-item {
+  flex: 1; min-width: 4px; height: 10px;
+  background: var(--mist); border-radius: 2px;
+  transition: background-color .2s ease, transform .2s ease;
+}
+.study-bar.qp-o .qp-item.is-ok  { background: #0B9184; }
+.study-bar.qp-o .qp-item.is-no  { background: var(--danger); }
+.study-bar.qp-o .qp-item.is-now { background: var(--gold); transform: scaleY(1.6); }
+.study-bar.qp-o .qp-item.is-click { cursor: pointer; }
+.study-bar.qp-o .qp-item.is-click:hover { filter: brightness(1.12); }
+
+@media (prefers-reduced-motion: reduce) {
+  .study-bar.qp-o .qp-item { transition: none; }
+}
+
+@media (max-width: 560px) {
+  .study-bar.qp-o { gap: 2px; }
+  #counter { font-size: 0.86rem; }
+}
