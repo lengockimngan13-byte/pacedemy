@@ -4359,33 +4359,3 @@ html { scroll-behavior: smooth; }
 .tiendo .tstats { margin-bottom: 0; }
 .tiendo #curve-box .fc { margin-bottom: 0; }
 
-/* Bốc quẻ: gập lại thành một dòng, mở ra mới hiện hũ */
-.oracle-wrap {
-  border: 1.5px solid var(--line); border-radius: var(--r);
-  margin-bottom: 20px; background: var(--paper);
-}
-.oracle-wrap > summary {
-  list-style: none; cursor: pointer;
-  padding: 14px 18px; font-weight: 600; font-size: 0.95rem; color: var(--ink);
-  display: flex; align-items: center; gap: 10px;
-}
-.oracle-wrap > summary::-webkit-details-marker { display: none; }
-.oracle-wrap > summary::before { content: '🏮'; font-size: 1.1rem; }
-.oracle-wrap > summary::after {
-  content: ''; margin-left: auto;
-  width: 8px; height: 8px;
-  border-right: 2px solid var(--teal); border-bottom: 2px solid var(--teal);
-  transform: rotate(45deg); transition: transform .2s ease;
-}
-.oracle-wrap[open] > summary::after { transform: rotate(-135deg); }
-.oracle-wrap > summary:hover { background: var(--mist); }
-.oracle-wrap[open] > summary { border-bottom: 1px solid var(--line); }
-.oracle-wrap .oracle { margin: 0; padding: 18px; }
-
-/* Câu nói mỗi ngày nằm cuối trang, nhẹ thôi */
-.app-foot ~ .greet-quote, .greet-quote-label { margin-top: 0; }
-.greet-quote-label { font-size: 0.82rem; color: #6C837E; margin-bottom: 4px; }
-
-@media (prefers-reduced-motion: reduce) {
-  .oracle-wrap > summary::after { transition: none; }
-}

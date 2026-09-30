@@ -29,6 +29,8 @@
   <section class="greet">
     <h1 id="greet-name">Đang tải…</h1>
     <p id="greet-line"></p>
+    <p class="greet-quote-label">✨ Câu nói mỗi ngày</p>
+    <p class="greet-quote" id="greet-quote"></p>
   </section>
 
   <div id="reminder-box"></div>
@@ -38,6 +40,42 @@
   <div id="as-box"></div>
 
 
+
+  <section class="oracle" id="oracle">
+    <div class="oracle-head">
+      <h2>Bốc quẻ ôn gì hôm nay</h2>
+      <p id="oracle-hint">Nhấn giữ vào hũ rồi kéo lên xuống để lắc, quẻ rớt ra là mở liền.</p>
+    </div>
+
+    <div class="oracle-jar-wrap" id="oracle-jar-wrap">
+      <div class="oracle-sparkles" id="oracle-sparkles" aria-hidden="true">
+        <span>✨</span><span>✨</span><span>✨</span><span>✨</span>
+      </div>
+      <div class="oracle-sticks">
+        <div class="oracle-stick lucky" style="left:47%;height:100px;--r:-3deg"></div>
+        <div class="oracle-stick" style="left:38%;height:90px;--r:-13deg"></div>
+        <div class="oracle-stick" style="left:57%;height:92px;--r:7deg"></div>
+        <div class="oracle-stick" style="left:30%;height:78px;--r:-20deg"></div>
+        <div class="oracle-stick" style="left:65%;height:82px;--r:16deg"></div>
+      </div>
+      <div class="oracle-jar-emoji" aria-hidden="true">
+        <svg viewBox="0 0 200 220" width="100%" height="100%">
+          <path d="M46,60 C20,75 15,112 15,142 C15,176 26,196 46,206
+                   L154,206 C174,196 185,176 185,142
+                   C185,112 180,75 154,60 Z"
+                fill="var(--gold)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M30,120 C70,138 130,138 170,120"
+                fill="none" stroke="var(--ink)" stroke-width="2" opacity=".25"/>
+          <path d="M32,160 C72,176 128,176 168,160"
+                fill="none" stroke="var(--ink)" stroke-width="2" opacity=".25"/>
+          <ellipse cx="100" cy="60" rx="54" ry="15" fill="var(--gold-dim)" stroke="var(--ink)" stroke-width="4"/>
+          <ellipse cx="100" cy="60" rx="40" ry="9" fill="none" stroke="var(--ink)" stroke-width="1.5" opacity=".3"/>
+        </svg>
+      </div>
+    </div>
+
+    <div id="oracle-body" class="hidden"></div>
+  </section>
 
   <section id="modules-section">
     <div class="section-head"><h2>Hôm nay học gì</h2></div>
@@ -121,47 +159,8 @@
     </a>
   </section>
 
-  <details class="oracle-wrap">
-    <summary>Bốc quẻ xem hôm nay nên ôn gì</summary>
-  <section class="oracle" id="oracle">
-    <div class="oracle-head">
-      <h2>Bốc quẻ ôn gì hôm nay</h2>
-      <p id="oracle-hint">Nhấn giữ vào hũ rồi kéo lên xuống để lắc, quẻ rớt ra là mở liền.</p>
-    </div>
 
-    <div class="oracle-jar-wrap" id="oracle-jar-wrap">
-      <div class="oracle-sparkles" id="oracle-sparkles" aria-hidden="true">
-        <span>✨</span><span>✨</span><span>✨</span><span>✨</span>
-      </div>
-      <div class="oracle-sticks">
-        <div class="oracle-stick lucky" style="left:47%;height:100px;--r:-3deg"></div>
-        <div class="oracle-stick" style="left:38%;height:90px;--r:-13deg"></div>
-        <div class="oracle-stick" style="left:57%;height:92px;--r:7deg"></div>
-        <div class="oracle-stick" style="left:30%;height:78px;--r:-20deg"></div>
-        <div class="oracle-stick" style="left:65%;height:82px;--r:16deg"></div>
-      </div>
-      <div class="oracle-jar-emoji" aria-hidden="true">
-        <svg viewBox="0 0 200 220" width="100%" height="100%">
-          <path d="M46,60 C20,75 15,112 15,142 C15,176 26,196 46,206
-                   L154,206 C174,196 185,176 185,142
-                   C185,112 180,75 154,60 Z"
-                fill="var(--gold)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
-          <path d="M30,120 C70,138 130,138 170,120"
-                fill="none" stroke="var(--ink)" stroke-width="2" opacity=".25"/>
-          <path d="M32,160 C72,176 128,176 168,160"
-                fill="none" stroke="var(--ink)" stroke-width="2" opacity=".25"/>
-          <ellipse cx="100" cy="60" rx="54" ry="15" fill="var(--gold-dim)" stroke="var(--ink)" stroke-width="4"/>
-          <ellipse cx="100" cy="60" rx="40" ry="9" fill="none" stroke="var(--ink)" stroke-width="1.5" opacity=".3"/>
-        </svg>
-      </div>
-    </div>
 
-    <div id="oracle-body" class="hidden"></div>
-  </section>
-  </details>
-
-  <p class="greet-quote-label">✨ Câu nói mỗi ngày</p>
-  <p class="greet-quote" id="greet-quote"></p>
 
   <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
 </main>
