@@ -62,9 +62,9 @@ async function loadProfile() {
     }
   }
 
-  el('greet-line').textContent = data.target_score
-    ? 'Mục tiêu của bạn: ' + data.target_score + ' điểm TOEIC.'
-    : 'Chúc bạn một buổi học hiệu quả.';
+  // Mục tiêu điểm đã có thẻ riêng ngay bên dưới (#muctieu-box), ở đây
+  // không nhắc lại nữa cho đỡ trùng.
+  el('greet-line').textContent = 'Chúc bạn một buổi học hiệu quả.';
 
   return data;
 }

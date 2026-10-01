@@ -4359,3 +4359,185 @@ html { scroll-behavior: smooth; }
 .tiendo .tstats { margin-bottom: 0; }
 .tiendo #curve-box .fc { margin-bottom: 0; }
 
+
+/* ============================================================
+   CHẶNG ĐƯỜNG TỚI MỤC TIÊU (trang học)
+   ============================================================ */
+
+#muctieu-box { margin-bottom: 18px; }
+
+.mt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.mt-head h3 { margin: 0; }
+
+.mt-nut {
+  background: none;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  padding: 5px 12px;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4A635E;
+  cursor: pointer;
+}
+.mt-nut:hover { background: var(--mist); border-color: var(--teal-dim); }
+
+/* ---- Ba con số ---- */
+
+.mt-cot {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.mt-o {
+  padding: 14px 16px;
+  border-left: 1.5px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mt-o:first-child { border-left: none; }
+
+.mt-lab {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6C837E;
+}
+
+.mt-big {
+  font-family: var(--disp);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--teal);
+}
+.mt-big.mt-mo  { color: var(--teal-dim); font-size: 1.5rem; }
+.mt-big.mt-dat { color: #8A6508; }
+
+.mt-sub { font-size: 0.82rem; color: #4A635E; line-height: 1.4; }
+
+/* ---- Thanh quãng đường ---- */
+
+.mt-duong { margin-top: 16px; }
+
+.mt-track {
+  position: relative;
+  height: 10px;
+  background: var(--mist);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  overflow: visible;
+}
+.mt-track > span {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+  border-radius: 2px 0 0 2px;
+}
+.mt-duong.is-xong .mt-track > span { background: var(--gold); border-radius: 2px; }
+
+.mt-cham {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: var(--gold);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+
+.mt-moc {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: #6C837E;
+}
+.mt-moc span:nth-child(2) {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  color: var(--ink);
+}
+.mt-moc span:last-child { text-align: right; }
+
+/* ---- Câu gợi ý nhịp học ---- */
+
+.mt-nhip {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #4A635E;
+}
+.mt-nhip b { color: var(--ink); }
+.mt-nhip a { color: var(--teal); font-weight: 600; }
+
+/* ---- Khối sửa ---- */
+
+.mt-sua {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1.5px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mt-hang {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mt-lab2 {
+  flex: none;
+  width: 94px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4A635E;
+}
+
+.mt-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mt-chips .btn-sm { flex: none; padding: 7px 13px; cursor: pointer; }
+
+.mt-sua input[type="date"],
+.mt-sua input[type="number"] {
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 7px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: #fff;
+  color: var(--ink);
+}
+.mt-sua input[type="number"] { width: 130px; }
+.mt-sua .btn-sm { flex: none; cursor: pointer; }
+
+.mt-ghi { font-size: 0.78rem; color: #6C837E; }
+
+@media (max-width: 680px) {
+  .mt-cot { grid-template-columns: 1fr; }
+  .mt-o { border-left: none; border-top: 1.5px solid var(--line); }
+  .mt-o:first-child { border-top: none; }
+  .mt-big { font-size: 1.6rem; }
+  .mt-moc { font-size: 0.72rem; gap: 8px; flex-wrap: wrap; }
+  .mt-moc span:nth-child(2) { flex: 100%; order: -1; text-align: left; margin-bottom: 4px; }
+  .mt-moc span:first-child,
+  .mt-moc span:last-child { flex: 1; white-space: nowrap; }
+  .mt-lab2 { width: 100%; }
+}
