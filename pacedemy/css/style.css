@@ -4577,3 +4577,18 @@ html { scroll-behavior: smooth; }
   color: #6B4A05;
   font-weight: 600;
 }
+
+/* Dòng nhắc bấm phím số dưới các lựa chọn, ẩn trên máy cảm ứng */
+.opt-hint {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #6C837E;
+}
+@media (hover: none) { .opt-hint { display: none; } }
+
+/* Sau khi chấm, các ô bị khoá lại. Trình duyệt mặc định làm chữ mờ đi,
+   mà đây đúng là lúc học viên cần đọc đáp án rõ nhất, nên chỉnh lại:
+   ô đúng và ô vừa bấm giữ nguyên độ đậm, mấy ô còn lại mới mờ. */
+.opt:disabled { color: var(--ink); opacity: 1; }
+.opt:disabled:not(.right):not(.wrong) { opacity: 0.45; }

@@ -364,23 +364,45 @@ function render() {
   if (kind !== 'colloc' && typeof Speak !== 'undefined') ganNghe(w.word);
 
   $('opts').innerHTML = opts.map(function (text, i) {
-    return '<button class="opt" data-i="' + i + '">' + esc(text) + '</button>';
+    return '<button class="opt" data-i="' + i + '">' +
+             '<span class="letter">' + (i + 1) + '</span>' + esc(text) +
+           '</button>';
   }).join('');
 
   $('opts').querySelectorAll('.opt').forEach(function (b) {
     b.addEventListener('click', function () { answer(parseInt(b.dataset.i, 10)); });
   });
+
+  const meo = $('opt-hint');
+  if (meo) meo.textContent = opts.map(function (_, i) { return i + 1; }).join(' · ') + ' để chọn';
 }
 
-// ---------- Chấm câu, sang câu kế ngay ----------
+// ---------- Chấm câu ----------
+
+// Chọn đúng thì lướt nhanh, chọn sai thì dừng lâu hơn — đủ để nghe lại
+// từ và nhìn ra đáp án đúng trước khi sang câu kế.
+const CHO_DUNG = 900;
+const CHO_SAI = 2400;
+
+let hen = null;
+
+// Chỉ số lựa chọn đúng của câu đang làm
+function dapAn() {
+  const w = queue[at];
+  if (kind === 'nghia') {
+    return w.choices.findIndex(function (c) { return c.id === w.id; });
+  }
+  return w.optChoices.indexOf(w.optCorrect);
+}
 
 function answer(i) {
   if (locked) return;
   locked = true;
-  if (typeof Speak !== 'undefined') Speak.thoi();   // đang đọc dở mà bấm chọn thì ngắt, khỏi chồng lên câu sau
 
   const w = queue[at];
-  const ok = kind === 'nghia' ? (w.choices[i].id === w.id) : (w.optChoices[i] === w.optCorrect);
+  const dung = dapAn();
+  const ok = i === dung;
+
   marks[at] = ok ? 'ok' : 'no';
   QuizProgress.draw({ at: at, total: queue.length, marks: marks });
 
@@ -389,10 +411,57 @@ function answer(i) {
 
   if (kind === 'nghia') saveProgress(w, ok);
 
+  // Tô đáp án: ô vừa bấm, và cả ô đúng nếu bấm sai
+  const nut = $('opts').querySelectorAll('.opt');
+  nut.forEach(function (b) { b.disabled = true; });
+  if (nut[i]) nut[i].classList.add(ok ? 'right' : 'wrong');
+  if (!ok && nut[dung]) nut[dung].classList.add('right');
+
+  if (typeof Speak !== 'undefined') {
+    if (ok) {
+      Speak.thoi();   // đúng rồi thì thôi, khỏi đọc chồng sang câu sau
+    } else {
+      // Sai thì đọc lại cho nhớ. Kiểu Cụm từ đọc nguyên cụm, vì tới
+      // lúc này đáp án đã lộ nên không còn sợ mách nước.
+      const doc = (kind === 'colloc' && w.collocPick) ? w.collocPick.phrase : w.word;
+      Speak.say(doc);
+    }
+  }
+
+  hen = setTimeout(tiep, ok ? CHO_DUNG : CHO_SAI);
+}
+
+// Sang câu kế. Gọi được cả khi học viên sốt ruột bấm tiếp.
+function tiep() {
+  if (hen) { clearTimeout(hen); hen = null; }
   at++;
   if (at >= queue.length) finish();
   else render();
 }
+
+// ---------- Bấm phím ----------
+// 1–4 để chọn, đang xem đáp án thì phím bất kỳ là sang câu kế.
+document.addEventListener('keydown', function (e) {
+  if (!queue.length || at >= queue.length) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+  const o = document.activeElement;
+  if (o && /^(INPUT|TEXTAREA|SELECT)$/.test(o.tagName)) return;
+
+  if (locked) {
+    if (e.key === 'Enter' || e.key === ' ' || /^[1-9]$/.test(e.key)) {
+      e.preventDefault();
+      tiep();
+    }
+    return;
+  }
+
+  if (/^[1-9]$/.test(e.key)) {
+    const i = parseInt(e.key, 10) - 1;
+    const b = $('opts').querySelectorAll('.opt')[i];
+    if (b) { e.preventDefault(); answer(i); }
+  }
+});
 
 // ---------- Ghi tiến độ Leitner (chỉ kiểu Nghĩa của từ) ----------
 
