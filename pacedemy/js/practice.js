@@ -215,6 +215,9 @@ async function finish() {
 
   if (wrongs.length) showWrongs();
 
+  // Mời nhặt từ trong mấy câu vừa sai vào sổ từ riêng
+  if (typeof SoTu !== 'undefined') SoTu.moiNhat($('st-moi'), wrongs);
+
   const seconds = Math.round((Date.now() - started.getTime()) / 1000);
 
   if (attemptId) {

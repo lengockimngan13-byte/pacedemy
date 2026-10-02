@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Luyện Part 5 — Pacedemy</title>
+<title>Sổ từ của tôi — Pacedemy</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -13,59 +13,50 @@
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="focus-mode">
+<body>
 
 <header class="app-bar">
   <div class="wrap">
     <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
-    <div class="app-user">
-      <a class="btn-quiet" href="app.html">Thoát</a>
-    </div>
+    <div class="app-user"></div>
   </div>
 </header>
 
 <main class="wrap">
 
-  <section class="study" id="view-q">
+  <!-- ---------- Danh sách ---------- -->
+  <section id="view-list">
+    <div class="section-head">
+      <h1>Sổ từ của tôi</h1>
+    </div>
+    <p class="st-lead">Những từ bạn nhặt được từ chính đề mình đã làm. Ôn lại bằng đúng
+      câu đã gặp, nên lúc vào đề thi nhận ra ngay.</p>
+
+    <div id="st-tom"></div>
+    <div id="st-list"><p class="empty">Đang tải…</p></div>
+  </section>
+
+  <!-- ---------- Màn ôn ---------- -->
+  <section class="study hidden" id="view-on">
     <div class="study-top">
-      <span id="part-name">Part 5 — Hoàn thành câu</span>
+      <span>Ôn sổ từ</span>
       <span id="counter"></span>
     </div>
     <div class="study-bar"><span id="progress" style="width:0"></span></div>
 
-    <p class="q-sentence" id="q-text">Đang tải…</p>
-
+    <div class="word-box" id="word-box"></div>
     <div class="opts" id="opts"></div>
-
-    <div id="after" class="hidden">
-      <p class="verdict" id="verdict"></p>
-      <div class="reveal">
-        <p class="blk-h" style="margin-bottom:10px">Cần nhớ</p>
-        <p class="en" id="why"></p>
-      </div>
-      <div class="study-actions">
-        <button class="btn btn-ink btn-full" id="btn-next">Câu tiếp theo</button>
-      </div>
-    </div>
+    <p class="opt-hint" id="opt-hint"></p>
   </section>
 
+  <!-- ---------- Màn kết ---------- -->
   <section class="done hidden" id="view-done">
-    <h1 id="done-title">Xong bài luyện</h1>
+    <h1 id="done-title">Xong rồi</h1>
     <p class="big" id="done-score">—</p>
     <p class="sub" id="done-sub"></p>
-    <div id="st-moi"></div>
-    <div id="wrong-box"></div>
     <div class="done-actions">
-      <button class="btn btn-gold" id="btn-again">Luyện 10 câu nữa</button>
-      <a class="btn btn-line" href="app.html">Về trang học</a>
-    </div>
-  </section>
-
-  <section class="done hidden" id="view-empty">
-    <h1>Chưa có câu hỏi</h1>
-    <p class="sub">Phần này chưa có câu hỏi nào. Bạn báo giáo viên nhé.</p>
-    <div class="done-actions">
-      <a class="btn btn-ink" href="app.html">Về trang học</a>
+      <button class="btn btn-gold" id="btn-again">Ôn tiếp</button>
+      <button class="btn btn-line" id="btn-back">Về sổ từ</button>
     </div>
   </section>
 
@@ -77,8 +68,9 @@
 <script src="js/layout-settings.js"></script>
 <script src="js/gate.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/speak.js"></script>
 <script src="js/quiz-progress.js"></script>
 <script src="js/so-tu.js"></script>
-<script src="js/practice.js"></script>
+<script src="js/so-tu-page.js"></script>
 </body>
 </html>

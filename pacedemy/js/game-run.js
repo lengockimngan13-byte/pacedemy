@@ -617,6 +617,11 @@ async function ketThuc(hetBai) {
 
   $('g-done-wrong').innerHTML = saiList.length ? veLaiCauSai() : '';
 
+  // Mời nhặt từ trong mấy câu đội hụt vào sổ từ riêng
+  if (typeof SoTu !== 'undefined') SoTu.moiNhat($('st-moi'), saiList.map(function (s) {
+    return { q: s.q, chose: s.chon };
+  }));
+
   const giay = Math.round((Date.now() - batDau.getTime()) / 1000);
 
   if (attemptId) {
