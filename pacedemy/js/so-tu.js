@@ -164,5 +164,51 @@ const SoTu = (function () {
     });
   }
 
-  return { moiNhat: moiNhat, locTu: locTu, GAP: GAP, esc: esc, dienVao: dienVao };
+  // ---------- Soi nhanh câu học viên tự đặt ----------
+  //
+  // Đây CHỈ là vòng lọc rác: bắt câu cụt, câu chép lại, câu viết bằng
+  // tiếng Việt, câu không có từ cần dùng. Nó KHÔNG phải máy chấm ngữ
+  // pháp — câu qua được vòng này vẫn phải chờ cô duyệt mới được đem ra
+  // làm đề ôn.
+  function kiemCau(cau, tu, cauGoc) {
+    const c = String(cau || '').trim();
+    if (!c) return { ok: false, loi: 'Bạn chưa viết gì cả.' };
+
+    if (/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(c)) {
+      return { ok: false, loi: 'Câu này đang có chữ tiếng Việt. Bạn viết hẳn một câu tiếng Anh nhé.' };
+    }
+
+    const chu = c.split(/\s+/).filter(Boolean);
+    if (chu.length < 5) {
+      return { ok: false, loi: 'Câu ngắn quá — mới ' + chu.length +
+        ' chữ. Viết đủ một câu có chủ ngữ và động từ, ít nhất 5 chữ.' };
+    }
+    if (chu.length > 40) {
+      return { ok: false, loi: 'Câu dài quá. Một câu gọn thì dễ nhớ hơn, bạn rút lại dưới 40 chữ nhé.' };
+    }
+
+    // Có dùng đúng từ không, tính cả dạng chia đuôi
+    const an = String(tu || '').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(^|\\W)' + an.replace(/\s+/g, '\\s+') + '\\w*', 'i');
+    if (!re.test(c)) {
+      return { ok: false, loi: 'Câu chưa có từ «' + tu + '». Cả bài là để tập dùng từ đó mà.' };
+    }
+
+    if (!/^[A-Z"\u2018\u201c]/.test(c)) {
+      return { ok: false, loi: 'Câu tiếng Anh viết hoa chữ đầu nhé.' };
+    }
+    if (!/[.!?]["\u2019\u201d]?$/.test(c)) {
+      return { ok: false, loi: 'Câu còn thiếu dấu chấm cuối.' };
+    }
+
+    const gon = function (x) { return String(x || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); };
+    if (cauGoc && gon(c) === gon(cauGoc)) {
+      return { ok: false, loi: 'Đây đúng là câu trong đề. Bạn thử viết một câu của riêng mình, ' +
+        'gắn với công việc hay đời sống của bạn.' };
+    }
+
+    return { ok: true };
+  }
+
+  return { moiNhat: moiNhat, locTu: locTu, kiemCau: kiemCau, GAP: GAP, esc: esc, dienVao: dienVao };
 })();

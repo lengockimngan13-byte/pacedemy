@@ -31,7 +31,7 @@ let batDau = null;
 
 async function nap() {
   const { data, error } = await db.from('tu_cua_toi')
-    .select('id, tu, cau, cau_vi, ghi_chu, cau_cua_toi, box, next_review')
+    .select('id, tu, cau, cau_vi, ghi_chu, cau_cua_toi, cau_trang_thai, cau_gop_y, cau_sua_lai, box, next_review, last_reviewed, created_at, so_lan_on, so_lan_dung')
     .eq('user_id', me.id)
     .order('next_review', { ascending: true, nullsFirst: true });
 
@@ -92,9 +92,18 @@ function ve() {
   gan();
 }
 
+const TRANG_THAI = {
+  nhap: { nhan: '',                 lop: '' },
+  cho:  { nhan: 'Chờ cô duyệt',     lop: 'st-cho' },
+  dat:  { nhan: 'Cô đã duyệt',      lop: 'st-dat' },
+  sua:  { nhan: 'Cô bảo cần sửa',   lop: 'st-sua' }
+};
+
 function the(t) {
   const han = t.next_review ? new Date(t.next_review) : null;
   const toiHan = !han || han.getTime() <= Date.now();
+  const tt = TRANG_THAI[t.cau_trang_thai] || TRANG_THAI.nhap;
+  const coCau = !!(t.cau_cua_toi && t.cau_cua_toi.trim());
 
   return '<div class="st-the" data-id="' + t.id + '">' +
     '<div class="st-dau">' +
@@ -106,13 +115,58 @@ function the(t) {
     (t.cau ? '<p class="st-cau-l">' + khoet(t.cau, t.tu) + '</p>' : '') +
     (t.cau_vi ? '<p class="st-vi">' + SoTu.esc(t.cau_vi) + '</p>' : '') +
     (t.ghi_chu ? '<p class="st-ghi">' + SoTu.esc(t.ghi_chu) + '</p>' : '') +
+
     '<div class="st-rieng">' +
-      '<label>Câu của riêng bạn — gắn với công việc hay đời sống của bạn</label>' +
-      '<textarea rows="2" data-cau="' + t.id + '" placeholder="Viết một câu tiếng Anh có ' +
+      '<div class="st-rieng-dau">' +
+        '<label for="st-c' + t.id + '">Câu của riêng bạn</label>' +
+        (coCau && tt.nhan ? '<span class="st-tt ' + tt.lop + '">' + tt.nhan + '</span>' : '') +
+      '</div>' +
+      '<textarea id="st-c' + t.id + '" rows="2" data-cau="' + t.id + '" placeholder="Viết một câu tiếng Anh có ' +
         SoTu.esc(t.tu) + ', nói về công việc hay đời sống của chính bạn.">' +
         SoTu.esc(t.cau_cua_toi || '') + '</textarea>' +
+
+      '<p class="st-bao hidden" data-bao="' + t.id + '"></p>' +
+
+      '<div class="st-nut-cau">' +
+        '<button class="btn-sm test" type="button" data-luu="' + t.id + '">Kiểm tra và lưu</button>' +
+        (coCau ? '<button class="btn-sm learn" type="button" data-xoacau="' + t.id + '">Xoá câu</button>' : '') +
+      '</div>' +
+
+      (t.cau_sua_lai
+        ? '<div class="st-sua-lai"><span>Cô sửa lại</span><b>' + SoTu.esc(t.cau_sua_lai) + '</b></div>'
+        : '') +
+      (t.cau_gop_y
+        ? '<p class="st-gopy">Cô nhắn: ' + SoTu.esc(t.cau_gop_y) + '</p>'
+        : '') +
     '</div>' +
+
+    nhatKy(t) +
   '</div>';
+}
+
+// Nhật ký của từng từ — nhặt về lúc nào, ôn mấy lần, đúng mấy lần
+function nhatKy(t) {
+  const them = t.created_at ? ngayGon(t.created_at) : null;
+  const on = t.so_lan_on || 0;
+  const ok = t.so_lan_dung || 0;
+  const lan = t.last_reviewed ? ngayGon(t.last_reviewed) : null;
+
+  const muc = [];
+  if (them) muc.push('nhặt về ' + them);
+  muc.push(on ? 'đã ôn ' + on + ' lần, đúng ' + ok : 'chưa ôn lần nào');
+  if (lan) muc.push('gần nhất ' + lan);
+
+  return '<p class="st-nk">' + muc.join(' · ') + '</p>';
+}
+
+function ngayGon(iso) {
+  const d = new Date(iso);
+  const hn = new Date(); hn.setHours(0, 0, 0, 0);
+  const cach = Math.floor((hn - new Date(d).setHours(0, 0, 0, 0)) / 86400000);
+  if (cach === 0) return 'hôm nay';
+  if (cach === 1) return 'hôm qua';
+  if (cach < 7) return cach + ' ngày trước';
+  return d.getDate() + '/' + (d.getMonth() + 1);
 }
 
 // Tô đậm từ trong câu cho dễ thấy
@@ -137,21 +191,61 @@ function gan() {
     });
   });
 
-  // Lưu câu của riêng học viên khi rời ô
-  $('st-list').querySelectorAll('[data-cau]').forEach(function (o) {
-    o.addEventListener('blur', async function () {
-      const id = parseInt(o.dataset.cau, 10);
-      const cu = (tat.find(function (t) { return t.id === id; }) || {}).cau_cua_toi || '';
-      const moi = o.value.trim();
-      if (moi === cu.trim()) return;
-
-      const { error } = await db.from('tu_cua_toi')
-        .update({ cau_cua_toi: moi || null }).eq('id', id);
-
-      if (error) { toast('Không lưu được câu: ' + error.message, 'bad'); return; }
+  // Lưu câu: soi nhanh trước, qua được mới ghi và xếp hàng chờ cô duyệt
+  $('st-list').querySelectorAll('[data-luu]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      const id = parseInt(b.dataset.luu, 10);
       const t = tat.find(function (x) { return x.id === id; });
-      if (t) t.cau_cua_toi = moi;
-      toast('Đã lưu câu của bạn.', 'good');
+      const o = $('st-c' + id);
+      const bao = $('st-list').querySelector('[data-bao="' + id + '"]');
+      const cau = o.value.trim();
+
+      function noi(loi, xau) {
+        bao.textContent = loi;
+        bao.className = 'st-bao' + (xau ? ' st-bao-xau' : ' st-bao-tot');
+      }
+
+      if (!cau) { noi('Bạn chưa viết gì cả.', true); return; }
+
+      const soi = SoTu.kiemCau(cau, t.tu, t.cau);
+      if (!soi.ok) { noi(soi.loi, true); o.focus(); return; }
+
+      b.disabled = true;
+      const { error } = await db.from('tu_cua_toi').update({
+        cau_cua_toi: cau,
+        cau_trang_thai: 'cho',
+        cau_gop_y: null,
+        cau_sua_lai: null,
+        cau_duyet_luc: null
+      }).eq('id', id);
+      b.disabled = false;
+
+      if (error) { noi('Không lưu được: ' + error.message, true); return; }
+
+      noi('Đã lưu và gửi cô duyệt. Cô duyệt đạt thì câu này mới được đem ra làm đề ôn.', false);
+      toast('Đã gửi câu cho cô duyệt.', 'good');
+
+      t.cau_cua_toi = cau;
+      t.cau_trang_thai = 'cho';
+      t.cau_gop_y = null;
+      t.cau_sua_lai = null;
+      setTimeout(nap, 1400);
+    });
+  });
+
+  $('st-list').querySelectorAll('[data-xoacau]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      const id = parseInt(b.dataset.xoacau, 10);
+      if (!confirm('Xoá câu bạn tự đặt cho từ này?')) return;
+
+      const { error } = await db.from('tu_cua_toi').update({
+        cau_cua_toi: null, cau_trang_thai: 'nhap',
+        cau_gop_y: null, cau_sua_lai: null, cau_duyet_luc: null
+      }).eq('id', id);
+
+      if (error) { toast('Không xoá được: ' + error.message, 'bad'); return; }
+      toast('Đã xoá câu.', 'good');
+      nap();
     });
   });
 }
@@ -200,8 +294,9 @@ function render() {
 
   QuizProgress.draw({ at: at, total: hang.length, marks: marks });
 
-  // Ưu tiên câu học viên tự đặt, vì câu đó gắn với đời họ nên nhớ chắc hơn
-  const cau = t.cau_cua_toi || t.cau || '';
+  // Chỉ dùng câu học viên tự đặt khi cô đã duyệt đạt. Câu chưa duyệt mà
+  // đem ra làm đề thì học viên luyện đi luyện lại chính cái sai của mình.
+  const cau = (t.cau_trang_thai === 'dat' && t.cau_cua_toi) ? t.cau_cua_toi : (t.cau || '');
   const de = cau ? khoetTrong(cau, t.tu) : '<span class="st-trong">(chưa có câu)</span>';
 
   // Bản dịch để dành tới sau khi chấm. Hiện trước là lộ đáp án, và bài
@@ -252,7 +347,7 @@ async function answer(i) {
   const lo = $('st-lo');
   if (lo) {
     lo.innerHTML =
-      '<b>' + SoTu.esc(t.cau_cua_toi || t.cau || '') + '</b>' +
+      '<b>' + SoTu.esc((t.cau_trang_thai === 'dat' && t.cau_cua_toi) ? t.cau_cua_toi : (t.cau || '')) + '</b>' +
       (t.cau_vi ? '<span>' + SoTu.esc(t.cau_vi) + '</span>' : '');
     lo.classList.add('st-lo-mo');
   }
@@ -277,7 +372,9 @@ async function luuTien(t, ok) {
   await db.from('tu_cua_toi').update({
     box: box,
     last_reviewed: new Date().toISOString(),
-    next_review: han.toISOString()
+    next_review: han.toISOString(),
+    so_lan_on: (t.so_lan_on || 0) + 1,
+    so_lan_dung: (t.so_lan_dung || 0) + (ok ? 1 : 0)
   }).eq('id', t.id);
 }
 

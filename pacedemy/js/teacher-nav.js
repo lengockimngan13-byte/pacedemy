@@ -25,6 +25,8 @@
       icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' },
     { href: 'teacher-extra.html',   label: 'Nhập Ôn tổng hợp',
       icon: '<path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/>' },
+    { href: 'teacher-cau.html',     label: 'Duyệt câu học viên',
+      icon: '<path d="M4 5h16v11H8l-4 4zM8 9h8M8 12h5"/>' },
     { href: 'teacher-site.html',    label: 'Chỉnh trang web',
       icon: '<path d="M4 20l4.5-1.5L20 7 17 4 5.5 15.5 4 20zM15 6l3 3"/>' },
     { href: 'teacher-about.html',   label: 'Trang giới thiệu',

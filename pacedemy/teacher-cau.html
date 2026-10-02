@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duyệt câu học viên — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="teacher">
+
+<main class="t-main">
+  <div class="wrap">
+
+    <div class="section-head">
+      <h1>Duyệt câu học viên tự đặt</h1>
+    </div>
+
+    <p class="st-lead">Học viên viết câu của riêng mình cho từng từ trong sổ từ.
+      Máy đã lọc bỏ câu cụt, câu chép lại đề và câu viết bằng tiếng Việt, nhưng
+      <b>đúng hay sai thì chỉ cô nói được</b>. Câu nào cô duyệt đạt mới được đem ra làm đề ôn
+      cho chính học viên đó.</p>
+
+    <div class="test-tabs" id="tc-tabs">
+      <button class="test-tab on" data-loc="cho">Chờ duyệt</button>
+      <button class="test-tab" data-loc="dat">Đã đạt</button>
+      <button class="test-tab" data-loc="sua">Cần sửa</button>
+    </div>
+
+    <div id="tc-list"><p class="empty">Đang tải…</p></div>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-cau.js"></script>
+</body>
+</html>
