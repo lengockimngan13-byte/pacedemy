@@ -32,7 +32,8 @@ const MAU = {
   dat:   '#8A6A4A', co: '#4E9C6B',
   o:     '#F0A830', oVien: '#0C2422',
   oDung: '#2A7F76', oSai: '#B4432E', oTat: '#C9D8D3',
-  tho:   '#0C2422', khan: '#F0A830',
+  thoDa: '#F6EEDD', thoBong: '#DCCFB8', thoVien: '#0C2422',
+  tai:   '#FBE6BE', khan: '#F0A830',
   chu:   '#0C2422'
 };
 
@@ -685,7 +686,8 @@ function veChu() {
   }
 }
 
-// Thỏ của Pacedemy, vẽ bằng hình khối chứ không dùng ảnh
+// Thỏ của Pacedemy. Cùng kiểu với bản SVG ở js/tho.js: thân màu kem,
+// viền mực, tai trong vàng nhạt — không phải cục đen bệt.
 function veTho() {
   const x = tho.x, y = tho.y, w = tho.w, h = tho.h;
   const nhun = tho.duoiDat && tho.vx ? Math.sin(tho.buoc * 6) * 1.5 : 0;
@@ -693,47 +695,71 @@ function veTho() {
   ctx.save();
   ctx.translate(x + w / 2, y + h);
   ctx.scale(tho.huong, 1);
+  ctx.translate(0, nhun);
 
-  // Bóng dưới chân
   if (tho.duoiDat) {
-    ctx.fillStyle = 'rgba(12,36,34,.18)';
+    ctx.fillStyle = 'rgba(12,36,34,.16)';
     ctx.beginPath();
-    ctx.ellipse(0, 2, w * 0.45, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 2, w * 0.45, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  ctx.fillStyle = MAU.tho;
+  ctx.lineWidth = 1.6;
+  ctx.strokeStyle = MAU.thoVien;
+  ctx.lineJoin = 'round';
 
-  // Hai tai
-  ctx.save();
-  ctx.rotate(-0.22);
-  ctx.beginPath(); ctx.ellipse(-5, -h - 2 + nhun, 3.6, 10, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.restore();
-  ctx.save();
-  ctx.rotate(0.16);
-  ctx.beginPath(); ctx.ellipse(4, -h - 2 + nhun, 3.6, 10, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.restore();
+  const to = function (ve) { ctx.fillStyle = MAU.thoDa; ve(); ctx.fill(); ctx.stroke(); };
 
-  // Đầu
-  ctx.beginPath(); ctx.arc(0, -h + 10 + nhun, 10, 0, Math.PI * 2); ctx.fill();
+  // hai tai
+  [[-4.5, -0.3], [4.5, 0.3]].forEach(function (t) {
+    ctx.save();
+    ctx.translate(t[0], -h + 3);
+    ctx.rotate(t[1]);
+    to(function () { ctx.beginPath(); ctx.ellipse(0, 0, 3.2, 9.5, 0, 0, Math.PI * 2); });
+    ctx.fillStyle = MAU.tai;
+    ctx.beginPath(); ctx.ellipse(0, 0, 1.6, 6.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  });
 
-  // Thân
-  ctx.beginPath(); ctx.ellipse(0, -10 + nhun, 9, 11, 0, 0, Math.PI * 2); ctx.fill();
+  // chân
+  const dang = tho.duoiDat ? Math.sin(tho.buoc * 6) * 2.2 : 3.2;
+  to(function () { ctx.beginPath(); ctx.ellipse(-4 - dang * 0.3, -2, 3.6, 2.3, 0, 0, Math.PI * 2); });
+  to(function () { ctx.beginPath(); ctx.ellipse(4 + dang * 0.3, -2, 3.6, 2.3, 0, 0, Math.PI * 2); });
 
-  // Khăn quàng màu thương hiệu
+  // thân
+  to(function () { ctx.beginPath(); ctx.ellipse(0, -10, 8.5, 9.5, 0, 0, Math.PI * 2); });
+  ctx.fillStyle = 'rgba(255,255,255,.55)';
+  ctx.beginPath(); ctx.ellipse(-1.5, -9, 5, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // khăn quàng
   ctx.fillStyle = MAU.khan;
-  ctx.fillRect(-9, -20 + nhun, 18, 4);
-  ctx.fillRect(4, -18 + nhun, 5, 8);
+  ctx.beginPath();
+  ctx.moveTo(-8, -18); ctx.quadraticCurveTo(0, -14.5, 8, -18);
+  ctx.lineTo(8, -15); ctx.quadraticCurveTo(0, -11.5, -8, -15);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(4, -16); ctx.lineTo(7.5, -15); ctx.lineTo(6, -7); ctx.lineTo(2.8, -8);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
 
-  // Chân — mở ra khi đang bay
-  ctx.fillStyle = MAU.tho;
-  const dang = tho.duoiDat ? Math.sin(tho.buoc * 6) * 3 : 4;
-  ctx.fillRect(-7 - dang * 0.3, -2, 5, 3);
-  ctx.fillRect(2 + dang * 0.3, -2, 5, 3);
+  // đầu
+  to(function () { ctx.beginPath(); ctx.arc(0, -25, 9, 0, Math.PI * 2); });
+  ctx.fillStyle = 'rgba(255,255,255,.7)';
+  ctx.beginPath(); ctx.ellipse(-3, -28.5, 3.6, 2.6, -0.4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, -22, 5, 3.6, 0, 0, Math.PI * 2); ctx.fill();
 
-  // Mắt
+  // mắt
+  ctx.fillStyle = MAU.thoVien;
+  ctx.beginPath(); ctx.arc(-3, -26, 1.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(3, -26, 1.6, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(4, -h + 9 + nhun, 2.1, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-2.4, -26.6, 0.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(3.6, -26.6, 0.6, 0, Math.PI * 2); ctx.fill();
+
+  // mũi
+  ctx.fillStyle = '#C9826A';
+  ctx.beginPath();
+  ctx.moveTo(-1.3, -23); ctx.lineTo(1.3, -23); ctx.lineTo(0, -21.6);
+  ctx.closePath(); ctx.fill();
 
   ctx.restore();
 }

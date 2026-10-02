@@ -38,42 +38,24 @@ const XongBai = (function () {
     return Math.round(g / 60) + ' phút';
   }
 
-  // Thỏ Pacedemy giơ tay ăn mừng. Vẽ bằng SVG, không dùng ảnh.
+  // Thỏ Pacedemy giơ tay ăn mừng, kèm mấy mảnh giấy màu bay quanh
   function veTho(vui) {
     const bay = vui
       ? ['#F0A830', '#2A7F76', '#F0A830', '#C9D8D3', '#2A7F76', '#F0A830']
       : ['#C9D8D3', '#C9D8D3', '#E7EDE9'];
 
     const giay = bay.map(function (mau, i) {
-      const x = 22 + i * 26 + (i % 2 ? 6 : 0);
-      const y = 16 + (i % 3) * 18;
+      const x = 18 + i * 28 + (i % 2 ? 8 : 0);
+      const y = 10 + (i % 3) * 16;
       const xoay = (i * 47) % 90 - 45;
       return '<rect x="' + x + '" y="' + y + '" width="7" height="11" rx="1.5" fill="' + mau +
              '" transform="rotate(' + xoay + ' ' + (x + 3) + ' ' + (y + 5) + ')" opacity="0.9"/>';
     }).join('');
 
-    return '<svg class="xb-hinh" viewBox="0 0 200 170" role="img" aria-label="Thỏ Pacedemy giơ tay ăn mừng">' +
-      giay +
-      // tay giơ lên
-      '<path d="M66 104 L50 72" stroke="#0C2422" stroke-width="9" stroke-linecap="round"/>' +
-      '<path d="M134 104 L150 72" stroke="#0C2422" stroke-width="9" stroke-linecap="round"/>' +
-      // tai
-      '<ellipse cx="84" cy="52" rx="9" ry="26" fill="#0C2422" transform="rotate(-16 84 52)"/>' +
-      '<ellipse cx="116" cy="52" rx="9" ry="26" fill="#0C2422" transform="rotate(16 116 52)"/>' +
-      // đầu
-      '<circle cx="100" cy="84" r="29" fill="#0C2422"/>' +
-      // thân
-      '<ellipse cx="100" cy="128" rx="27" ry="26" fill="#0C2422"/>' +
-      // khăn quàng
-      '<rect x="74" y="108" width="52" height="11" rx="2" fill="#F0A830"/>' +
-      '<rect x="112" y="115" width="13" height="20" rx="2" fill="#F0A830"/>' +
-      // mắt và má
-      '<circle cx="90" cy="80" r="4.4" fill="#fff"/>' +
-      '<circle cx="111" cy="80" r="4.4" fill="#fff"/>' +
-      '<path d="M94 94 Q100 99 106 94" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-      // bóng dưới chân
-      '<ellipse cx="100" cy="156" rx="34" ry="5" fill="#0C2422" opacity="0.12"/>' +
-      '</svg>';
+    return '<svg class="xb-hinh" viewBox="0 0 200 172" role="img" ' +
+             'aria-label="Thỏ Pacedemy giơ tay ăn mừng">' +
+             giay + Tho.mung(100, 158, 1.3) +
+           '</svg>';
   }
 
   function o(nhan, giaTri, lon) {

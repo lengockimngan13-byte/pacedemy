@@ -21,24 +21,6 @@ const ThoHoi = (function () {
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // ---------- Thỏ đứng, vẽ một lần dùng cho mọi bối cảnh ----------
-
-  function tho(x, y, co) {
-    co = co || 1;
-    return '<g transform="translate(' + x + ' ' + y + ') scale(' + co + ')">' +
-      '<ellipse cx="0" cy="2" rx="19" ry="4" fill="#0C2422" opacity="0.12"/>' +
-      '<ellipse cx="-7" cy="-62" rx="5.5" ry="16" fill="#0C2422" transform="rotate(-14 -7 -62)"/>' +
-      '<ellipse cx="7" cy="-62" rx="5.5" ry="16" fill="#0C2422" transform="rotate(14 7 -62)"/>' +
-      '<circle cx="0" cy="-43" r="16" fill="#0C2422"/>' +
-      '<ellipse cx="0" cy="-15" rx="15" ry="16" fill="#0C2422"/>' +
-      '<rect x="-14" y="-28" width="28" height="6" rx="1.5" fill="#F0A830"/>' +
-      '<rect x="6" y="-24" width="7" height="11" rx="1.5" fill="#F0A830"/>' +
-      '<circle cx="-5" cy="-46" r="2.6" fill="#fff"/>' +
-      '<circle cx="6" cy="-46" r="2.6" fill="#fff"/>' +
-      '<path d="M-3 -38 Q0 -35 3 -38" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-      '</g>';
-  }
-
   // ---------- Sáu bối cảnh ----------
   // Vẽ bằng hình khối phẳng, cùng bảng màu thương hiệu, không dùng ảnh.
 
@@ -127,7 +109,7 @@ const ThoHoi = (function () {
              '<rect width="200" height="130" fill="' + NEN + '"/>' +
              '<rect y="121" width="200" height="9" fill="' + SAN + '"/>' +
              c.ve +
-             tho(36, 121, 1.05) +
+             Tho.dung(38, 121, 0.95) +
            '</svg>';
   }
 
