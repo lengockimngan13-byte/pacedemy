@@ -4541,3 +4541,39 @@ html { scroll-behavior: smooth; }
   .mt-moc span:last-child { flex: 1; white-space: nowrap; }
   .mt-lab2 { width: 100%; }
 }
+
+/* ============================================================
+   NÚT NGHE TRONG LUỒNG HỌC TỪ MỚI
+   ============================================================ */
+
+.word-say {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.nghe-btn, .nghe-auto {
+  font-family: var(--ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1.2;
+}
+.nghe-btn:hover, .nghe-auto:hover { border-color: var(--teal); }
+
+.nghe-btn:active { background: var(--mist); }
+
+.nghe-auto { color: #6C837E; font-weight: 500; }
+.nghe-auto.on {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: #6B4A05;
+  font-weight: 600;
+}

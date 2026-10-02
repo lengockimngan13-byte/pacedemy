@@ -30,6 +30,15 @@ let kind = null;       // 'nghia' | 'colloc' | 'synonym' — chốt khi bấm ch
 const SET_SIZE = 12;
 let locked = false;
 
+// Tự đọc từ khi hiện câu mới. Mặc định bật vì lớp của cô Ngân là Nghe –
+// Đọc, nghe được mặt chữ lẫn âm thì nhớ chắc hơn. Tắt một cái là xong,
+// và máy nhớ lựa chọn đó cho những lần sau.
+let tuDoc = true;
+try {
+  const luu = localStorage.getItem('pacedemy-tu-doc');
+  if (luu !== null) tuDoc = luu === '1';
+} catch (e) {}
+
 let topicWords = [];   // toàn bộ từ của chủ đề, không lọc mức/bộ — nguồn nhiễu cho mọi kiểu
 let scopeWords = [];   // từ trong phạm vi đang chọn (đã lọc theo mức/bộ nếu có)
 let progOf = {};
@@ -283,6 +292,36 @@ function shuffle(a) {
 
 // ---------- Hiển thị câu hỏi ----------
 
+// Nút nghe + công tắc tự đọc, dùng cho những kiểu có hiện sẵn từ
+function khoiNghe(word) {
+  if (typeof Speak === 'undefined' || !Speak.co()) return '';
+  return '<div class="word-say">' +
+           '<button class="nghe-btn" type="button" data-say="' + esc(word) + '" title="Nghe từ này">' +
+             '<span aria-hidden="true">🔊</span> Nghe' +
+           '</button>' +
+           '<button class="nghe-auto' + (tuDoc ? ' on' : '') + '" type="button" data-auto="1">' +
+             (tuDoc ? 'Đang tự đọc' : 'Tự đọc') +
+           '</button>' +
+         '</div>';
+}
+
+function ganNghe(word) {
+  const bNghe = $('word-box').querySelector('[data-say]');
+  if (bNghe) bNghe.addEventListener('click', function () { Speak.say(bNghe.dataset.say); });
+
+  const bTu = $('word-box').querySelector('[data-auto]');
+  if (bTu) bTu.addEventListener('click', function () {
+    tuDoc = !tuDoc;
+    try { localStorage.setItem('pacedemy-tu-doc', tuDoc ? '1' : '0'); } catch (e) {}
+    if (!tuDoc) Speak.thoi();
+    bTu.classList.toggle('on', tuDoc);
+    bTu.textContent = tuDoc ? 'Đang tự đọc' : 'Tự đọc';
+    if (tuDoc) Speak.say(word);
+  });
+
+  if (tuDoc) Speak.say(word);
+}
+
 function render() {
   const w = queue[at];
   locked = false;
@@ -298,7 +337,8 @@ function render() {
       '<div class="word-meta">' +
         (w.pos ? '<span class="pos">' + esc(w.pos) + '</span>' : '') +
         (w.phonetic ? '<span>' + esc(w.phonetic) + '</span>' : '') +
-      '</div>';
+      '</div>' +
+      khoiNghe(w.word);
     opts = w.choices.map(function (c) { return c.meaning_vi; });
   } else if (kind === 'colloc') {
     boxHtml =
@@ -313,11 +353,15 @@ function render() {
         (w.pos ? '<span class="pos">' + esc(w.pos) + '</span>' : '') +
         (w.phonetic ? '<span>' + esc(w.phonetic) + '</span>' : '') +
       '</div>' +
+      khoiNghe(w.word) +
       '<p class="quiz-prompt">Từ hoặc cụm nào gần nghĩa nhất?</p>';
     opts = w.optChoices;
   }
 
   $('word-box').innerHTML = boxHtml;
+
+  // Kiểu "colloc" che mất chính từ cần điền nên không đọc, đọc là lộ đáp án
+  if (kind !== 'colloc' && typeof Speak !== 'undefined') ganNghe(w.word);
 
   $('opts').innerHTML = opts.map(function (text, i) {
     return '<button class="opt" data-i="' + i + '">' + esc(text) + '</button>';
@@ -333,6 +377,7 @@ function render() {
 function answer(i) {
   if (locked) return;
   locked = true;
+  if (typeof Speak !== 'undefined') Speak.thoi();   // đang đọc dở mà bấm chọn thì ngắt, khỏi chồng lên câu sau
 
   const w = queue[at];
   const ok = kind === 'nghia' ? (w.choices[i].id === w.id) : (w.optChoices[i] === w.optCorrect);
