@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thỏ đập ô chữ — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="focus-mode">
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <a class="btn-quiet" href="part5.html">Thoát</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ---------- Màn mở đầu ---------- -->
+  <section id="view-start">
+    <div class="g-intro">
+      <h1>Thỏ đập ô chữ</h1>
+      <p class="g-lead">Mỗi câu là một câu Part 5 còn thiếu một từ. Bốn ô chữ treo trên cao,
+        mỗi ô một đáp án. Chạy tới dưới ô mình chọn rồi nhảy lên đội vào đáy ô, y như
+        đội ô bí ẩn trong mấy game đi cảnh ngày xưa.</p>
+
+      <div class="g-how">
+        <div><b>Trên máy tính</b><span>← → hoặc A D để chạy · Space hoặc ↑ để nhảy</span></div>
+        <div><b>Trên điện thoại</b><span>Giữ nút ◀ ▶ để chạy · chạm nút nhảy</span></div>
+        <div><b>Luật</b><span>Ba trái tim. Đội trúng ô sai là mất một trái. Hết tim là hết lượt.</span></div>
+      </div>
+
+      <p class="g-lab">Chọn dạng câu</p>
+      <div class="g-chips" id="g-dang">
+        <button class="btn-sm test" data-nhom="vocab">Từ vựng</button>
+        <button class="btn-sm learn" data-nhom="all">Từ vựng và từ loại</button>
+      </div>
+
+      <p class="g-dem" id="g-dem">Đang đếm số câu…</p>
+
+      <div class="done-actions">
+        <button class="btn btn-gold" id="g-start">Vào chơi</button>
+        <a class="btn btn-line" href="part5.html">Về luyện Part 5</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Màn chơi ---------- -->
+  <section id="view-play" class="hidden">
+    <div class="g-hud">
+      <span class="g-tim" id="g-tim"></span>
+      <span class="g-cnt" id="g-cnt"></span>
+      <span class="g-diem" id="g-diem"></span>
+    </div>
+
+    <p class="g-cau" id="g-cau">Đang tải…</p>
+
+    <div class="g-sanwrap">
+      <canvas id="g-canvas"></canvas>
+
+      <div class="g-touch" id="g-touch" aria-hidden="true">
+        <button class="g-nut" data-nut="trai" type="button">◀</button>
+        <button class="g-nut" data-nut="phai" type="button">▶</button>
+        <button class="g-nut g-nut-nhay" data-nut="nhay" type="button">NHẢY</button>
+      </div>
+    </div>
+
+    <div class="g-giai hidden" id="g-giai"></div>
+  </section>
+
+  <!-- ---------- Màn kết ---------- -->
+  <section class="done hidden" id="view-done">
+    <h1 id="g-done-title">Hết lượt</h1>
+    <p class="big" id="g-done-score">—</p>
+    <p class="sub" id="g-done-sub"></p>
+    <div id="g-done-wrong"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold" id="g-again">Chơi lại</button>
+      <a class="btn btn-line" href="part5.html">Về luyện Part 5</a>
+    </div>
+  </section>
+
+  <section class="done hidden" id="view-empty">
+    <h1>Chưa có câu để chơi</h1>
+    <p class="sub">Ngân hàng đề chưa có câu Part 5 dạng từ vựng nào. Bạn báo giáo viên nhé.</p>
+    <div class="done-actions">
+      <a class="btn btn-ink" href="app.html">Về trang học</a>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/speak.js"></script>
+<script src="js/game-run.js"></script>
+</body>
+</html>
