@@ -1,17 +1,42 @@
 // ============================================================
-// Pacedemy — cô duyệt câu học viên tự đặt trong sổ từ
+// Pacedemy — soạn bài Thỏ hỏi trong Teacher Studio
 //
-// Web chỉ lọc được phần rác: câu cụt, câu chép lại đề, câu viết bằng
-// tiếng Việt. Đúng hay sai thì phải người biết tiếng Anh nói, nên câu
-// nào cũng dừng ở đây chờ cô.
+// Mỗi bài là một câu hỏi của thỏ cùng ba câu đáp, câu đúng có chứa từ
+// đang học. Soạn tay thì lâu, nên ở đây đi theo lối cô đã quen: chép
+// lời nhắc, nhờ AI viết, dán JSON vào, web kiểm rồi lưu.
 //
-// Chỉ câu cô bấm "Đạt" mới được đem ra làm đề ôn cho học viên.
+// Web kiểm được: đủ ba câu đáp, đúng một câu được đánh dấu, câu đúng
+// có chứa từ, bối cảnh hợp lệ, không trùng từ đã có. Còn câu có tự
+// nhiên hay không thì cô đọc, máy không nói thay được.
 // ============================================================
 
 const $ = function (id) { return document.getElementById(id); };
 
+const CANH_HOP_LE = ['van-phong', 'kho-hang', 'phong-hop', 'san-bay', 'le-tan', 'nha-may'];
+
+const LOI_NHAC =
+'Viết bài tập TOEIC Part 2 dạng ĐỌC cho người Việt học tiếng Anh thương mại.\n' +
+'Mỗi từ tôi đưa, viết một bài theo mẫu JSON dưới đây.\n\n' +
+'Yêu cầu:\n' +
+'- cau_hoi: một câu hỏi tiếng Anh tự nhiên trong bối cảnh công sở, ngắn gọn như đề Part 2 thật.\n' +
+'- dap_an: đúng ba câu. Một câu đánh dấu "ok": true và PHẢI chứa từ đang học.\n' +
+'- Hai câu còn lại là bẫy kiểu đề thật: một câu dùng từ nghe gần giống nhưng nghĩa khác\n' +
+'  (ví dụ call off / call on), một câu trả lời lạc kiểu câu hỏi (hỏi "có không" mà đáp\n' +
+'  bằng địa điểm hay thời gian).\n' +
+'- giai_thich: một hai câu tiếng Việt, nói nghĩa của từ và vì sao hai câu kia sai.\n' +
+'- boi_canh: chọn một trong: van-phong, kho-hang, phong-hop, san-bay, le-tan, nha-may.\n' +
+'- Tiếng Anh phải tự nhiên, đúng ngữ pháp, dùng từ của môi trường công sở.\n' +
+'- Trả về DUY NHẤT một mảng JSON, không giải thích gì thêm.\n\n' +
+'Mẫu:\n' +
+'[{"tu":"call off","boi_canh":"phong-hop",\n' +
+'  "cau_hoi":"Is the product launch still happening on Friday?",\n' +
+'  "dap_an":[{"t":"No, it was called off because of the typhoon.","ok":true},\n' +
+'            {"t":"Yes, I called him on Friday morning."},\n' +
+'            {"t":"The launch is on the fourth floor."}],\n' +
+'  "giai_thich":"call off = huỷ bỏ. Bẫy called him on nghe gần giống nhưng nghĩa khác hẳn."}]\n\n' +
+'Danh sách từ: ';
+
 let me = null;
-let loc = 'cho';
 let ds = [];
 
 function esc(s) {
@@ -30,27 +55,128 @@ function esc(s) {
     return;
   }
 
-  $('tc-tabs').querySelectorAll('[data-loc]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      $('tc-tabs').querySelectorAll('[data-loc]').forEach(function (x) { x.classList.remove('on'); });
-      b.classList.add('on');
-      loc = b.dataset.loc;
-      nap();
-    });
+  $('tc-prompt').value = LOI_NHAC;
+
+  $('tc-chep').addEventListener('click', function () {
+    $('tc-prompt').select();
+    try {
+      navigator.clipboard.writeText(LOI_NHAC);
+      toast('Đã chép lời nhắc.', 'good');
+    } catch (e) {
+      toast('Máy không cho chép tự động, cô bôi đen rồi chép tay nhé.', 'bad');
+    }
   });
+
+  $('tc-luu').addEventListener('click', luu);
 
   nap();
 })();
 
-async function nap() {
-  $('tc-list').innerHTML = '<p class="empty">Đang tải…</p>';
+// ---------- Kiểm trước khi lưu ----------
 
-  const { data, error } = await db.from('tu_cua_toi')
-    .select('id, user_id, tu, cau, cau_vi, cau_cua_toi, cau_trang_thai, cau_gop_y, cau_sua_lai, cau_duyet_luc')
-    .eq('cau_trang_thai', loc)
-    .not('cau_cua_toi', 'is', null)
-    .order('id', { ascending: false })
-    .limit(100);
+function kiem(r, daCo) {
+  const tu = String(r.tu || '').trim();
+  if (!tu) return 'thiếu trường "tu"';
+  if (daCo[tu.toLowerCase()]) return 'từ «' + tu + '» đã có bài rồi';
+
+  if (CANH_HOP_LE.indexOf(r.boi_canh) === -1) {
+    return 'bối cảnh «' + r.boi_canh + '» không hợp lệ';
+  }
+  if (!String(r.cau_hoi || '').trim()) return 'thiếu câu hỏi';
+
+  const da = r.dap_an;
+  if (!Array.isArray(da) || da.length !== 3) return 'phải đúng ba câu đáp';
+
+  const dung = da.filter(function (d) { return d && d.ok; });
+  if (dung.length !== 1) return 'phải có đúng một câu đánh dấu ok';
+
+  for (const d of da) {
+    if (!d || !String(d.t || '').trim()) return 'có câu đáp để trống';
+  }
+
+  // Câu đúng phải chứa từ, nếu không thì bài mất ý nghĩa.
+  // Cụm động từ hay bị tách ra giữa câu — "hand in" thành "handed it in" —
+  // nên chỉ đòi các phần xuất hiện đúng thứ tự, cho phép chen chữ ở giữa.
+  if (!coTu(dung[0].t, tu)) return 'câu đúng không chứa từ «' + tu + '»';
+
+  return null;
+}
+
+function coTu(cau, tu) {
+  const phan = String(tu).trim().split(/\s+/).filter(Boolean)
+    .map(function (x) { return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); });
+
+  if (!phan.length) return false;
+
+  const mau = phan.map(function (x, i) {
+    return (i ? '[\\s\\S]{0,30}?' : '') + '\\b' + x + '\\w*';
+  }).join('');
+
+  return new RegExp(mau, 'i').test(String(cau));
+
+  return null;
+}
+
+async function luu() {
+  const bao = $('tc-bao');
+  const raw = $('tc-json').value.trim();
+
+  function noi(t, xau) {
+    bao.textContent = t;
+    bao.className = 'tc-bao' + (xau ? ' tc-bao-xau' : ' tc-bao-tot');
+  }
+
+  if (!raw) { noi('Cô chưa dán gì cả.', true); return; }
+
+  let arr;
+  try {
+    arr = JSON.parse(raw);
+  } catch (e) {
+    noi('JSON hỏng: ' + e.message, true);
+    return;
+  }
+
+  if (!Array.isArray(arr) || !arr.length) { noi('Cần một mảng JSON có ít nhất một bài.', true); return; }
+
+  const daCo = {};
+  for (const r of ds) daCo[String(r.tu).toLowerCase()] = true;
+
+  const tot = [];
+  const hong = [];
+
+  arr.forEach(function (r, i) {
+    const loi = kiem(r, daCo);
+    if (loi) { hong.push('bài ' + (i + 1) + ': ' + loi); return; }
+    daCo[String(r.tu).toLowerCase()] = true;
+    tot.push({
+      tu: String(r.tu).trim(),
+      boi_canh: r.boi_canh,
+      cau_hoi: String(r.cau_hoi).trim(),
+      dap_an: r.dap_an,
+      giai_thich: r.giai_thich ? String(r.giai_thich).trim() : null,
+      is_active: true
+    });
+  });
+
+  if (!tot.length) { noi('Không bài nào qua được:\n' + hong.join('\n'), true); return; }
+
+  $('tc-luu').disabled = true;
+  const { error } = await db.from('cau_hoi_tho').insert(tot);
+  $('tc-luu').disabled = false;
+
+  if (error) { noi('Không lưu được: ' + error.message, true); return; }
+
+  noi('Đã lưu ' + tot.length + ' bài.' + (hong.length ? ' Bỏ qua ' + hong.length + ' bài:\n' + hong.join('\n') : ''), false);
+  $('tc-json').value = '';
+  nap();
+}
+
+// ---------- Danh sách ----------
+
+async function nap() {
+  const { data, error } = await db.from('cau_hoi_tho')
+    .select('id, tu, boi_canh, cau_hoi, dap_an, giai_thich')
+    .order('id', { ascending: false });
 
   if (error) {
     $('tc-list').innerHTML = '<p class="empty">Không tải được: ' + esc(error.message) + '</p>';
@@ -58,80 +184,42 @@ async function nap() {
   }
 
   ds = data || [];
+  $('tc-dem').textContent = ds.length + ' bài';
 
   if (!ds.length) {
-    $('tc-list').innerHTML = '<p class="empty">' +
-      (loc === 'cho' ? 'Không còn câu nào chờ duyệt. Nhẹ cả người.' : 'Chưa có câu nào ở mục này.') +
-      '</p>';
+    $('tc-list').innerHTML = '<p class="empty">Chưa có bài nào.</p>';
     return;
   }
 
-  // Lấy tên học viên cho dễ nhìn
-  const ids = Array.from(new Set(ds.map(function (r) { return r.user_id; })));
-  const { data: hv } = await db.from('profiles').select('id, full_name').in('id', ids);
-  const ten = {};
-  for (const h of (hv || [])) ten[h.id] = h.full_name;
+  $('tc-list').innerHTML = ds.map(the).join('');
 
-  $('tc-list').innerHTML = ds.map(function (r) { return the(r, ten[r.user_id]); }).join('');
-  gan();
+  document.querySelectorAll('[data-xoa]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      if (!confirm('Xoá bài Thỏ hỏi này?')) return;
+      const { error } = await db.from('cau_hoi_tho').delete().eq('id', parseInt(b.dataset.xoa, 10));
+      if (error) { toast('Không xoá được: ' + error.message, 'bad'); return; }
+      toast('Đã xoá.', 'good');
+      nap();
+    });
+  });
 }
 
-function the(r, tenHV) {
-  return '<div class="tc-the" data-id="' + r.id + '">' +
+function the(r) {
+  const canh = (ThoHoi.CANH[r.boi_canh] || {}).ten || r.boi_canh;
+
+  return '<div class="tc-the">' +
     '<div class="tc-dau">' +
-      '<span class="tc-hv">' + esc(tenHV || 'Học viên') + '</span>' +
       '<span class="tc-tu">' + esc(r.tu) + '</span>' +
+      '<span class="tc-canh">' + esc(canh) + '</span>' +
+      '<button class="st-xoa" type="button" data-xoa="' + r.id + '" title="Xoá bài">×</button>' +
     '</div>' +
-
-    '<p class="tc-cau">' + esc(r.cau_cua_toi) + '</p>' +
-
-    (r.cau ? '<p class="tc-goc">Câu trong đề: ' + esc(r.cau) + '</p>' : '') +
-
-    (r.cau_sua_lai ? '<p class="tc-dasua">Đã sửa thành: <b>' + esc(r.cau_sua_lai) + '</b></p>' : '') +
-    (r.cau_gop_y ? '<p class="tc-dagopy">Đã nhắn: ' + esc(r.cau_gop_y) + '</p>' : '') +
-
-    '<div class="tc-sua">' +
-      '<input type="text" data-sualai="' + r.id + '" placeholder="Sửa lại câu cho đúng (để trống nếu câu đã ổn)" ' +
-        'value="' + esc(r.cau_sua_lai || '') + '">' +
-      '<input type="text" data-gopy="' + r.id + '" placeholder="Nhắn cho học viên một câu (không bắt buộc)" ' +
-        'value="' + esc(r.cau_gop_y || '') + '">' +
+    '<p class="tc-cau">' + esc(r.cau_hoi) + '</p>' +
+    '<div class="tc-dapan">' +
+      (r.dap_an || []).map(function (d) {
+        return '<p class="tc-da' + (d.ok ? ' is-ok' : '') + '">' + esc(d.t) +
+               (d.ok ? '<span>đúng</span>' : '') + '</p>';
+      }).join('') +
     '</div>' +
-
-    '<div class="tc-nut">' +
-      '<button class="btn-sm test" type="button" data-dat="' + r.id + '">Đạt</button>' +
-      '<button class="btn-sm learn" type="button" data-can-sua="' + r.id + '">Cần sửa</button>' +
-    '</div>' +
+    (r.giai_thich ? '<p class="tc-dagopy">' + esc(r.giai_thich) + '</p>' : '') +
   '</div>';
-}
-
-function gan() {
-  const chamDiem = async function (id, trangThai) {
-    const sua = document.querySelector('[data-sualai="' + id + '"]').value.trim();
-    const gop = document.querySelector('[data-gopy="' + id + '"]').value.trim();
-
-    if (trangThai === 'sua' && !sua && !gop) {
-      toast('Bấm "Cần sửa" thì nên sửa lại câu hoặc nhắn một dòng, để học viên biết sai ở đâu.', 'bad');
-      return;
-    }
-
-    const { error } = await db.from('tu_cua_toi').update({
-      cau_trang_thai: trangThai,
-      cau_sua_lai: sua || null,
-      cau_gop_y: gop || null,
-      cau_duyet_luc: new Date().toISOString()
-    }).eq('id', id);
-
-    if (error) { toast('Không lưu được: ' + error.message, 'bad'); return; }
-
-    toast(trangThai === 'dat' ? 'Đã duyệt đạt. Câu này sẽ được dùng làm đề ôn.' : 'Đã báo học viên sửa lại.', 'good');
-    nap();
-  };
-
-  document.querySelectorAll('[data-dat]').forEach(function (b) {
-    b.addEventListener('click', function () { chamDiem(parseInt(b.dataset.dat, 10), 'dat'); });
-  });
-
-  document.querySelectorAll('[data-can-sua]').forEach(function (b) {
-    b.addEventListener('click', function () { chamDiem(parseInt(b.dataset.canSua, 10), 'sua'); });
-  });
 }

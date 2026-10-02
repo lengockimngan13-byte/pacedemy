@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Duyệt câu học viên — Pacedemy</title>
+<title>Bài Thỏ hỏi — Pacedemy</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <meta name="theme-color" content="#0C2422">
@@ -18,20 +18,37 @@
   <div class="wrap">
 
     <div class="section-head">
-      <h1>Duyệt câu học viên tự đặt</h1>
+      <h1>Bài Thỏ hỏi</h1>
     </div>
 
-    <p class="st-lead">Học viên viết câu của riêng mình cho từng từ trong sổ từ.
-      Máy đã lọc bỏ câu cụt, câu chép lại đề và câu viết bằng tiếng Việt, nhưng
-      <b>đúng hay sai thì chỉ cô nói được</b>. Câu nào cô duyệt đạt mới được đem ra làm đề ôn
-      cho chính học viên đó.</p>
+    <p class="st-lead">Thỏ đứng trong một bối cảnh công sở, hỏi một câu, học viên chọn câu
+      đáp lại đúng — và câu đúng có chứa từ đang học. Dạng Part 2 nhưng đọc thay vì nghe.
+      Học viên gặp bài này khi ôn <b>Sổ từ</b>, nếu từ đó đã có bài.</p>
 
-    <div class="test-tabs" id="tc-tabs">
-      <button class="test-tab on" data-loc="cho">Chờ duyệt</button>
-      <button class="test-tab" data-loc="dat">Đã đạt</button>
-      <button class="test-tab" data-loc="sua">Cần sửa</button>
+    <div class="tbox">
+      <h3>Soạn thêm bằng AI</h3>
+      <p style="margin:0 0 12px;font-size:0.94rem;line-height:1.65;color:#4A635E">
+        Chép lời nhắc dưới đây, dán vào Claude hay ChatGPT kèm danh sách từ cô muốn làm.
+        Nó trả về JSON, cô dán ngược vào ô bên dưới rồi bấm lưu.
+      </p>
+      <textarea id="tc-prompt" rows="10" readonly></textarea>
+      <div class="goal-edit" style="margin-top:10px">
+        <button class="btn-sm learn" id="tc-chep" type="button">Chép lời nhắc</button>
+      </div>
     </div>
 
+    <div class="tbox">
+      <h3>Dán JSON vào đây</h3>
+      <textarea id="tc-json" rows="8" placeholder='[{"tu":"call off","boi_canh":"phong-hop","cau_hoi":"...","dap_an":[{"t":"...","ok":true},{"t":"..."},{"t":"..."}],"giai_thich":"..."}]'></textarea>
+      <p class="tc-bao" id="tc-bao"></p>
+      <div class="goal-edit" style="margin-top:10px">
+        <button class="btn btn-gold" id="tc-luu" type="button">Kiểm tra và lưu</button>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:28px">
+      <h2>Đã có <span id="tc-dem"></span></h2>
+    </div>
     <div id="tc-list"><p class="empty">Đang tải…</p></div>
 
   </div>
@@ -41,6 +58,7 @@
 <script src="js/config.js"></script>
 <script src="js/toast.js"></script>
 <script src="js/teacher-nav.js"></script>
+<script src="js/tho-hoi.js"></script>
 <script src="js/teacher-cau.js"></script>
 </body>
 </html>
