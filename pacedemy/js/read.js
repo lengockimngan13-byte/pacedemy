@@ -324,13 +324,15 @@ function makeReadingPanel(part) {
     const secs = Math.round((Date.now() - startAt) / 1000);
 
     $('d-result').innerHTML =
-      '<div class="tbox" style="border-color:var(--teal)">' +
-        '<h3>Kết quả: ' + ok + '/' + qs.length + ' câu đúng</h3>' +
-        '<p style="margin:0;font-size:0.94rem">Bạn làm hết ' +
-          Math.floor(secs / 60) + ' phút ' + (secs % 60) + ' giây. ' +
-          'Bấm "🌐 Song ngữ" hoặc "🔎 Dẫn chứng" ở trên để xem lại đoạn văn kỹ hơn.' +
-        '</p>' +
-      '</div>';
+      '<p class="d-nhac">Bấm "🌐 Song ngữ" hoặc "🔎 Dẫn chứng" ở trên để xem lại đoạn văn kỹ hơn. ' +
+        'Giải thích từng câu nằm ngay dưới mỗi câu hỏi.</p>';
+
+    if (typeof XongBai !== 'undefined') {
+      XongBai.ve($('d-result'), {
+        dung: ok, tong: qs.length, giay: secs,
+        ten: 'Part ' + cur.part + (cur.title ? ' · ' + cur.title : '')
+      });
+    }
 
 
     const { data: att, error: attErr } = await db.from('attempts').insert({

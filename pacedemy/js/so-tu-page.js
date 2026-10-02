@@ -285,11 +285,13 @@ async function xong() {
   $('view-on').classList.add('hidden');
   $('view-done').classList.remove('hidden');
 
-  $('done-score').textContent = right + '/' + hang.length;
-  $('done-title').textContent = right === hang.length ? 'Đúng hết.' : 'Xong lượt ôn.';
-  $('done-sub').textContent = 'Từ sai sẽ quay lại sớm, từ đúng giãn ra xa hơn.';
-
   const giay = Math.round((Date.now() - batDau.getTime()) / 1000);
+
+  if (typeof XongBai !== 'undefined') {
+    XongBai.ve($('view-done'), {
+      dung: right, tong: hang.length, xp: right, giay: giay, ten: 'Sổ từ của tôi'
+    });
+  }
 
   const { data, error } = await db.from('attempts').insert({
     user_id: me.id,

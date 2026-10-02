@@ -187,9 +187,15 @@ async function finish() {
   $('view-q').classList.add('hidden');
   $('view-done').classList.remove('hidden');
 
+  const seconds = Math.round((Date.now() - started.getTime()) / 1000);
+
   $('done-sub').textContent = 'Bạn trả lời đúng ' + right + '/' + queue.length + ' câu, trộn cả 3 kỹ năng.';
 
-  const seconds = Math.round((Date.now() - started.getTime()) / 1000);
+  if (typeof XongBai !== 'undefined') {
+    XongBai.ve($('view-done'), {
+      dung: right, tong: queue.length, xp: xp, giay: seconds, ten: 'Luyện trộn kỹ năng'
+    });
+  }
 
   const { error } = await db.from('attempts').insert({
     user_id: me.id,

@@ -791,6 +791,13 @@ async function ketThuc(hetBai) {
 
   const giay = Math.round((Date.now() - batDau.getTime()) / 1000);
 
+  if (typeof XongBai !== 'undefined') {
+    XongBai.ve($('view-done'), {
+      dung: dung, tong: soDaLam, xp: dung, giay: giay,
+      ten: 'Thỏ đập ô chữ · ' + diem + ' điểm', xemLai: 'g-done-wrong'
+    });
+  }
+
   if (attemptId) {
     const { error } = await db.from('attempts').update({
       submitted_at: new Date().toISOString(),

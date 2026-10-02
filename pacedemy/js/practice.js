@@ -220,6 +220,14 @@ async function finish() {
 
   const seconds = Math.round((Date.now() - started.getTime()) / 1000);
 
+  if (typeof XongBai !== 'undefined') {
+    XongBai.ve($('view-done'), {
+      dung: right, tong: queue.length, xp: xp, giay: seconds,
+      ten: 'Part ' + part + (dang ? ' · ' + dang : ''),
+      xemLai: 'wrong-box'
+    });
+  }
+
   if (attemptId) {
     const { error } = await db.from('attempts').update({
       submitted_at: new Date().toISOString(),

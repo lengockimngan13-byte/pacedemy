@@ -512,6 +512,14 @@ async function finish() {
 
   const seconds = Math.round((Date.now() - started.getTime()) / 1000);
 
+  if (typeof XongBai !== 'undefined') {
+    const tenKieu = kind === 'colloc' ? 'Cụm từ' : (kind === 'synonym' ? 'Cách nói khác' : 'Nghĩa của từ');
+    XongBai.ve($('view-done'), {
+      dung: right, tong: queue.length, xp: xp, giay: seconds,
+      ten: 'Từ vựng · ' + tenKieu, xemLai: 'wrong-box'
+    });
+  }
+
   const { error: attErr } = await db.from('attempts').insert({
     user_id: me.id,
     mode: kind === 'colloc' ? 'vocab_colloc' : (kind === 'synonym' ? 'vocab_synonym' : 'vocab'),
