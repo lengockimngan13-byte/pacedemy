@@ -4664,24 +4664,17 @@ html { scroll-behavior: smooth; }
 
 /* ---- Câu hỏi ---- */
 
+/* Đề đã vẽ thẳng vào sân chơi. Thẻ này giữ lại cho trình đọc màn hình,
+   không hiện ra mắt nhưng vẫn đọc được. */
 .g-cau {
-  margin: 0 0 14px;
-  padding: 16px 18px;
-  border: 1.5px solid var(--line);
-  border-radius: var(--r);
-  background: #fff;
-  font-size: 1.06rem;
-  line-height: 1.75;
-  text-align: center;
-}
-
-.g-blank {
-  display: inline-block;
-  width: 78px;
-  height: 3px;
-  margin: 0 4px 5px;
-  background: var(--gold);
-  vertical-align: middle;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* ---- Sân chơi ---- */
@@ -5064,3 +5057,42 @@ html { scroll-behavior: smooth; }
 }
 .st-lo-mo b { font-weight: 600; }
 .st-lo-mo span { font-size: 0.88rem; color: #4A635E; }
+
+/* Bảng bốn đáp án kèm nghĩa, hiện khi chữa bài */
+.g-ops {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0 0 18px;
+  background: var(--line);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.g-op {
+  display: grid;
+  grid-template-columns: minmax(96px, auto) 1fr auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fff;
+  font-size: 0.92rem;
+}
+
+.g-op-tu { font-weight: 700; }
+.g-op-vi { color: #4A635E; line-height: 1.5; }
+.g-op-dau { font-size: 0.74rem; font-weight: 700; color: #6C837E; white-space: nowrap; }
+
+.g-op.is-dung { background: #E6F2F0; }
+.g-op.is-dung .g-op-tu { color: #1B5F58; }
+.g-op.is-dung .g-op-dau { color: var(--teal); }
+
+.g-op.is-chon { background: #F8E7E3; }
+.g-op.is-chon .g-op-tu { color: var(--danger); }
+.g-op.is-chon .g-op-dau { color: var(--danger); }
+
+@media (max-width: 520px) {
+  .g-op { grid-template-columns: 1fr auto; }
+  .g-op-vi { grid-column: 1 / -1; }
+}
