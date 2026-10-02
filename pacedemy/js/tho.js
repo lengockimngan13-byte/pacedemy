@@ -1,135 +1,178 @@
 // ============================================================
 // Pacedemy — thỏ linh vật, vẽ bằng SVG
 //
-// Logo của Pacedemy là hình thỏ bệt một màu mực, đứng làm dấu hiệu thì
-// đẹp, nhưng bê nguyên vào cảnh thì thành một cục đen phẳng. Ở đây thỏ
-// được dựng khối: thân màu kem, viền mực, có sáng tối, tai trong màu
-// vàng nhạt, khăn quàng vàng thương hiệu.
+// Dáng và chất liệu theo đúng ảnh mẫu chị Ngân chọn: thỏ trắng ngồi
+// dựng, hai tai cao một chiếc hơi nghiêng, lông mềm, mắt to đen bóng,
+// tai trong và mũi hồng nhạt. Không có vòng cổ, không có khăn quàng.
 //
-//   Tho.dung(x, y, co)   — đứng, dùng trong các cảnh Thỏ hỏi
-//   Tho.mung(x, y, co)   — giơ tay ăn mừng, dùng ở màn hoàn thành bài
-//   Tho.defs()           — chuỗi <defs>, phải chèn một lần vào mỗi <svg>
+// Chỗ làm nó bớt phẳng không phải là màu mà là ba thứ:
+//   - bỏ nét viền đen đậm, thay bằng khối sáng tối
+//   - bóng mờ thật (feGaussianBlur) ở mặt tối và dưới chân
+//   - vài túm lông nhô ra ở mép thân cho đường bao không bị nhẵn
+//
+//   Tho.ngoi(x, y, co)   — ngồi, dùng trong các cảnh Thỏ hỏi
+//   Tho.mung(x, y, co)   — ngồi, hai chân trước giơ lên ăn mừng
+//   Tho.dung(...)        — tên cũ, vẫn chạy, gọi sang ngoi()
 // ============================================================
 
 const Tho = (function () {
 
-  const MUC   = '#0C2422';
-  const VANG  = '#F0A830';
-  const TAI   = '#FBE6BE';
-  const SANG  = '#FFFDF7';
+  const HONG   = '#E9A7A2';   // tai trong, mũi
+  const MAT    = '#241C1A';   // mắt
+  const VIEN   = '#C8C4BC';   // nét rất nhạt, chỉ để tách khỏi nền sáng
 
-  let demId = 0;   // mỗi svg một bộ id riêng, khỏi đụng nhau trên cùng trang
+  let demId = 0;
 
-  function defs(ma) {
-    const p = 'th' + ma;
+  function defs(p) {
     return '<defs>' +
-      '<radialGradient id="' + p + 'da" cx="34%" cy="26%" r="78%">' +
-        '<stop offset="0%" stop-color="#FFFDF8"/>' +
-        '<stop offset="62%" stop-color="#F4ECDC"/>' +
-        '<stop offset="100%" stop-color="#DCCFB8"/>' +
+      // Lông: sáng ở trên trái, xám nhạt dần xuống dưới phải
+      '<radialGradient id="' + p + 'long" cx="36%" cy="24%" r="86%">' +
+        '<stop offset="0%" stop-color="#FFFFFF"/>' +
+        '<stop offset="55%" stop-color="#FAF8F5"/>' +
+        '<stop offset="100%" stop-color="#DAD5CC"/>' +
       '</radialGradient>' +
-      '<linearGradient id="' + p + 'khan" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset="0%" stop-color="#F6BC55"/>' +
-        '<stop offset="100%" stop-color="#D98E16"/>' +
-      '</linearGradient>' +
+      '<radialGradient id="' + p + 'dau" cx="34%" cy="26%" r="84%">' +
+        '<stop offset="0%" stop-color="#FFFFFF"/>' +
+        '<stop offset="58%" stop-color="#FBF9F6"/>' +
+        '<stop offset="100%" stop-color="#DFDAD1"/>' +
+      '</radialGradient>' +
+      // Mắt có chút chuyển sắc cho ra vẻ ướt
+      '<radialGradient id="' + p + 'mat" cx="34%" cy="28%" r="80%">' +
+        '<stop offset="0%" stop-color="#4A3C38"/>' +
+        '<stop offset="100%" stop-color="#1A1413"/>' +
+      '</radialGradient>' +
+      // Bóng mềm, dùng cho mặt tối và bóng dưới chân
+      '<filter id="' + p + 'mo" x="-40%" y="-40%" width="180%" height="180%">' +
+        '<feGaussianBlur stdDeviation="3.2"/>' +
+      '</filter>' +
+      '<filter id="' + p + 'mo2" x="-60%" y="-60%" width="220%" height="220%">' +
+        '<feGaussianBlur stdDeviation="5"/>' +
+      '</filter>' +
     '</defs>';
   }
 
-  // Một bên tai. ben = -1 trái, 1 phải
+  // Một bên tai. ben = -1 trái (dựng thẳng), 1 phải (hơi nghiêng ra)
   function tai(p, ben) {
-    const x = 8 * ben;
-    const xoay = 15 * ben;
-    return '<g transform="rotate(' + xoay + ' ' + x + ' -64)">' +
-      '<ellipse cx="' + x + '" cy="-64" rx="6.4" ry="18.5" ' +
-        'fill="url(#' + p + 'da)" stroke="' + MUC + '" stroke-width="2"/>' +
-      '<ellipse cx="' + x + '" cy="-65" rx="3" ry="12" fill="' + TAI + '"/>' +
+    const x = 10 * ben;
+    const xoay = ben < 0 ? -7 : 17;
+    return '<g transform="rotate(' + xoay + ' ' + x + ' -72)">' +
+      '<ellipse cx="' + x + '" cy="-96" rx="7.4" ry="25" ' +
+        'fill="url(#' + p + 'long)" stroke="' + VIEN + '" stroke-width="0.8"/>' +
+      '<ellipse cx="' + x + '" cy="-98" rx="3.6" ry="17" fill="' + HONG + '" opacity=".55"/>' +
+      // mép trong hơi tối, cho tai có bề dày
+      '<path d="M' + (x - 5.5) + ' -108 Q' + (x - 7.5) + ' -92 ' + (x - 4) + ' -76" ' +
+        'stroke="#D7D1C8" stroke-width="1.1" fill="none" opacity=".4" stroke-linecap="round"/>' +
     '</g>';
   }
 
-  // Thân mình chung cho mọi dáng. tay = chuỗi SVG hai cánh tay.
-  function minh(p, tay) {
-    return tai(p, -1) + tai(p, 1) +
-
-      // chân
-      '<ellipse cx="-8" cy="-3" rx="7" ry="4.5" fill="url(#' + p + 'da)" ' +
-        'stroke="' + MUC + '" stroke-width="1.8"/>' +
-      '<ellipse cx="8" cy="-3" rx="7" ry="4.5" fill="url(#' + p + 'da)" ' +
-        'stroke="' + MUC + '" stroke-width="1.8"/>' +
-
-      tay +
+  // Thân ngồi dựng, hai chân sau đưa ra trước
+  function than(p) {
+    return (
+      // chân sau
+      '<ellipse cx="-13" cy="-5" rx="10.5" ry="5.2" fill="url(#' + p + 'long)" ' +
+        'stroke="' + VIEN + '" stroke-width="0.8"/>' +
+      '<ellipse cx="13" cy="-5" rx="10.5" ry="5.2" fill="url(#' + p + 'long)" ' +
+        'stroke="' + VIEN + '" stroke-width="0.8"/>' +
 
       // thân
-      '<ellipse cx="0" cy="-17" rx="15.5" ry="17" fill="url(#' + p + 'da)" ' +
-        'stroke="' + MUC + '" stroke-width="2"/>' +
-      // bụng sáng hơn, tạo cảm giác tròn
-      '<ellipse cx="-2" cy="-14" rx="9" ry="10" fill="' + SANG + '" opacity=".55"/>' +
+      '<path d="M-23 -24 C-23 -9 -14 -5 0 -5 C14 -5 23 -9 23 -24 ' +
+        'C23 -43 16 -56 0 -56 C-16 -56 -23 -43 -23 -24 Z" ' +
+        'fill="url(#' + p + 'long)" stroke="' + VIEN + '" stroke-width="0.8"/>' +
 
-      // khăn quàng
-      '<path d="M-14 -30 Q0 -24 14 -30 L14 -25 Q0 -19 -14 -25 Z" fill="url(#' + p + 'khan)" ' +
-        'stroke="' + MUC + '" stroke-width="1.6" stroke-linejoin="round"/>' +
-      '<path d="M7 -25 Q13 -23 14 -19 L11 -8 L5 -10 L8 -19 Z" fill="url(#' + p + 'khan)" ' +
-        'stroke="' + MUC + '" stroke-width="1.6" stroke-linejoin="round"/>' +
+      // viền lông: vài mảng mờ loang ra khỏi mép thân, nhìn như lông tơ
+      // chứ không phải gai nhọn
+      '<g filter="url(#' + p + 'mo)" opacity=".75">' +
+        '<ellipse cx="-23" cy="-32" rx="4" ry="7" fill="#FBF9F6"/>' +
+        '<ellipse cx="-22" cy="-16" rx="4" ry="6" fill="#FBF9F6"/>' +
+        '<ellipse cx="23" cy="-36" rx="3.6" ry="7" fill="#F2EFEA"/>' +
+        '<ellipse cx="22" cy="-18" rx="3.6" ry="6" fill="#F2EFEA"/>' +
+        '<ellipse cx="0" cy="-56" rx="9" ry="3.5" fill="#FBF9F6"/>' +
+      '</g>' +
 
-      // đầu
-      '<circle cx="0" cy="-46" r="17" fill="url(#' + p + 'da)" ' +
-        'stroke="' + MUC + '" stroke-width="2"/>' +
-      // vệt sáng góc trên trái cho ra khối
-      '<ellipse cx="-6" cy="-53" rx="7" ry="5" fill="' + SANG + '" opacity=".75" ' +
-        'transform="rotate(-25 -6 -53)"/>' +
-      // mõm
-      '<ellipse cx="0" cy="-40" rx="9.5" ry="7" fill="' + SANG + '" opacity=".9"/>' +
-
-      // má hồng nhạt
-      '<ellipse cx="-11" cy="-42" rx="3.6" ry="2.6" fill="#E8A87C" opacity=".45"/>' +
-      '<ellipse cx="11" cy="-42" rx="3.6" ry="2.6" fill="#E8A87C" opacity=".45"/>' +
-
-      // mắt, có chấm sáng
-      '<circle cx="-5.6" cy="-48" r="3" fill="' + MUC + '"/>' +
-      '<circle cx="-4.6" cy="-49.2" r="1.1" fill="#fff"/>' +
-      '<circle cx="5.6" cy="-48" r="3" fill="' + MUC + '"/>' +
-      '<circle cx="6.6" cy="-49.2" r="1.1" fill="#fff"/>' +
-
-      // mũi và miệng
-      '<path d="M-2.4 -42 L2.4 -42 L0 -39.6 Z" fill="#C9826A"/>' +
-      '<path d="M0 -39.6 v2.2 M0 -37.4 Q-3 -35.6 -5 -37.4 M0 -37.4 Q3 -35.6 5 -37.4" ' +
-        'stroke="' + MUC + '" stroke-width="1.3" fill="none" stroke-linecap="round"/>';
+      // mặt tối bên phải
+      '<ellipse cx="17" cy="-26" rx="9" ry="20" fill="#CFC9BF" opacity=".55" ' +
+        'filter="url(#' + p + 'mo)"/>' +
+      // ngực sáng
+      '<ellipse cx="-3" cy="-24" rx="13" ry="16" fill="#FFFFFF" opacity=".8" ' +
+        'filter="url(#' + p + 'mo)"/>'
+    );
   }
 
-  function bong() {
-    return '<ellipse cx="0" cy="1" rx="20" ry="4.5" fill="' + MUC + '" opacity=".15"/>';
+  function dau(p) {
+    return (
+      tai(p, -1) + tai(p, 1) +
+
+      // đầu
+      '<circle cx="0" cy="-69" r="18.5" fill="url(#' + p + 'dau)" ' +
+        'stroke="' + VIEN + '" stroke-width="0.8"/>' +
+      // má phải tối
+      '<ellipse cx="11" cy="-66" rx="8" ry="11" fill="#CFC9BF" opacity=".5" ' +
+        'filter="url(#' + p + 'mo)"/>' +
+      // trán sáng
+      '<ellipse cx="-6" cy="-77" rx="9" ry="6" fill="#FFFFFF" opacity=".95" ' +
+        'filter="url(#' + p + 'mo)"/>' +
+      // túm lông trên đỉnh đầu, mờ nhẹ cho mềm
+      '<ellipse cx="0" cy="-86" rx="7" ry="3" fill="#FFFFFF" opacity=".9" ' +
+        'filter="url(#' + p + 'mo)"/>' +
+
+      // mõm
+      '<ellipse cx="0" cy="-60" rx="10" ry="7.5" fill="#FFFFFF" opacity=".9" ' +
+        'filter="url(#' + p + 'mo)"/>' +
+
+      // mắt to, đen bóng
+      '<ellipse cx="-7" cy="-71" rx="4.4" ry="5" fill="url(#' + p + 'mat)"/>' +
+      '<ellipse cx="7.4" cy="-71" rx="4" ry="4.6" fill="url(#' + p + 'mat)"/>' +
+      '<circle cx="-8.4" cy="-73" r="1.6" fill="#fff" opacity=".95"/>' +
+      '<circle cx="6.2" cy="-73" r="1.4" fill="#fff" opacity=".95"/>' +
+      '<circle cx="-5.6" cy="-68.6" r="0.8" fill="#fff" opacity=".5"/>' +
+
+      // mũi hồng và miệng
+      '<path d="M-2.6 -62.4 Q0 -60.4 2.6 -62.4 Q0 -63.8 -2.6 -62.4 Z" fill="' + HONG + '"/>' +
+      '<path d="M0 -60.6 v2 M0 -58.6 Q-3 -56.8 -5.2 -58.4 M0 -58.6 Q3 -56.8 5.2 -58.4" ' +
+        'stroke="#B9AFA6" stroke-width="1.2" fill="none" stroke-linecap="round"/>' +
+
+      // râu
+      '<path d="M-9 -60 L-21 -62 M-9 -58 L-21 -57 M9 -60 L21 -62 M9 -58 L21 -57" ' +
+        'stroke="#D8D2C9" stroke-width="0.9" stroke-linecap="round" opacity=".85"/>'
+    );
+  }
+
+  function bong(p) {
+    return '<ellipse cx="1" cy="-1" rx="25" ry="5.5" fill="#8C8578" opacity=".35" ' +
+           'filter="url(#' + p + 'mo2)"/>';
   }
 
   function boc(x, y, co, ruot) {
-    const ma = ++demId;
-    return defs(ma) +
+    const p = 'th' + (++demId);
+    return defs(p) +
       '<g transform="translate(' + x + ' ' + y + ') scale(' + (co || 1) + ')">' +
-        bong() + ruot('th' + ma) +
+        bong(p) + ruot(p) +
       '</g>';
   }
 
-  // Đứng, hai tay buông xuôi
-  function dung(x, y, co) {
+  // Ngồi, hai chân trước chụm trước ngực
+  function ngoi(x, y, co) {
     return boc(x, y, co, function (p) {
-      const tay =
-        '<ellipse cx="-15" cy="-18" rx="4.6" ry="8" fill="url(#' + p + 'da)" ' +
-          'stroke="' + MUC + '" stroke-width="1.8" transform="rotate(-10 -15 -18)"/>' +
-        '<ellipse cx="15" cy="-18" rx="4.6" ry="8" fill="url(#' + p + 'da)" ' +
-          'stroke="' + MUC + '" stroke-width="1.8" transform="rotate(10 15 -18)"/>';
-      return minh(p, tay);
+      return than(p) +
+        '<ellipse cx="-5.5" cy="-11" rx="5.4" ry="8" fill="url(#' + p + 'long)" ' +
+          'stroke="' + VIEN + '" stroke-width="0.8"/>' +
+        '<ellipse cx="5.5" cy="-11" rx="5.4" ry="8" fill="url(#' + p + 'long)" ' +
+          'stroke="' + VIEN + '" stroke-width="0.8"/>' +
+        dau(p);
     });
   }
 
-  // Giơ hai tay ăn mừng
+  // Ngồi, hai chân trước giơ lên
   function mung(x, y, co) {
     return boc(x, y, co, function (p) {
-      const tay =
-        '<ellipse cx="-19" cy="-30" rx="4.6" ry="9.5" fill="url(#' + p + 'da)" ' +
-          'stroke="' + MUC + '" stroke-width="1.8" transform="rotate(-46 -19 -30)"/>' +
-        '<ellipse cx="19" cy="-30" rx="4.6" ry="9.5" fill="url(#' + p + 'da)" ' +
-          'stroke="' + MUC + '" stroke-width="1.8" transform="rotate(46 19 -30)"/>';
-      return minh(p, tay);
+      return than(p) +
+        '<ellipse cx="-23" cy="-44" rx="5.4" ry="9.5" fill="url(#' + p + 'long)" ' +
+          'stroke="' + VIEN + '" stroke-width="0.8" transform="rotate(-42 -23 -44)"/>' +
+        '<ellipse cx="23" cy="-44" rx="5.4" ry="9.5" fill="url(#' + p + 'long)" ' +
+          'stroke="' + VIEN + '" stroke-width="0.8" transform="rotate(42 23 -44)"/>' +
+        dau(p);
     });
   }
 
-  return { dung: dung, mung: mung, MUC: MUC, VANG: VANG };
+  return { ngoi: ngoi, mung: mung, dung: ngoi, HONG: HONG };
 })();
