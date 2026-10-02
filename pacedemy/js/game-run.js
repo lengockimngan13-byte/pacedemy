@@ -632,7 +632,9 @@ async function ketThuc(hetBai) {
     if (error) toast('Không lưu được kết quả: ' + error.message, 'bad');
   }
 
-  if (dung) await db.rpc('add_xp', { p_xp: dung * XP_DUNG });
+  // Gọi cả khi không đúng câu nào, vì đã ngồi làm thì vẫn tính là có học
+  // trong ngày — giống các chế độ luyện khác.
+  await db.rpc('add_xp', { p_xp: dung * XP_DUNG });
 }
 
 function veLaiCauSai() {

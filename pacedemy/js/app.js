@@ -904,6 +904,44 @@ const MOC = [3, 7, 14, 30, 60, 100, 180, 365];
 
 const THU = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
+// Hội Streak — ba bậc, kèm số ngày nghỉ phép đang giữ
+const HOI = [
+  { tu: 100, ten: 'Hội Streak vàng',  mau: 'vang' },
+  { tu: 30,  ten: 'Hội Streak bạc',   mau: 'bac'  },
+  { tu: 7,   ten: 'Hội Streak đồng',  mau: 'dong' }
+];
+
+function chuoiThat(prof) {
+  if (!prof || !prof.last_active) return 0;
+
+  const hn = new Date(); hn.setHours(0, 0, 0, 0);
+  const la = new Date(prof.last_active + 'T00:00:00');
+  const cach = Math.round((hn - la) / 86400000);
+
+  if (cach <= 1) return prof.streak_days || 0;
+  // Nghỉ đúng một ngày mà còn phép thì chuỗi vẫn được cứu khi quay lại
+  if (cach === 2 && (prof.freeze_count || 0) > 0) return prof.streak_days || 0;
+  return 0;
+}
+
+function heHoi(streak, phep) {
+  const bac = HOI.find(function (h) { return streak >= h.tu; });
+
+  let o = '<div class="hoi">';
+
+  if (bac) {
+    o += '<span class="hoi-huy hoi-' + bac.mau + '">' + bac.ten + '</span>';
+  } else {
+    o += '<span class="hoi-chua">Đạt 7 ngày là vào Hội Streak</span>';
+  }
+
+  o += '<span class="hoi-phep" title="Nghỉ đúng một ngày thì tự dùng một cái để cứu chuỗi">' +
+         '🧊 ' + phep + ' ngày nghỉ phép' +
+       '</span>';
+
+  return o + '</div>';
+}
+
 // Dải bảy ngày của tuần này — nhìn một cái là biết tuần nay nghỉ hôm nào.
 // Khác lưới bên dưới ở chỗ lưới đếm lùi N ngày, còn dải này bám đúng tuần.
 function daiTuan(byDay, goal) {
@@ -939,11 +977,16 @@ async function loadStreak() {
   if (!box) return;
 
   const { data: prof } = await db
-    .from('profiles').select('streak_days, best_streak, daily_goal').eq('id', me.id).single();
+    .from('profiles')
+    .select('streak_days, best_streak, daily_goal, last_active, freeze_count')
+    .eq('id', me.id).single();
 
-  const streak = (prof && prof.streak_days) || 0;
+  // streak_days trong bảng chỉ đổi khi học viên quay lại học. Nghỉ ba hôm
+  // mà chưa vào thì cột đó vẫn giữ số cũ — hiện ra là nói dối, nên tính lại.
+  const streak = chuoiThat(prof);
   const best   = (prof && prof.best_streak) || 0;
   const goal   = (prof && prof.daily_goal) || 20;
+  const phep   = (prof && prof.freeze_count) || 0;
 
   // Hôm nay — luôn tính riêng, không phụ thuộc số ngày đang chọn xem bên dưới
   const todayStart = new Date();
@@ -999,6 +1042,8 @@ async function loadStreak() {
         '</div>' +
       '</div>' +
 
+      heHoi(streak, phep) +
+
       daiTuan(byDay, goal) +
 
       '<div class="goal-line">' +
@@ -1019,6 +1064,8 @@ async function loadStreak() {
       '</div>' +
 
       '<div class="heat" id="heat">' + dayCards(byDay, actsByDay, goal, heatWindow) + '</div>' +
+
+      '<div id="buddy-box"></div>' +
     '</div>';
 
   box.innerHTML = html;
@@ -1034,6 +1081,146 @@ async function loadStreak() {
   if (streak > best) {
     await db.from('profiles').update({ best_streak: streak }).eq('id', me.id);
   }
+
+  safely(loadBuddy);
+}
+
+// ============================================================
+// Bạn đồng hành — chuỗi đôi
+//
+// Chuỗi đôi đếm số ngày liên tiếp mà CẢ HAI cùng học. Đứt chuỗi đôi
+// không đụng gì tới chuỗi riêng của ai, nên rủ nhau học là vui chứ
+// không thành gánh nặng cho người kia.
+// ============================================================
+
+async function loadBuddy() {
+  const box = el('buddy-box');
+  if (!box) return;
+
+  const { data, error } = await db.rpc('ban_dong_hanh');
+  if (error) { box.innerHTML = ''; return; }
+
+  const b = (data && data.length) ? data[0] : null;
+
+  if (!b) { await veChonBan(box); return; }
+
+  if (b.trang_thai === 'pending') {
+    box.innerHTML = b.toi_moi
+      ? '<div class="bd">' +
+          '<p class="bd-h">Bạn đồng hành</p>' +
+          '<p class="bd-p">Đã rủ <b>' + escapeHtml(b.ban_ten || 'bạn ấy') +
+            '</b>, đang chờ nhận lời.</p>' +
+          '<button class="btn-sm learn" data-bd-huy="' + b.cap_id + '">Rút lời rủ</button>' +
+        '</div>'
+      : '<div class="bd bd-moi">' +
+          '<p class="bd-h">Có người rủ bạn</p>' +
+          '<p class="bd-p"><b>' + escapeHtml(b.ban_ten || 'Một bạn') +
+            '</b> rủ bạn làm bạn đồng hành. Hai người cùng học một ngày thì chuỗi đôi lên một.</p>' +
+          '<div class="bd-nut">' +
+            '<button class="btn-sm test" data-bd-nhan="' + b.cap_id + '">Nhận lời</button>' +
+            '<button class="btn-sm learn" data-bd-huy="' + b.cap_id + '">Để sau</button>' +
+          '</div>' +
+        '</div>';
+    ganBuddy(box);
+    return;
+  }
+
+  // Đã thành đôi
+  const n = b.chuoi || 0;
+  let nhac;
+
+  if (b.toi_hom_nay && b.ban_hom_nay) {
+    nhac = 'Hôm nay cả hai đã học. Chuỗi đôi giữ được rồi.';
+  } else if (b.ban_hom_nay) {
+    nhac = '<b>' + escapeHtml(tenNgan(b.ban_ten)) + ' học rồi</b>, tới lượt bạn.';
+  } else if (b.toi_hom_nay) {
+    nhac = 'Bạn học rồi, còn chờ ' + escapeHtml(tenNgan(b.ban_ten)) + '.';
+  } else {
+    nhac = 'Hôm nay chưa ai học. Ai mở bài trước nào.';
+  }
+
+  box.innerHTML =
+    '<div class="bd">' +
+      '<p class="bd-h">Bạn đồng hành</p>' +
+      '<div class="bd-doi">' +
+        '<div class="bd-so"><b>' + n + '</b><span>ngày cùng học</span></div>' +
+        '<div class="bd-ai">' +
+          '<span class="bd-ten">' + escapeHtml(b.ban_ten || 'Bạn đồng hành') + '</span>' +
+          '<span class="bd-cham' + (b.ban_hom_nay ? ' on' : '') + '">' +
+            (b.ban_hom_nay ? 'hôm nay đã học' : 'hôm nay chưa học') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<p class="bd-p">' + nhac + '</p>' +
+      '<p class="bd-nho">Chuỗi đôi đứt thì chuỗi riêng của hai người vẫn nguyên.</p>' +
+      '<button class="btn-sm learn" data-bd-huy="' + b.cap_id + '">Bỏ ghép đôi</button>' +
+    '</div>';
+
+  ganBuddy(box);
+}
+
+// Chỉ rủ được bạn cùng lớp — vừa gọn vừa khỏi lộ tên người lạ
+async function veChonBan(box) {
+  if (!lopCuaToi.length) await napLopCuaToi();
+  if (!lopCuaToi.length) { box.innerHTML = ''; return; }
+
+  const { data } = await db.from('leaderboard_lop')
+    .select('id, full_name').eq('class_id', lopCuaToi[0].id);
+
+  const ban = (data || []).filter(function (r) { return r.id !== me.id; });
+  if (!ban.length) { box.innerHTML = ''; return; }
+
+  box.innerHTML =
+    '<div class="bd">' +
+      '<p class="bd-h">Bạn đồng hành</p>' +
+      '<p class="bd-p">Rủ một bạn cùng lớp. Ngày nào cả hai cùng học thì chuỗi đôi lên một. ' +
+        'Chuỗi riêng của mỗi người không bị ảnh hưởng.</p>' +
+      '<div class="bd-ds">' +
+        ban.slice(0, 8).map(function (r) {
+          return '<button class="btn-sm learn" data-bd-ru="' + escapeHtml(r.id) + '">' +
+                 escapeHtml(r.full_name || 'Học viên') + '</button>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+
+  ganBuddy(box);
+}
+
+function ganBuddy(box) {
+  box.querySelectorAll('[data-bd-ru]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      const ban = b.dataset.bdRu;
+      const a = me.id < ban ? me.id : ban;
+      const z = me.id < ban ? ban : me.id;
+
+      b.disabled = true;
+      const { error } = await db.from('study_buddies')
+        .insert({ a_id: a, b_id: z, moi_boi: me.id, status: 'pending' });
+      b.disabled = false;
+
+      if (error) { toast('Không rủ được: ' + error.message, 'bad'); return; }
+      toast('Đã gửi lời rủ.', 'good');
+      loadBuddy();
+    });
+  });
+
+  box.querySelectorAll('[data-bd-nhan]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      const { error } = await db.from('study_buddies')
+        .update({ status: 'active' }).eq('id', parseInt(b.dataset.bdNhan, 10));
+      if (error) { toast('Không nhận được: ' + error.message, 'bad'); return; }
+      toast('Từ nay hai bạn cùng giữ chuỗi đôi.', 'good');
+      loadBuddy();
+    });
+  });
+
+  box.querySelectorAll('[data-bd-huy]').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      const { error } = await db.from('study_buddies')
+        .delete().eq('id', parseInt(b.dataset.bdHuy, 10));
+      if (error) { toast('Không bỏ được: ' + error.message, 'bad'); return; }
+      loadBuddy();
+    });
+  });
 }
 
 function safely(fn) {

@@ -4826,3 +4826,97 @@ html { scroll-behavior: smooth; }
 .bxh-nhac b { color: var(--ink); }
 
 #board-tabs { margin-bottom: 12px; }
+
+/* ============================================================
+   HỘI STREAK VÀ BẠN ĐỒNG HÀNH
+   ============================================================ */
+
+.hoi {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 2px;
+}
+
+.hoi-huy {
+  padding: 4px 11px;
+  border-radius: var(--r);
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1.5px solid;
+}
+.hoi-dong { background: #F6E7D8; border-color: #B07A4A; color: #7A4F28; }
+.hoi-bac  { background: #ECEFF1; border-color: #8C9BA5; color: #495760; }
+.hoi-vang { background: var(--gold-dim); border-color: var(--gold); color: #6B4A05; }
+
+.hoi-chua {
+  font-size: 0.8rem;
+  color: #6C837E;
+}
+
+.hoi-phep {
+  margin-left: auto;
+  padding: 4px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4A635E;
+  cursor: help;
+}
+
+/* ---- Bạn đồng hành ---- */
+
+.bd {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1.5px solid var(--line);
+}
+
+.bd-h {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6C837E;
+}
+
+.bd-p { margin: 0 0 12px; font-size: 0.9rem; line-height: 1.65; color: #4A635E; }
+.bd-p b { color: var(--ink); }
+
+.bd-nho { margin: 0 0 12px; font-size: 0.8rem; color: #6C837E; }
+
+.bd-doi {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: #fff;
+}
+
+.bd-so { display: flex; align-items: baseline; gap: 7px; }
+.bd-so b {
+  font-family: var(--disp);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--teal);
+  line-height: 1;
+}
+.bd-so span { font-size: 0.82rem; color: #4A635E; }
+
+.bd-ai { margin-left: auto; text-align: right; display: flex; flex-direction: column; gap: 2px; }
+.bd-ten { font-weight: 600; font-size: 0.92rem; }
+.bd-cham { font-size: 0.78rem; color: #6C837E; }
+.bd-cham.on { color: var(--teal); font-weight: 600; }
+
+.bd-ds, .bd-nut { display: flex; flex-wrap: wrap; gap: 8px; }
+.bd-ds .btn-sm, .bd-nut .btn-sm, .bd > .btn-sm { flex: none; padding: 8px 14px; cursor: pointer; }
+
+.bd-moi { border-top-color: var(--gold); }
