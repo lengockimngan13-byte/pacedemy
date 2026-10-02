@@ -402,17 +402,52 @@ function partRows(obj) {
 
 // ---------- Bảng xếp hạng ----------
 
+// ============================================================
+// Thi đua trong tuần
+//
+// Mặc định xem trong lớp mình học, vì thi đua với người mình biết mặt
+// mới có động lực. Ai chưa vào lớp nào thì xem bảng chung.
+// ============================================================
+
+let lopCuaToi = [];       // [{ id, name }]
+let lopDangXem = null;
+let phamVi = 'lop';       // 'lop' | 'tatca'
+
+async function napLopCuaToi() {
+  const { data: mem } = await db
+    .from('class_members').select('class_id')
+    .eq('student_id', me.id).eq('status', 'active');
+
+  const ids = (mem || []).map(function (m) { return m.class_id; });
+  if (!ids.length) return;
+
+  const { data: cs } = await db.from('classes').select('id, name').in('id', ids);
+  lopCuaToi = cs || [];
+  if (lopCuaToi.length && !lopDangXem) lopDangXem = lopCuaToi[0].id;
+}
+
 async function loadBoard() {
   const wrap = el('board-wrap');
+  if (!wrap) return;
 
-  const { data, error } = await db
-    .from('leaderboard_weekly')
-    .select('id, full_name, avatar_url, weekly_xp, sessions, active_days, rank')
-    .order('rank', { ascending: true })
-    .limit(5);
+  if (!lopCuaToi.length) await napLopCuaToi();
+  if (!lopCuaToi.length) phamVi = 'tatca';
+
+  const trongLop = phamVi === 'lop' && lopDangXem;
+
+  const { data, error } = trongLop
+    ? await db.from('leaderboard_lop')
+        .select('id, full_name, avatar_url, streak_days, weekly_xp, active_days, rank')
+        .eq('class_id', lopDangXem)
+        .order('rank', { ascending: true }).limit(8)
+    : await db.from('leaderboard_weekly')
+        .select('id, full_name, avatar_url, streak_days, weekly_xp, active_days, rank')
+        .order('rank', { ascending: true }).limit(8);
+
+  veTabBang();
 
   if (error) {
-    wrap.innerHTML = '<p class="empty">Chưa tải được bảng xếp hạng. Bạn thử tải lại trang nhé.</p>';
+    wrap.innerHTML = '<p class="empty">Chưa tải được bảng thi đua. Bạn thử tải lại trang nhé.</p>';
     return;
   }
 
@@ -424,13 +459,16 @@ async function loadBoard() {
   let rows = '';
   for (const r of data) {
     const days = r.active_days || 0;
+    const streak = r.streak_days || 0;
+
     rows +=
       '<tr class="' + (r.id === me.id ? 'me' : '') + '">' +
-        '<td class="rank">' + r.rank + '</td>' +
+        '<td class="rank">' + huyChuong(r.rank) + '</td>' +
         '<td><div class="who">' + boardAvatar(r) +
-            '<span>' + escapeHtml(r.full_name || 'Học viên') + '</span></div></td>' +
-        '<td class="hide-sm">' + days + (days === 1 ? ' ngày' : ' ngày') + '</td>' +
-        '<td class="hide-sm">' + r.sessions + ' lượt</td>' +
+            '<span>' + escapeHtml(r.full_name || 'Học viên') +
+              (streak > 0 ? '<b class="lua" title="Chuỗi ngày học">🔥' + streak + '</b>' : '') +
+            '</span></div></td>' +
+        '<td class="hide-sm">' + days + ' ngày</td>' +
         '<td>' + r.weekly_xp + ' câu</td>' +
       '</tr>';
   }
@@ -440,11 +478,78 @@ async function loadBoard() {
       '<thead><tr>' +
         '<th>Hạng</th><th>Học viên</th>' +
         '<th class="hide-sm">Ngày học</th>' +
-        '<th class="hide-sm">Lượt làm bài</th>' +
         '<th>Câu đúng tuần</th>' +
       '</tr></thead>' +
       '<tbody>' + rows + '</tbody>' +
-    '</table>';
+    '</table>' +
+    khoangCach(data);
+}
+
+function huyChuong(h) {
+  if (h === 1) return '🥇';
+  if (h === 2) return '🥈';
+  if (h === 3) return '🥉';
+  return h;
+}
+
+// Câu nói rõ mình đang hơn ai, kém ai bao nhiêu câu — đây mới là phần
+// làm cho bảng xếp hạng thành cuộc đua chứ không chỉ là danh sách.
+function khoangCach(ds) {
+  const i = ds.findIndex(function (r) { return r.id === me.id; });
+  if (i === -1) {
+    return '<p class="bxh-nhac">Bạn chưa có tên trong bảng tuần này. ' +
+           'Làm một bài là có mặt ngay.</p>';
+  }
+
+  const toi = ds[i];
+  const tren = i > 0 ? ds[i - 1] : null;
+  const duoi = i < ds.length - 1 ? ds[i + 1] : null;
+
+  let y = [];
+  if (tren) {
+    const cach = tren.weekly_xp - toi.weekly_xp;
+    y.push(cach > 0
+      ? 'Còn <b>' + cach + ' câu</b> nữa là vượt ' + escapeHtml(tenNgan(tren.full_name))
+      : 'Bạn đang bằng điểm ' + escapeHtml(tenNgan(tren.full_name)));
+  }
+  if (duoi) {
+    const cach = toi.weekly_xp - duoi.weekly_xp;
+    y.push(cach > 0
+      ? 'Đang hơn ' + escapeHtml(tenNgan(duoi.full_name)) + ' <b>' + cach + ' câu</b>'
+      : escapeHtml(tenNgan(duoi.full_name)) + ' đang bám sát bạn');
+  }
+  if (!y.length) y.push('Bạn đang một mình trên bảng này.');
+
+  return '<p class="bxh-nhac">' + y.join(' · ') + '</p>';
+}
+
+function tenNgan(full) {
+  if (!full) return 'bạn kia';
+  const p = full.trim().split(/\s+/);
+  return p[p.length - 1];
+}
+
+function veTabBang() {
+  const thanh = el('board-tabs');
+  if (!thanh) return;
+
+  if (!lopCuaToi.length) { thanh.innerHTML = ''; return; }
+
+  thanh.innerHTML =
+    lopCuaToi.map(function (l) {
+      return '<button class="test-tab' +
+             (phamVi === 'lop' && l.id === lopDangXem ? ' on' : '') +
+             '" data-lop="' + l.id + '">' + escapeHtml(l.name || 'Lớp') + '</button>';
+    }).join('') +
+    '<button class="test-tab' + (phamVi === 'tatca' ? ' on' : '') + '" data-lop="all">Tất cả</button>';
+
+  thanh.querySelectorAll('button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.lop === 'all') { phamVi = 'tatca'; }
+      else { phamVi = 'lop'; lopDangXem = parseInt(b.dataset.lop, 10); }
+      loadBoard();
+    });
+  });
 }
 
 function boardAvatar(r) {
@@ -797,6 +902,38 @@ function reminderCard(kind, title, body, cta, ctaTarget) {
 
 const MOC = [3, 7, 14, 30, 60, 100, 180, 365];
 
+const THU = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+// Dải bảy ngày của tuần này — nhìn một cái là biết tuần nay nghỉ hôm nào.
+// Khác lưới bên dưới ở chỗ lưới đếm lùi N ngày, còn dải này bám đúng tuần.
+function daiTuan(byDay, goal) {
+  const nay = new Date();
+  const dau = new Date(nay);
+  dau.setDate(nay.getDate() - nay.getDay());   // lùi về Chủ nhật
+  dau.setHours(0, 0, 0, 0);
+
+  const khoaNay = dayKey(nay);
+  let o = '';
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(dau);
+    d.setDate(dau.getDate() + i);
+
+    const so = byDay[dayKey(d)] || 0;
+    const homNay = dayKey(d) === khoaNay;
+    const chuaToi = d > nay && !homNay;
+    const dat = goal && so >= goal;
+
+    o += '<div class="wk-o' + (so ? ' co' : '') + (dat ? ' dat' : '') +
+           (homNay ? ' nay' : '') + (chuaToi ? ' chua' : '') + '">' +
+           '<span class="wk-thu">' + THU[i] + '</span>' +
+           '<span class="wk-cham">' + (dat ? '✓' : (so ? '•' : '')) + '</span>' +
+         '</div>';
+  }
+
+  return '<div class="wk">' + o + '</div>';
+}
+
 async function loadStreak() {
   const box = el('streak-box');
   if (!box) return;
@@ -862,6 +999,8 @@ async function loadStreak() {
         '</div>' +
       '</div>' +
 
+      daiTuan(byDay, goal) +
+
       '<div class="goal-line">' +
         '<span style="flex:1">Hôm nay ' + doneToday + '/' + goal + ' câu</span>' +
         '<span class="play-bar" style="flex:1;max-width:190px;cursor:default">' +
@@ -872,7 +1011,8 @@ async function loadStreak() {
       '</div>' +
 
       '<div class="test-tabs heat-tabs" id="heat-tabs">' +
-        [7, 14, 30].map(function (n) {
+        // Bỏ mốc 7 ngày vì dải tuần ngay bên trên đã lo phần đó rồi
+        [14, 30].map(function (n) {
           return '<button class="test-tab' + (n === heatWindow ? ' on' : '') +
                  '" data-win="' + n + '">' + n + ' ngày</button>';
         }).join('') +
