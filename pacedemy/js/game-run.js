@@ -32,8 +32,9 @@ const MAU = {
   dat:   '#8A6A4A', co: '#4E9C6B',
   o:     '#F0A830', oVien: '#0C2422',
   oDung: '#2A7F76', oSai: '#B4432E', oTat: '#C9D8D3',
-  thoDa: '#FDFCFA', thoBong: '#D8D2C9', thoVien: '#C8C4BC',
-  tai:   '#E9A7A2', thoMat: '#241C1A',
+  thoDa: '#E6D0AC', thoBong: '#BE9F77', thoVien: '#C4A784',
+  thoTrang: '#FDF8EF', thoVienT: '#DCD2C2',
+  tai:   '#E7A39C', thoMat: '#2B201A',
   chu:   '#0C2422'
 };
 
@@ -715,81 +716,87 @@ function veTho() {
   ctx.lineJoin = 'round';
 
   const to = function (ve) { ctx.fillStyle = MAU.thoDa; ve(); ctx.fill(); ctx.stroke(); };
+  // mảng trắng: ngực, mõm, bàn chân — nét đặc trưng của con thỏ mẫu
+  const trang = function (ve) {
+    ctx.fillStyle = MAU.thoTrang;
+    ctx.strokeStyle = MAU.thoVienT;
+    ve(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = MAU.thoVien;
+  };
 
-  // hai tai, chiếc phải hơi ngả ra
-  [[-4, -0.12], [4.6, 0.3]].forEach(function (t) {
+  // hai tai: ngắn và xoè ra hai bên, kiểu thỏ con
+  [[-4.4, -0.24], [5, 0.52]].forEach(function (t) {
     ctx.save();
-    ctx.translate(t[0], -h + 5);
+    ctx.translate(t[0], -h + 7);
     ctx.rotate(t[1]);
-    to(function () { ctx.beginPath(); ctx.ellipse(0, 0, 3.1, 10, 0, 0, Math.PI * 2); });
+    to(function () { ctx.beginPath(); ctx.ellipse(0, 0, 3.2, 7.8, 0, 0, Math.PI * 2); });
     ctx.fillStyle = MAU.tai;
-    ctx.globalAlpha = 0.55;
-    ctx.beginPath(); ctx.ellipse(0, -0.6, 1.5, 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath(); ctx.ellipse(0, -0.6, 1.6, 5.2, 0, 0, Math.PI * 2); ctx.fill();
     ctx.globalAlpha = 1;
     ctx.restore();
   });
 
-  // chân sau
+  // chân sau, bàn chân trắng
   const dang = tho.duoiDat ? Math.sin(tho.buoc * 6) * 2.2 : 3.2;
-  to(function () { ctx.beginPath(); ctx.ellipse(-4.5 - dang * 0.3, -2, 4.2, 2.4, 0, 0, Math.PI * 2); });
-  to(function () { ctx.beginPath(); ctx.ellipse(4.5 + dang * 0.3, -2, 4.2, 2.4, 0, 0, Math.PI * 2); });
+  trang(function () { ctx.beginPath(); ctx.ellipse(-4.7 - dang * 0.3, -2, 4.4, 2.5, 0, 0, Math.PI * 2); });
+  trang(function () { ctx.beginPath(); ctx.ellipse(4.7 + dang * 0.3, -2, 4.4, 2.5, 0, 0, Math.PI * 2); });
 
-  // thân
-  to(function () { ctx.beginPath(); ctx.ellipse(0, -10, 8.8, 9.8, 0, 0, Math.PI * 2); });
+  // thân: tròn mập, bề ngang gần bằng chiều cao
+  to(function () { ctx.beginPath(); ctx.ellipse(0, -10.5, 9.6, 9.4, 0, 0, Math.PI * 2); });
   // mặt tối bên phải
   ctx.save();
   ctx.shadowColor = MAU.thoBong; ctx.shadowBlur = 5;
-  ctx.fillStyle = 'rgba(200,196,188,.5)';
-  ctx.beginPath(); ctx.ellipse(5.5, -10, 3.4, 7, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(185,152,113,.5)';
+  ctx.beginPath(); ctx.ellipse(6, -10.5, 3.4, 6.4, 0, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
-  // ngực sáng
-  ctx.fillStyle = 'rgba(255,255,255,.9)';
-  ctx.beginPath(); ctx.ellipse(-1.6, -9, 5.2, 6, 0, 0, Math.PI * 2); ctx.fill();
+  // ngực trắng
+  ctx.fillStyle = 'rgba(253,248,239,.95)';
+  ctx.beginPath(); ctx.ellipse(-0.6, -9, 5.8, 6.2, 0, 0, Math.PI * 2); ctx.fill();
 
   // chân trước chụm trước ngực
-  to(function () { ctx.beginPath(); ctx.ellipse(-2.4, -4.5, 2.2, 3.2, 0, 0, Math.PI * 2); });
-  to(function () { ctx.beginPath(); ctx.ellipse(2.4, -4.5, 2.2, 3.2, 0, 0, Math.PI * 2); });
+  trang(function () { ctx.beginPath(); ctx.ellipse(-2.5, -4.4, 2.3, 3, 0, 0, Math.PI * 2); });
+  trang(function () { ctx.beginPath(); ctx.ellipse(2.5, -4.4, 2.3, 3, 0, 0, Math.PI * 2); });
 
-  // đầu
-  to(function () { ctx.beginPath(); ctx.arc(0, -25, 9.2, 0, Math.PI * 2); });
-  ctx.fillStyle = 'rgba(255,255,255,.95)';
-  ctx.beginPath(); ctx.ellipse(-3, -28.5, 3.8, 2.8, -0.4, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(0, -21.5, 5, 3.6, 0, 0, Math.PI * 2); ctx.fill();
+  // đầu: to so với thân, lún vào thân, không có cổ
+  to(function () { ctx.beginPath(); ctx.arc(0, -22.5, 9.4, 0, Math.PI * 2); });
+  // trán sáng
+  ctx.fillStyle = 'rgba(248,234,211,.9)';
+  ctx.beginPath(); ctx.ellipse(-3, -26.5, 3.6, 2.4, -0.4, 0, Math.PI * 2); ctx.fill();
+  // mõm trắng
+  ctx.fillStyle = 'rgba(253,248,239,.96)';
+  ctx.beginPath(); ctx.ellipse(0, -18.8, 5.2, 3.9, 0, 0, Math.PI * 2); ctx.fill();
 
   // má ửng hồng
   ctx.save();
-  ctx.globalAlpha = 0.38;
+  ctx.globalAlpha = 0.36;
   ctx.fillStyle = MAU.tai;
-  ctx.beginPath(); ctx.ellipse(-6.2, -23.4, 2.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(6.2, -23.4, 2.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-6.4, -20.8, 2.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(6.4, -20.8, 2.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
   // Mắt có mí trên và chấm sáng to. Thiếu mí thì mắt thành hòn bi,
   // nhìn đờ đẫn — đúng chỗ bản trước bị chê.
-  [-3.1, 3.1].forEach(function (ex) {
-    const r = 2.3;
+  [-3.2, 3.2].forEach(function (ex) {
+    const r = 2.4, ey = -23.8, mi = ey - r * 0.82;
 
+    // Cắt bớt đỉnh mắt thay vì vẽ đè một miếng lông lên: trên nền
+    // canvas phẳng, miếng đè lộ thành một ô vuông sáng.
+    ctx.save();
+    ctx.beginPath(); ctx.rect(ex - r - 1, mi, (r + 1) * 2, r * 2 + 2); ctx.clip();
     ctx.fillStyle = MAU.thoMat;
-    ctx.beginPath(); ctx.arc(ex, -26, r, 0, Math.PI * 2); ctx.fill();
-
-    // mí: lát lông đè lên đỉnh mắt
-    ctx.fillStyle = MAU.thoDa;
-    ctx.beginPath();
-    ctx.moveTo(ex - r - 0.3, -26 - r * 0.45);
-    ctx.arc(ex, -26, r + 0.3, Math.PI, Math.PI * 2, false);
-    ctx.lineTo(ex + r + 0.3, -26 - r - 0.8);
-    ctx.lineTo(ex - r - 0.3, -26 - r - 0.8);
-    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(ex, ey, r, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
 
     ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(ex - r * 0.4, -26 - r * 0.32, r * 0.42, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ex - r * 0.36, ey - r * 0.28, r * 0.42, 0, Math.PI * 2); ctx.fill();
   });
 
   // mũi hồng
   ctx.fillStyle = MAU.tai;
   ctx.beginPath();
-  ctx.moveTo(-1.3, -22.6); ctx.quadraticCurveTo(0, -21.4, 1.3, -22.6);
-  ctx.quadraticCurveTo(0, -23.4, -1.3, -22.6);
+  ctx.moveTo(-1.3, -19.9); ctx.quadraticCurveTo(0, -18.7, 1.3, -19.9);
+  ctx.quadraticCurveTo(0, -20.8, -1.3, -19.9);
   ctx.fill();
 
   // miệng cười
@@ -797,9 +804,9 @@ function veTho() {
   ctx.lineWidth = 0.7;
   ctx.globalAlpha = 0.8;
   ctx.beginPath();
-  ctx.moveTo(0, -21.4); ctx.lineTo(0, -20.6);
-  ctx.moveTo(0, -20.6); ctx.quadraticCurveTo(-1.5, -19.4, -2.7, -20.5);
-  ctx.moveTo(0, -20.6); ctx.quadraticCurveTo(1.5, -19.4, 2.7, -20.5);
+  ctx.moveTo(0, -18.7); ctx.lineTo(0, -18);
+  ctx.moveTo(0, -18); ctx.quadraticCurveTo(-1.5, -16.9, -2.7, -17.9);
+  ctx.moveTo(0, -18); ctx.quadraticCurveTo(1.5, -16.9, 2.7, -17.9);
   ctx.stroke();
   ctx.globalAlpha = 1;
 

@@ -54,7 +54,7 @@ const XongBai = (function () {
 
     return '<svg class="xb-hinh" viewBox="0 0 200 172" role="img" ' +
              'aria-label="Thỏ Pacedemy giơ tay ăn mừng">' +
-             giay + Tho.mung(100, 158, 1.3) +
+             giay + Tho.mung(100, 158, 1.45) +
            '</svg>';
   }
 
