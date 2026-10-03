@@ -109,7 +109,7 @@ const ThoHoi = (function () {
              '<rect width="200" height="130" fill="' + NEN + '"/>' +
              '<rect y="121" width="200" height="9" fill="' + SAN + '"/>' +
              c.ve +
-             Tho.dung(38, 121, 1.1) +
+             Tho.dung(38, 121, 0.95) +
            '</svg>';
   }
 

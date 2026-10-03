@@ -689,10 +689,16 @@ function veChu() {
 
 // Thỏ của Pacedemy, cùng kiểu với bản SVG ở js/tho.js: lông trắng,
 // nét viền rất nhạt, tai trong hồng, mắt to đen, không đeo gì ở cổ.
-// Canvas không có bộ lọc làm mờ như SVG nên dùng shadowBlur thay.
+// Sprite thỏ trong game vẽ lại theo đúng hình trong js/tho.js: cùng
+// đường bao, cùng màu, chỉ bỏ bớt mấy lớp bóng mờ vì canvas không có
+// feGaussianBlur và ở cỡ ~26px thì cũng không thấy.
+//
+// Toạ độ dưới đây dùng chung hệ với bản SVG (chân ở y = 0, lên là âm,
+// cao khoảng 120), rồi thu nhỏ lại cho vừa khung va chạm của thỏ.
 function veTho() {
   const x = tho.x, y = tho.y, w = tho.w, h = tho.h;
   const nhun = tho.duoiDat && tho.vx ? Math.sin(tho.buoc * 6) * 1.5 : 0;
+  const dang = tho.duoiDat ? Math.sin(tho.buoc * 6) * 1.6 : 2.6;
 
   ctx.save();
   ctx.translate(x + w / 2, y + h);
@@ -711,104 +717,162 @@ function veTho() {
     ctx.restore();
   }
 
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = MAU.thoVien;
+  ctx.scale(h / 120, h / 120);
+  ctx.lineWidth = 1.6;
   ctx.lineJoin = 'round';
 
-  const to = function (ve) { ctx.fillStyle = MAU.thoDa; ve(); ctx.fill(); ctx.stroke(); };
-  // mảng trắng: ngực, mõm, bàn chân — nét đặc trưng của con thỏ mẫu
-  const trang = function (ve) {
-    ctx.fillStyle = MAU.thoTrang;
-    ctx.strokeStyle = MAU.thoVienT;
-    ve(); ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = MAU.thoVien;
+  // ---- bút màu, toạ độ theo hệ SVG ----
+  const gLong = ctx.createLinearGradient(-24, -50, 22, -2);
+  gLong.addColorStop(0, '#F7E9D2'); gLong.addColorStop(0.42, '#E7D1AD'); gLong.addColorStop(1, '#C3A077');
+  const gDau = ctx.createLinearGradient(-22, -86, 22, -42);
+  gDau.addColorStop(0, '#FAEEDB'); gDau.addColorStop(0.46, '#EAD5B3'); gDau.addColorStop(1, '#C8A77D');
+  const gTai = ctx.createLinearGradient(-10, -116, 10, -74);
+  gTai.addColorStop(0, '#F3E3C8'); gTai.addColorStop(1, '#CDAC83');
+  const gTrang = ctx.createLinearGradient(-14, -58, 14, -8);
+  gTrang.addColorStop(0, '#FFFFFF'); gTrang.addColorStop(0.55, '#FCF6EB'); gTrang.addColorStop(1, '#EADFCD');
+
+  const to = function (ve, nen, net) {
+    ctx.fillStyle = nen; ctx.strokeStyle = net || MAU.thoVien;
+    ctx.beginPath(); ve(); ctx.closePath(); ctx.fill(); ctx.stroke();
+  };
+  const lap = function (ve, nen, alpha) {
+    ctx.save(); if (alpha != null) ctx.globalAlpha = alpha;
+    ctx.fillStyle = nen; ctx.beginPath(); ve(); ctx.closePath(); ctx.fill(); ctx.restore();
   };
 
-  // hai tai: ngắn và xoè ra hai bên, kiểu thỏ con
-  [[-4.4, -0.24], [5, 0.52]].forEach(function (t) {
+  // ---------- tai ----------
+  [[-1, -11], [1, 27]].forEach(function (t) {
+    const ben = t[0], ex = 9.5 * ben, goc = -74, chop = -116, ww = 8.6;
     ctx.save();
-    ctx.translate(t[0], -h + 7);
-    ctx.rotate(t[1]);
-    to(function () { ctx.beginPath(); ctx.ellipse(0, 0, 3.2, 7.8, 0, 0, Math.PI * 2); });
-    ctx.fillStyle = MAU.tai;
-    ctx.globalAlpha = 0.5;
-    ctx.beginPath(); ctx.ellipse(0, -0.6, 1.6, 5.2, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.translate(ex, goc); ctx.rotate(t[1] * Math.PI / 180); ctx.translate(-ex, -goc);
+
+    to(function () {
+      ctx.moveTo(ex - ww, goc);
+      ctx.bezierCurveTo(ex - ww - 2.4, goc - 17.6, ex - ww * 0.62, chop + 10, ex, chop);
+      ctx.bezierCurveTo(ex + ww * 0.62, chop + 10, ex + ww + 2.4, goc - 17.6, ex + ww, goc);
+    }, gTai);
+
+    const iw = 4.5, ig = -79, ic = -107;
+    lap(function () {
+      ctx.moveTo(ex - iw, ig);
+      ctx.bezierCurveTo(ex - iw - 1.2, ig - 16, ex - iw * 0.6, ic + 7, ex, ic);
+      ctx.bezierCurveTo(ex + iw * 0.6, ic + 7, ex + iw + 1.2, ig - 16, ex + iw, ig);
+    }, MAU.tai, 0.5);
     ctx.restore();
   });
 
-  // chân sau, bàn chân trắng
-  const dang = tho.duoiDat ? Math.sin(tho.buoc * 6) * 2.2 : 3.2;
-  trang(function () { ctx.beginPath(); ctx.ellipse(-4.7 - dang * 0.3, -2, 4.4, 2.5, 0, 0, Math.PI * 2); });
-  trang(function () { ctx.beginPath(); ctx.ellipse(4.7 + dang * 0.3, -2, 4.4, 2.5, 0, 0, Math.PI * 2); });
+  // ---------- bàn chân sau ----------
+  [-1, 1].forEach(function (b) {
+    const d = dang * b;
+    to(function () {
+      ctx.moveTo((-26 - d) * b, -5);
+      ctx.bezierCurveTo((-26 - d) * b, -11, (-20 - d) * b, -13, (-15 - d) * b, -11);
+      ctx.bezierCurveTo((-10 - d) * b, -9.4, (-8 - d) * b, -6, (-9 - d) * b, -3);
+      ctx.bezierCurveTo((-10 - d) * b, -0.6, (-22 - d) * b, 0.4, (-25 - d) * b, -1.6);
+      ctx.bezierCurveTo((-26.4 - d) * b, -2.6, (-26 - d) * b, -4, (-26 - d) * b, -5);
+    }, gTrang, MAU.thoVienT);
+  });
 
-  // thân: tròn mập, bề ngang gần bằng chiều cao
-  to(function () { ctx.beginPath(); ctx.ellipse(0, -10.5, 9.6, 9.4, 0, 0, Math.PI * 2); });
-  // mặt tối bên phải
-  ctx.save();
-  ctx.shadowColor = MAU.thoBong; ctx.shadowBlur = 5;
-  ctx.fillStyle = 'rgba(185,152,113,.5)';
-  ctx.beginPath(); ctx.ellipse(6, -10.5, 3.4, 6.4, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.restore();
-  // ngực trắng
-  ctx.fillStyle = 'rgba(253,248,239,.95)';
-  ctx.beginPath(); ctx.ellipse(-0.6, -9, 5.8, 6.2, 0, 0, Math.PI * 2); ctx.fill();
+  // ---------- thân ----------
+  to(function () {
+    ctx.moveTo(0, -50);
+    ctx.bezierCurveTo(-12.5, -50, -19.5, -43.5, -22, -33);
+    ctx.bezierCurveTo(-24.6, -22, -25.6, -12.5, -18, -6.5);
+    ctx.bezierCurveTo(-11, -1.2, 11, -1.2, 18, -6.5);
+    ctx.bezierCurveTo(25.6, -12.5, 24.6, -22, 22, -33);
+    ctx.bezierCurveTo(19.5, -43.5, 12.5, -50, 0, -50);
+  }, gLong);
 
-  // chân trước chụm trước ngực
-  trang(function () { ctx.beginPath(); ctx.ellipse(-2.5, -4.4, 2.3, 3, 0, 0, Math.PI * 2); });
-  trang(function () { ctx.beginPath(); ctx.ellipse(2.5, -4.4, 2.3, 3, 0, 0, Math.PI * 2); });
+  // khối tối bên phải thân
+  lap(function () {
+    ctx.moveTo(22, -33);
+    ctx.bezierCurveTo(24.6, -22, 25.6, -12.5, 18, -6.5);
+    ctx.bezierCurveTo(14, -4, 10, -3.2, 8, -3.4);
+    ctx.bezierCurveTo(16, -9, 19, -22, 17, -36);
+  }, '#B79468', 0.4);
 
-  // đầu: to so với thân, lún vào thân, không có cổ
-  to(function () { ctx.beginPath(); ctx.arc(0, -22.5, 9.4, 0, Math.PI * 2); });
+  // yếm trắng
+  lap(function () {
+    ctx.moveTo(0, -40);
+    ctx.bezierCurveTo(-9, -40, -14.5, -33, -14.5, -24);
+    ctx.bezierCurveTo(-14.5, -14, -8, -8, 0, -8);
+    ctx.bezierCurveTo(8, -8, 14.5, -14, 14.5, -24);
+    ctx.bezierCurveTo(14.5, -33, 9, -40, 0, -40);
+  }, gTrang, 0.96);
+
+  // ---------- đầu ----------
+  to(function () {
+    ctx.moveTo(0, -86);
+    ctx.bezierCurveTo(-13.5, -86, -21.5, -77.5, -22.6, -66);
+    ctx.bezierCurveTo(-23.6, -55.5, -18.5, -46, -10.5, -42.8);
+    ctx.bezierCurveTo(-4.2, -40.4, 4.2, -40.4, 10.5, -42.8);
+    ctx.bezierCurveTo(18.5, -46, 23.6, -55.5, 22.6, -66);
+    ctx.bezierCurveTo(21.5, -77.5, 13.5, -86, 0, -86);
+  }, gDau);
+
+  // khối tối bên phải mặt
+  lap(function () {
+    ctx.moveTo(22.6, -66);
+    ctx.bezierCurveTo(23.6, -55.5, 18.5, -46, 10.5, -42.8);
+    ctx.bezierCurveTo(8, -42, 6, -41.6, 5, -41.6);
+    ctx.bezierCurveTo(14, -47, 18, -57, 17.4, -68);
+  }, '#B79468', 0.34);
+
   // trán sáng
-  ctx.fillStyle = 'rgba(248,234,211,.9)';
-  ctx.beginPath(); ctx.ellipse(-3, -26.5, 3.6, 2.4, -0.4, 0, Math.PI * 2); ctx.fill();
+  lap(function () { ctx.ellipse(-6, -75, 9, 5.6, 0, 0, Math.PI * 2); }, '#FBF0DC', 0.7);
+
   // mõm trắng
-  ctx.fillStyle = 'rgba(253,248,239,.96)';
-  ctx.beginPath(); ctx.ellipse(0, -18.8, 5.2, 3.9, 0, 0, Math.PI * 2); ctx.fill();
+  lap(function () {
+    ctx.moveTo(0, -58.5);
+    ctx.bezierCurveTo(-4.4, -63.6, -13, -62, -14.6, -55.6);
+    ctx.bezierCurveTo(-16, -49.6, -10, -43.6, 0, -44.6);
+    ctx.bezierCurveTo(10, -43.6, 16, -49.6, 14.6, -55.6);
+    ctx.bezierCurveTo(13, -62, 4.4, -63.6, 0, -58.5);
+  }, gTrang);
 
   // má ửng hồng
-  ctx.save();
-  ctx.globalAlpha = 0.36;
-  ctx.fillStyle = MAU.tai;
-  ctx.beginPath(); ctx.ellipse(-6.4, -20.8, 2.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(6.4, -20.8, 2.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.restore();
+  [-16.5, 16.5].forEach(function (bx) {
+    lap(function () { ctx.ellipse(bx, -54, 5, 3.2, 0, 0, Math.PI * 2); }, MAU.tai, 0.36);
+  });
 
-  // Mắt có mí trên và chấm sáng to. Thiếu mí thì mắt thành hòn bi,
-  // nhìn đờ đẫn — đúng chỗ bản trước bị chê.
-  [-3.2, 3.2].forEach(function (ex) {
-    const r = 2.4, ey = -23.8, mi = ey - r * 0.82;
+  // ---------- mắt ----------
+  [-8.4, 8.4].forEach(function (ex) {
+    const ey = -63, r = 6.3, cat = ey - r * 0.78;
 
-    // Cắt bớt đỉnh mắt thay vì vẽ đè một miếng lông lên: trên nền
-    // canvas phẳng, miếng đè lộ thành một ô vuông sáng.
     ctx.save();
-    ctx.beginPath(); ctx.rect(ex - r - 1, mi, (r + 1) * 2, r * 2 + 2); ctx.clip();
-    ctx.fillStyle = MAU.thoMat;
+    ctx.beginPath(); ctx.rect(ex - r - 1, cat, (r + 1) * 2, r * 2 + 2); ctx.clip();
+    const gm = ctx.createRadialGradient(ex - r * 0.3, ey - r * 0.4, r * 0.2, ex, ey, r);
+    gm.addColorStop(0, '#5E4435'); gm.addColorStop(0.62, '#33251D'); gm.addColorStop(1, '#211711');
+    ctx.fillStyle = gm;
     ctx.beginPath(); ctx.arc(ex, ey, r, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
     ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(ex - r * 0.36, ey - r * 0.28, r * 0.42, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ex - r * 0.34, ey - r * 0.22, r * 0.36, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.8;
+    ctx.beginPath(); ctx.arc(ex + r * 0.42, ey + r * 0.3, r * 0.17, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
   });
 
-  // mũi hồng
-  ctx.fillStyle = MAU.tai;
-  ctx.beginPath();
-  ctx.moveTo(-1.3, -19.9); ctx.quadraticCurveTo(0, -18.7, 1.3, -19.9);
-  ctx.quadraticCurveTo(0, -20.8, -1.3, -19.9);
-  ctx.fill();
+  // ---------- mũi và miệng ----------
+  to(function () {
+    ctx.moveTo(-3.4, -55.6);
+    ctx.bezierCurveTo(-3.4, -57.4, 3.4, -57.4, 3.4, -55.6);
+    ctx.bezierCurveTo(3.4, -53.6, 1.4, -52.2, 0, -52.2);
+    ctx.bezierCurveTo(-1.4, -52.2, -3.4, -53.6, -3.4, -55.6);
+  }, MAU.tai, '#D98B84');
 
-  // miệng cười
   ctx.strokeStyle = MAU.thoMat;
-  ctx.lineWidth = 0.7;
-  ctx.globalAlpha = 0.8;
+  ctx.lineWidth = 1.5;
+  ctx.lineCap = 'round';
+  ctx.globalAlpha = 0.82;
   ctx.beginPath();
-  ctx.moveTo(0, -18.7); ctx.lineTo(0, -18);
-  ctx.moveTo(0, -18); ctx.quadraticCurveTo(-1.5, -16.9, -2.7, -17.9);
-  ctx.moveTo(0, -18); ctx.quadraticCurveTo(1.5, -16.9, 2.7, -17.9);
+  ctx.moveTo(0, -52.2); ctx.lineTo(0, -50.3);
+  ctx.moveTo(0, -50.3); ctx.quadraticCurveTo(-3.6, -47.4, -6.6, -49.6);
+  ctx.moveTo(0, -50.3); ctx.quadraticCurveTo(3.6, -47.4, 6.6, -49.6);
   ctx.stroke();
   ctx.globalAlpha = 1;
+  ctx.lineCap = 'butt';
 
   ctx.restore();
 }
