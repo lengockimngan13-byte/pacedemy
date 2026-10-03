@@ -756,13 +756,34 @@ function veTho() {
   ctx.beginPath(); ctx.ellipse(-3, -28.5, 3.8, 2.8, -0.4, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(0, -21.5, 5, 3.6, 0, 0, Math.PI * 2); ctx.fill();
 
-  // mắt to đen, có chấm sáng
-  ctx.fillStyle = MAU.thoMat;
-  ctx.beginPath(); ctx.ellipse(-3.3, -26, 2.2, 2.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(3.3, -26, 2.2, 2.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(-3.9, -26.9, 0.8, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(2.7, -26.9, 0.8, 0, Math.PI * 2); ctx.fill();
+  // má ửng hồng
+  ctx.save();
+  ctx.globalAlpha = 0.38;
+  ctx.fillStyle = MAU.tai;
+  ctx.beginPath(); ctx.ellipse(-6.2, -23.4, 2.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(6.2, -23.4, 2.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // Mắt có mí trên và chấm sáng to. Thiếu mí thì mắt thành hòn bi,
+  // nhìn đờ đẫn — đúng chỗ bản trước bị chê.
+  [-3.1, 3.1].forEach(function (ex) {
+    const r = 2.3;
+
+    ctx.fillStyle = MAU.thoMat;
+    ctx.beginPath(); ctx.arc(ex, -26, r, 0, Math.PI * 2); ctx.fill();
+
+    // mí: lát lông đè lên đỉnh mắt
+    ctx.fillStyle = MAU.thoDa;
+    ctx.beginPath();
+    ctx.moveTo(ex - r - 0.3, -26 - r * 0.45);
+    ctx.arc(ex, -26, r + 0.3, Math.PI, Math.PI * 2, false);
+    ctx.lineTo(ex + r + 0.3, -26 - r - 0.8);
+    ctx.lineTo(ex - r - 0.3, -26 - r - 0.8);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(ex - r * 0.4, -26 - r * 0.32, r * 0.42, 0, Math.PI * 2); ctx.fill();
+  });
 
   // mũi hồng
   ctx.fillStyle = MAU.tai;
@@ -770,6 +791,17 @@ function veTho() {
   ctx.moveTo(-1.3, -22.6); ctx.quadraticCurveTo(0, -21.4, 1.3, -22.6);
   ctx.quadraticCurveTo(0, -23.4, -1.3, -22.6);
   ctx.fill();
+
+  // miệng cười
+  ctx.strokeStyle = MAU.thoMat;
+  ctx.lineWidth = 0.7;
+  ctx.globalAlpha = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(0, -21.4); ctx.lineTo(0, -20.6);
+  ctx.moveTo(0, -20.6); ctx.quadraticCurveTo(-1.5, -19.4, -2.7, -20.5);
+  ctx.moveTo(0, -20.6); ctx.quadraticCurveTo(1.5, -19.4, 2.7, -20.5);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
 
   ctx.restore();
 }

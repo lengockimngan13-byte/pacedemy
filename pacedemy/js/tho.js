@@ -18,7 +18,7 @@
 const Tho = (function () {
 
   const HONG   = '#E9A7A2';   // tai trong, mũi
-  const MAT    = '#241C1A';   // mắt
+  const NAU    = '#3B2F2A';   // mắt và miệng, nâu ấm chứ không đen tuyền
   const VIEN   = '#C8C4BC';   // nét rất nhạt, chỉ để tách khỏi nền sáng
 
   let demId = 0;
@@ -38,8 +38,8 @@ const Tho = (function () {
       '</radialGradient>' +
       // Mắt có chút chuyển sắc cho ra vẻ ướt
       '<radialGradient id="' + p + 'mat" cx="34%" cy="28%" r="80%">' +
-        '<stop offset="0%" stop-color="#4A3C38"/>' +
-        '<stop offset="100%" stop-color="#1A1413"/>' +
+        '<stop offset="0%" stop-color="#5C4A42"/>' +
+        '<stop offset="100%" stop-color="#2A211D"/>' +
       '</radialGradient>' +
       // Bóng mềm, dùng cho mặt tối và bóng dưới chân
       '<filter id="' + p + 'mo" x="-40%" y="-40%" width="180%" height="180%">' +
@@ -98,6 +98,47 @@ const Tho = (function () {
     );
   }
 
+  // Ba kiểu mắt. Bản cũ là hai hình bầu dục đen tuyền, không mí, không
+  // biểu cảm — nhìn thành ra đờ đẫn. Kiểu nào cũng có mí trên và chấm
+  // sáng to, vì đó mới là thứ làm mắt có hồn.
+  let kieuMat = 'hien';
+
+  function mat(p) {
+    const X = 6.4, Y = -70.5;
+
+    if (kieuMat === 'cuoi') {
+      // Mắt cười hình vòng cung, không bao giờ nhìn ra đờ đẫn
+      return '<path d="M' + (-X - 4) + ' ' + (Y + 1) + ' Q' + (-X) + ' ' + (Y - 5.5) + ' ' + (-X + 4) + ' ' + (Y + 1) + '" ' +
+               'stroke="' + NAU + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+             '<path d="M' + (X - 4) + ' ' + (Y + 1) + ' Q' + X + ' ' + (Y - 5.5) + ' ' + (X + 4) + ' ' + (Y + 1) + '" ' +
+               'stroke="' + NAU + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    }
+
+    const r = kieuMat === 'tron' ? 4.6 : 4.2;
+
+    let o = '';
+    [[-X, 1], [X, -1]].forEach(function (e) {
+      const cx = e[0];
+
+      o += '<circle cx="' + cx + '" cy="' + Y + '" r="' + r + '" fill="url(#' + p + 'mat)"/>';
+
+      // Mí trên: một lát lông đè lên đỉnh mắt. Thiếu nó là mắt thành
+      // hòn bi, có nó là mắt biết nhìn.
+      if (kieuMat === 'hien') {
+        o += '<path d="M' + (cx - r - 0.4) + ' ' + (Y - r * 0.45) + ' ' +
+                 'A' + r + ' ' + r + ' 0 0 1 ' + (cx + r + 0.4) + ' ' + (Y - r * 0.45) + ' ' +
+                 'L' + (cx + r + 0.4) + ' ' + (Y - r - 1.2) + ' ' +
+                 'L' + (cx - r - 0.4) + ' ' + (Y - r - 1.2) + ' Z" fill="url(#' + p + 'dau)"/>';
+      }
+
+      // Chấm sáng to ở trên, chấm nhỏ ở dưới đối diện
+      o += '<circle cx="' + (cx - r * 0.42) + '" cy="' + (Y - r * 0.36) + '" r="' + (r * 0.42) + '" fill="#fff"/>' +
+           '<circle cx="' + (cx + r * 0.44) + '" cy="' + (Y + r * 0.46) + '" r="' + (r * 0.2) + '" fill="#fff" opacity=".65"/>';
+    });
+
+    return o;
+  }
+
   function dau(p) {
     return (
       tai(p, -1) + tai(p, 1) +
@@ -109,9 +150,8 @@ const Tho = (function () {
       '<ellipse cx="11" cy="-66" rx="8" ry="11" fill="#CFC9BF" opacity=".5" ' +
         'filter="url(#' + p + 'mo)"/>' +
       // trán sáng
-      '<ellipse cx="-6" cy="-77" rx="9" ry="6" fill="#FFFFFF" opacity=".95" ' +
+      '<ellipse cx="-6" cy="-78" rx="9" ry="6" fill="#FFFFFF" opacity=".95" ' +
         'filter="url(#' + p + 'mo)"/>' +
-      // túm lông trên đỉnh đầu, mờ nhẹ cho mềm
       '<ellipse cx="0" cy="-86" rx="7" ry="3" fill="#FFFFFF" opacity=".9" ' +
         'filter="url(#' + p + 'mo)"/>' +
 
@@ -119,21 +159,23 @@ const Tho = (function () {
       '<ellipse cx="0" cy="-60" rx="10" ry="7.5" fill="#FFFFFF" opacity=".9" ' +
         'filter="url(#' + p + 'mo)"/>' +
 
-      // mắt to, đen bóng
-      '<ellipse cx="-7" cy="-71" rx="4.4" ry="5" fill="url(#' + p + 'mat)"/>' +
-      '<ellipse cx="7.4" cy="-71" rx="4" ry="4.6" fill="url(#' + p + 'mat)"/>' +
-      '<circle cx="-8.4" cy="-73" r="1.6" fill="#fff" opacity=".95"/>' +
-      '<circle cx="6.2" cy="-73" r="1.4" fill="#fff" opacity=".95"/>' +
-      '<circle cx="-5.6" cy="-68.6" r="0.8" fill="#fff" opacity=".5"/>' +
+      // má ửng hồng — thứ rẻ nhất mà làm mặt ấm hẳn lên
+      '<ellipse cx="-13" cy="-64" rx="4.6" ry="3" fill="' + HONG + '" opacity=".4" ' +
+        'filter="url(#' + p + 'mo)"/>' +
+      '<ellipse cx="13" cy="-64" rx="4.6" ry="3" fill="' + HONG + '" opacity=".4" ' +
+        'filter="url(#' + p + 'mo)"/>' +
 
-      // mũi hồng và miệng
-      '<path d="M-2.6 -62.4 Q0 -60.4 2.6 -62.4 Q0 -63.8 -2.6 -62.4 Z" fill="' + HONG + '"/>' +
-      '<path d="M0 -60.6 v2 M0 -58.6 Q-3 -56.8 -5.2 -58.4 M0 -58.6 Q3 -56.8 5.2 -58.4" ' +
-        'stroke="#B9AFA6" stroke-width="1.2" fill="none" stroke-linecap="round"/>' +
+      mat(p) +
 
-      // râu
-      '<path d="M-9 -60 L-21 -62 M-9 -58 L-21 -57 M9 -60 L21 -62 M9 -58 L21 -57" ' +
-        'stroke="#D8D2C9" stroke-width="0.9" stroke-linecap="round" opacity=".85"/>'
+      // mũi hồng
+      '<path d="M-2.6 -62.4 Q0 -60.2 2.6 -62.4 Q0 -64 -2.6 -62.4 Z" fill="' + HONG + '"/>' +
+      // miệng cười rõ, không phải vệt mờ
+      '<path d="M0 -60.2 v1.6 M0 -58.6 Q-3.2 -56.2 -5.8 -58.2 M0 -58.6 Q3.2 -56.2 5.8 -58.2" ' +
+        'stroke="' + NAU + '" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".8"/>' +
+
+      // râu, hạ xuống ngang mõm và làm nhạt hơn cho khỏi cắt ngang mặt
+      '<path d="M-10 -58.5 L-20 -60 M-10 -56.5 L-20 -55.5 M10 -58.5 L20 -60 M10 -56.5 L20 -55.5" ' +
+        'stroke="#DDD7CE" stroke-width="0.85" stroke-linecap="round" opacity=".7"/>'
     );
   }
 
@@ -174,5 +216,10 @@ const Tho = (function () {
     });
   }
 
-  return { ngoi: ngoi, mung: mung, dung: ngoi, HONG: HONG };
+  // Đổi kiểu mắt cho cả web: 'hien' (mở, có mí) | 'cuoi' (cười tít) | 'tron' (tròn to)
+  function doiMat(k) {
+    if (k === 'hien' || k === 'cuoi' || k === 'tron') kieuMat = k;
+  }
+
+  return { ngoi: ngoi, mung: mung, dung: ngoi, doiMat: doiMat, HONG: HONG };
 })();
