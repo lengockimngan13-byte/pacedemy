@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soạn bài nghe — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="wrap">
+
+  <section class="done hidden" id="view-deny">
+    <h1>Không truy cập được</h1>
+    <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    <div class="done-actions"><a class="btn btn-ink" href="app.html">Về trang học</a></div>
+  </section>
+
+  <section class="hidden" id="view-main">
+
+    <div class="greet">
+      <h1>Soạn bài nghe</h1>
+      <p>Điền thẳng vào đây là xong một bài, không phải chép qua chép lại chỗ khác.
+         Bảng biểu của Part 3 và Part 4 cũng làm luôn trong trang, không cần đi làm ảnh.</p>
+    </div>
+
+    <!-- ===== Phần 1 · Thông tin bài ===== -->
+    <div class="tbox">
+      <h3>Thông tin bài</h3>
+
+      <div class="sn-hang">
+        <label class="sn-o">
+          <span>Part</span>
+          <select id="f-part">
+            <option value="1">Part 1 — Mô tả tranh</option>
+            <option value="2">Part 2 — Hỏi đáp</option>
+            <option value="3" selected>Part 3 — Hội thoại ngắn</option>
+            <option value="4">Part 4 — Bài nói ngắn</option>
+          </select>
+        </label>
+        <label class="sn-o">
+          <span>Test số</span>
+          <input type="number" id="f-test" min="1" placeholder="vd 1">
+        </label>
+        <label class="sn-o">
+          <span>Độ khó</span>
+          <select id="f-kho">
+            <option value="1">1 — Dễ</option>
+            <option value="2" selected>2 — Vừa</option>
+            <option value="3">3 — Khó</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="field">
+        <label for="f-title">Tên bài, để cô dễ nhận ra sau này</label>
+        <input type="text" id="f-title" placeholder="vd Hẹn lại lịch giao hàng với nhà cung cấp">
+      </div>
+    </div>
+
+    <!-- ===== Phần 2 · Âm thanh và ảnh ===== -->
+    <div class="tbox">
+      <h3>Âm thanh</h3>
+      <p class="sn-dan">Chọn file mp3 hoặc m4a, hệ thống tải lên và gắn vào bài này luôn.</p>
+      <input type="file" id="f-audio" accept="audio/*" class="sn-file">
+      <div id="audio-xem"></div>
+
+      <div id="khoi-anh" class="hidden">
+        <h3 style="margin-top:22px">Ảnh của Part 1</h3>
+        <input type="file" id="f-anh" accept="image/*" class="sn-file">
+        <div id="anh-xem"></div>
+      </div>
+    </div>
+
+    <!-- ===== Phần 3 · Bảng biểu ===== -->
+    <div class="tbox" id="khoi-dohoa">
+      <h3>Bảng biểu kèm bài <span class="sn-nhe">— cho câu hỏi "Look at the graphic…"</span></h3>
+      <p class="sn-dan">Chọn kiểu rồi điền số liệu. Web tự vẽ ra hình, sửa một ô không phải làm lại cả ảnh.</p>
+
+      <div class="sn-chips" id="dh-kieu"></div>
+
+      <div class="hidden" id="dh-soan">
+        <div class="sn-hang">
+          <label class="sn-o sn-rong">
+            <span>Tiêu đề trên hình</span>
+            <input type="text" id="dh-tieude" placeholder="vd Conference Room Schedule">
+          </label>
+        </div>
+        <div id="dh-than"></div>
+        <div class="sn-hang">
+          <label class="sn-o sn-rong">
+            <span>Ghi chú dưới hình, bỏ trống cũng được</span>
+            <input type="text" id="dh-ghichu" placeholder="vd All sessions in Building B">
+          </label>
+        </div>
+        <button class="btn-sm" type="button" id="dh-xoa">Bỏ bảng biểu này</button>
+      </div>
+
+      <div class="sn-xem" id="dh-xem"></div>
+    </div>
+
+    <!-- ===== Phần 4 · Lời thoại ===== -->
+    <div class="tbox">
+      <h3>Lời thoại</h3>
+      <div class="sn-doi">
+        <div class="field">
+          <label for="f-script">Tiếng Anh</label>
+          <textarea id="f-script" class="sn-ta" placeholder="W: Excuse me, I'm looking for…&#10;M: Of course. Let me check…"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-script-vi">Tiếng Việt</label>
+          <textarea id="f-script-vi" class="sn-ta" placeholder="Nữ: Xin lỗi, tôi đang tìm…&#10;Nam: Vâng, để tôi kiểm tra…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Phần 5 · Từ vựng ===== -->
+    <div class="tbox">
+      <h3>Từ vựng đáng học <span class="sn-nhe">— sẽ vào Sổ từ của học viên</span></h3>
+      <div id="tu-list"></div>
+      <button class="btn-sm" type="button" id="tu-them">+ Thêm từ</button>
+    </div>
+
+    <!-- ===== Phần 6 · Câu hỏi ===== -->
+    <div class="section-head" style="margin-top:34px">
+      <h2>Câu hỏi</h2>
+      <span class="stat-lab" id="cau-n"></span>
+    </div>
+    <div id="cau-list"></div>
+    <button class="btn-sm" type="button" id="cau-them">+ Thêm câu hỏi</button>
+
+    <!-- ===== Lưu ===== -->
+    <div class="sn-luu">
+      <button class="btn btn-gold" id="btn-luu">Lưu bài nghe</button>
+      <button class="btn btn-line" id="btn-moi">Soạn bài mới</button>
+      <a class="btn btn-line" href="teacher-listen.html">Sang trang nhập hàng loạt</a>
+    </div>
+    <div id="note" class="note hidden"></div>
+
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/media.js"></script>
+<script src="js/do-hoa.js"></script>
+<script src="js/teacher-soan-nghe.js"></script>
+</body>
+</html>

@@ -85,7 +85,7 @@ async function loadSets() {
 
     const { data: dsets } = await db
       .from('listening_sets')
-      .select('id, part, title, audio_url, image_url, transcript, transcript_vi, vocab')
+      .select('id, part, title, audio_url, image_url, graphic, transcript, transcript_vi, vocab')
       .in('id', setIds)
       .eq('is_active', true);
 
@@ -101,7 +101,7 @@ async function loadSets() {
 
   let sq = db
     .from('listening_sets')
-    .select('id, part, title, audio_url, image_url, transcript, transcript_vi, vocab')
+    .select('id, part, title, audio_url, image_url, graphic, transcript, transcript_vi, vocab')
     .eq('is_active', true);
 
   if (setId) sq = sq.eq('id', setId);
@@ -185,12 +185,21 @@ function render() {
   $('set-title').textContent = s.title || 'Bài nghe';
   $('set-meta').textContent = seatInSet(at);
 
-  // Ảnh minh hoạ — Part 1 luôn có, Part 3/4 có khi bài dùng dạng "graphic" (bảng biểu, hoá đơn...)
+  // Ảnh minh hoạ của Part 1
   if (s.image_url) {
     $('pic-img').src = s.image_url;
     $('pic').classList.remove('hidden');
   } else {
     $('pic').classList.add('hidden');
+  }
+
+  // Bảng biểu của Part 3 và Part 4 — vẽ từ dữ liệu chứ không phải ảnh,
+  // nên trên điện thoại chữ vẫn sắc và bảng dài thì cuộn ngang được.
+  const oDoHoa = $('do-hoa');
+  if (oDoHoa) {
+    const hinh = (typeof DoHoa !== 'undefined' && s.graphic) ? DoHoa.ve(s.graphic) : '';
+    oDoHoa.innerHTML = hinh;
+    oDoHoa.classList.toggle('hidden', !hinh);
   }
 
   const hideText = (part === 1 || part === 2);

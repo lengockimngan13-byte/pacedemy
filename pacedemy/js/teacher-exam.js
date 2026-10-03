@@ -544,6 +544,7 @@ $('btn-save').addEventListener('click', async function () {
       const { data: rowData, error } = await db.from('exam_listening').insert({
         exam_set_id: curSet.id, part: s.part, title: s.title,
         audio_url: urlOf(s.audio_file), image_url: s.image_file ? urlOf(s.image_file) : null,
+        graphic: s.graphic || null,
         transcript: s.transcript || null, transcript_vi: s.transcript_vi || null
       }).select('id').single();
       if (error || !rowData) return fail(error ? error.message : 'lỗi không rõ');

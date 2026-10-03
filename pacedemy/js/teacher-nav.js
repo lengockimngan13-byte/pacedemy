@@ -21,6 +21,8 @@
 
     { href: 'teacher-p7.html', label: 'Nhập đề Part 7',
       icon: '<path d="M4 4h16v16H4zm3 4h10M7 12h10M7 16h6"/>' },
+    { href: 'teacher-soan-nghe.html', label: 'Soạn bài nghe',
+      icon: '<path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>' },
     { href: 'teacher-listen.html',  label: 'Nhập bài nghe',
       icon: '<path d="M12 3a8 8 0 0 0-8 8v6a2 2 0 0 0 2 2h2v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h2a2 2 0 0 0 2-2v-6a8 8 0 0 0-8-8z"/>' },
     { href: 'teacher-extra.html',   label: 'Nhập Ôn tổng hợp',

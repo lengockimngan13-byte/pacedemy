@@ -94,7 +94,7 @@ async function prepare(setId) {
     (lsets || []).filter(function (x) { return x.part === p; }).forEach(function (x) {
       const qs = (byListening[x.id] || []).sort(function (a, b) { return a.order_index - b.order_index; });
       if (qs.length) screens.push({ part: p, kind: 'audio', title: x.title,
-        audio_url: x.audio_url, image_url: x.image_url, questions: qs });
+        audio_url: x.audio_url, image_url: x.image_url, graphic: x.graphic, questions: qs });
     });
   });
 
@@ -476,6 +476,8 @@ function drawAudio(s) {
   let html = '<div class="exam-solo">';
   html += '<p class="rq-head">' + esc(s.title) + '</p>';
   if (s.image_url) html += '<img class="pic" src="' + esc(s.image_url) + '" alt="">';
+  // bảng biểu Part 3-4 vẽ từ dữ liệu, không phải ảnh
+  if (s.graphic && typeof DoHoa !== 'undefined') html += DoHoa.ve(s.graphic);
   if (s.audio_url) html += '<audio controls preload="none" style="width:100%;margin:10px 0"><source src="' + esc(s.audio_url) + '"></audio>';
   s.questions.forEach(function (q, i) { html += qBlock(q, s.questions.length > 1 ? i + 1 : null); });
   html += '</div>';
