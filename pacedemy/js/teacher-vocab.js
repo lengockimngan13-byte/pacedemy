@@ -96,7 +96,9 @@ function bindTabs() {
       document.querySelectorAll('#vocab-tabs .test-tab').forEach(function (x) { x.classList.remove('on'); });
       b.classList.add('on');
       $('pane-bulk').classList.toggle('hidden', b.dataset.tab !== 'bulk');
+      $('pane-dan').classList.toggle('hidden', b.dataset.tab !== 'dan');
       $('pane-single').classList.toggle('hidden', b.dataset.tab !== 'single');
+      if (b.dataset.tab === 'dan' && typeof VocabDan !== 'undefined') VocabDan.moLai();
     });
   });
 }

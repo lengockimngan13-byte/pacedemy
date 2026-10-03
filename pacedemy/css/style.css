@@ -5695,3 +5695,87 @@ html { scroll-behavior: smooth; }
   .sn-dong input { flex: 1 1 100%; }
   .sn-dong input[type="number"] { flex: 1 1 100%; }
 }
+
+/* ============================================================
+   Dán bảng từ vựng (js/vocab-dan.js)
+   ============================================================ */
+
+.dn-ta {
+  min-height: 200px; width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.88rem; line-height: 1.7;
+  background: var(--paper); color: var(--ink);
+}
+
+.dn-tach {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 22px; margin: 6px 0 4px;
+}
+
+.dn-lab {
+  margin: 0 0 9px;
+  font-size: 0.8rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.dn-r {
+  display: flex; align-items: center; gap: 9px;
+  padding: 5px 0; font-size: 0.93rem; cursor: pointer;
+}
+.dn-r input[type="radio"] { flex: none; accent-color: var(--teal); width: 16px; height: 16px; }
+
+.dn-tuy {
+  width: 128px; padding: 6px 9px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  font-family: var(--ui); font-size: 0.88rem;
+  background: var(--paper); color: var(--ink);
+}
+
+/* ---- xem trước ---- */
+
+.dn-the { display: flex; flex-direction: column; gap: 7px; }
+
+.dn-mot {
+  display: flex; gap: 12px; align-items: baseline;
+  padding: 10px 13px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  background: var(--paper);
+}
+
+.dn-stt {
+  flex: none; width: 26px;
+  font-family: var(--disp); font-weight: 700; font-size: 0.82rem;
+  color: var(--teal-dim);
+}
+
+.dn-mot b { font-size: 0.98rem; color: var(--ink); }
+
+.dn-mot .dn-ng {
+  display: block; margin-top: 2px;
+  font-size: 0.9rem; line-height: 1.5; color: var(--ink-soft);
+}
+
+.dn-mot .dn-them {
+  display: block; margin-top: 4px;
+  font-size: 0.82rem; line-height: 1.5; color: var(--ink-soft); opacity: .75;
+}
+
+.dn-mot .dn-raw {
+  display: block; margin-top: 3px;
+  font-family: ui-monospace, monospace; font-size: 0.8rem; color: var(--ink-soft); opacity: .8;
+}
+
+.dn-co {
+  display: inline-block; margin-left: 8px;
+  padding: 1px 7px; border-radius: 999px;
+  background: var(--mist); color: var(--ink-soft);
+  font-size: 0.72rem; font-weight: 700; letter-spacing: .02em;
+  vertical-align: 1px;
+}
+
+.dn-mot-trung { opacity: .62; }
+.dn-mot-loi { border-color: var(--danger); background: #FDF4F2; }
+.dn-mot-loi b { color: var(--danger); }

@@ -30,6 +30,7 @@
 
     <div class="test-tabs" id="vocab-tabs">
       <button class="test-tab on" data-tab="bulk">Thêm hàng loạt (AI)</button>
+      <button class="test-tab" data-tab="dan">Dán từ bảng</button>
       <button class="test-tab" data-tab="single">Sửa từng từ</button>
     </div>
 
@@ -63,6 +64,67 @@
 
     <div id="preview"></div>
 
+    </div>
+
+
+    <!-- ===== Dán từ bảng ===== -->
+    <div class="hidden" id="pane-dan">
+
+      <div class="tbox">
+        <h3>Chép thẳng từ Word, Excel hay Google Sheets</h3>
+        <p style="margin:0 0 14px;font-size:0.94rem;line-height:1.65">
+          Bôi đen bảng từ vựng bên đó, copy, rồi dán vào ô dưới. Hệ thống tự đoán
+          dấu ngăn cách, bạn xem thử rồi chỉnh lại nếu đoán sai.
+        </p>
+
+        <div class="sn-hang">
+          <label class="sn-o sn-rong">
+            <span>Thêm vào chủ đề</span>
+            <select id="dn-topic"></select>
+          </label>
+          <label class="sn-o sn-rong hidden" id="dn-ten-moi-o">
+            <span>Tên chủ đề mới</span>
+            <input type="text" id="dn-ten-moi" placeholder="Ví dụ: Du lịch công tác">
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="dn-raw">Dán dữ liệu vào đây</label>
+        <textarea id="dn-raw" class="dn-ta"
+          placeholder="invoice&#9;hoá đơn&#10;warehouse&#9;nhà kho&#10;shipment&#9;lô hàng"></textarea>
+      </div>
+
+      <div class="dn-tach">
+        <div>
+          <p class="dn-lab">Giữa các cột</p>
+          <label class="dn-r"><input type="radio" name="dn-cot" value="tab" checked><span>Tab</span></label>
+          <label class="dn-r"><input type="radio" name="dn-cot" value=","><span>Phẩy</span></label>
+          <label class="dn-r"><input type="radio" name="dn-cot" value=";"><span>Chấm phẩy</span></label>
+          <label class="dn-r"><input type="radio" name="dn-cot" value="tuy">
+            <input type="text" id="dn-cot-tuy" class="dn-tuy" placeholder="Tuỳ chỉnh"></label>
+        </div>
+        <div>
+          <p class="dn-lab">Giữa các từ</p>
+          <label class="dn-r"><input type="radio" name="dn-tu" value="nl" checked><span>Dòng mới</span></label>
+          <label class="dn-r"><input type="radio" name="dn-tu" value=";"><span>Chấm phẩy</span></label>
+          <label class="dn-r"><input type="radio" name="dn-tu" value="tuy">
+            <input type="text" id="dn-tu-tuy" class="dn-tuy" placeholder="Tuỳ chỉnh"></label>
+        </div>
+      </div>
+
+      <div id="dn-cot-map"></div>
+
+      <div class="section-head" style="margin-top:28px">
+        <h2>Xem trước</h2>
+        <span class="stat-lab" id="dn-dem">0 từ</span>
+      </div>
+      <div id="dn-xem"><p class="empty">Chưa có gì để xem trước.</p></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 8px">
+        <button class="btn btn-gold" id="dn-luu">Nhập vào kho</button>
+        <button class="btn btn-line" id="dn-xoa">Xoá ô dán</button>
+      </div>
     </div>
 
     <div class="hidden" id="pane-single">
@@ -106,5 +168,6 @@
 <script src="js/layout-settings.js"></script>
 <script src="js/teacher-nav.js"></script>
 <script src="js/teacher-vocab.js"></script>
+<script src="js/vocab-dan.js"></script>
 </body>
 </html>
