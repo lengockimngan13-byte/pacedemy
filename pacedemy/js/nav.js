@@ -10,6 +10,8 @@
       icon: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>' },
     { href: 'vocab.html',       label: 'Từ vựng',       feat: 'vocab',
       icon: '<path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zm16 0h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7z"/>' },
+    { href: 'tu-dien.html',     label: 'Từ điển',
+      icon: '<path d="M5 4h14a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2zm0 0a2 2 0 0 0 2 2h13M10 9.5a2.5 2.5 0 1 1 5 0c0 1.7-2.5 1.8-2.5 3.5m0 2.5h.01"/>' },
     { href: 'so-tu.html',       label: 'Sổ từ của tôi',
       icon: '<path d="M6 2h12a1 1 0 0 1 1 1v18.2a.8.8 0 0 1-1.2.7L12 18.5l-5.8 3.4A.8.8 0 0 1 5 21.2V3a1 1 0 0 1 1-1z"/>' },
     { href: 'listen.html',      label: 'Luyện nghe',    feat: 'listen',

@@ -5779,3 +5779,175 @@ html { scroll-behavior: smooth; }
 .dn-mot-trung { opacity: .62; }
 .dn-mot-loi { border-color: var(--danger); background: #FDF4F2; }
 .dn-mot-loi b { color: var(--danger); }
+
+/* ============================================================
+   Từ điển (tu-dien.html)
+   ============================================================ */
+
+.td-thanh {
+  position: relative;
+  display: flex; align-items: center;
+  margin: 4px 0 10px;
+}
+
+.td-thanh input {
+  width: 100%;
+  padding: 15px 44px 15px 46px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  font-family: var(--ui); font-size: 1.05rem;
+  background: var(--paper); color: var(--ink);
+  -webkit-appearance: none;
+}
+.td-thanh input:focus { outline: none; border-color: var(--teal); }
+.td-thanh input::-webkit-search-cancel-button { display: none; }
+
+.td-kinh {
+  position: absolute; left: 15px;
+  width: 20px; height: 20px; color: var(--teal-dim); pointer-events: none;
+}
+
+.td-xoa {
+  position: absolute; right: 10px;
+  width: 28px; height: 28px; line-height: 1;
+  border: 0; border-radius: 50%;
+  background: var(--mist); color: var(--ink-soft);
+  font-size: 1.1rem; cursor: pointer;
+}
+
+.td-dem {
+  margin: 0 0 16px;
+  font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); opacity: .85;
+}
+
+/* ---- thẻ một từ ---- */
+
+.td-the {
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  background: var(--paper);
+}
+
+.td-dau { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+
+.td-dau h3 {
+  margin: 0;
+  font-family: var(--disp); font-weight: 700; font-size: 1.22rem;
+  color: var(--ink); letter-spacing: -.01em;
+}
+
+.td-loai {
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--mist); color: var(--ink-soft);
+  font-size: 0.74rem; font-weight: 700; letter-spacing: .03em;
+}
+
+.td-am {
+  font-family: ui-monospace, monospace; font-size: 0.88rem;
+  color: var(--ink-soft); opacity: .85;
+}
+
+.td-nghe {
+  margin-left: auto;
+  width: 32px; height: 32px; flex: none;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--line); border-radius: 50%;
+  background: var(--paper); color: var(--teal); cursor: pointer;
+}
+.td-nghe:hover { border-color: var(--teal); background: #F1F7F6; }
+.td-nghe svg { width: 17px; height: 17px; }
+
+.td-nghia {
+  margin: 9px 0 0;
+  font-size: 1.02rem; line-height: 1.6; color: var(--ink);
+}
+
+.td-the mark { background: var(--gold-dim); color: inherit; border-radius: 2px; padding: 0 1px; }
+
+.td-vd {
+  margin-top: 12px; padding-left: 13px;
+  border-left: 3px solid var(--mist);
+}
+.td-vd-en { margin: 0; font-size: 0.94rem; line-height: 1.6; color: var(--ink); }
+.td-vd-vi { margin: 3px 0 0; font-size: 0.9rem; line-height: 1.6; color: var(--ink-soft); }
+
+.td-them { margin: 12px 0 0; display: flex; flex-direction: column; gap: 5px; }
+.td-them div { display: flex; gap: 8px; font-size: 0.88rem; line-height: 1.55; }
+.td-them dt { flex: none; font-weight: 700; color: var(--ink-soft); }
+.td-them dd { margin: 0; color: var(--ink); }
+
+.td-chan {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--mist);
+}
+.td-chan .q-tag { text-decoration: none; }
+.td-chan .btn-sm { margin-left: auto; flex: 0 0 auto; }
+
+/* ---- không tìm thấy ---- */
+
+.td-trong {
+  padding: 26px 22px;
+  border: 1.5px dashed var(--line); border-radius: var(--r);
+  background: #FAFCFB; text-align: center;
+}
+.td-trong-dau {
+  margin: 0 0 6px;
+  font-family: var(--disp); font-weight: 700; font-size: 1.05rem; color: var(--ink);
+}
+.td-trong p { margin: 0 0 4px; font-size: 0.94rem; line-height: 1.6; color: var(--ink-soft); }
+.td-trong-nut { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+.td-trong-nut .btn-sm { text-decoration: none; }
+
+/* ---- duyệt ---- */
+
+.td-chu { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.td-chu-nut {
+  display: flex; align-items: baseline; gap: 5px;
+  padding: 8px 13px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  background: var(--paper); color: var(--ink);
+  font-family: var(--disp); font-weight: 700; font-size: 0.95rem; cursor: pointer;
+}
+.td-chu-nut:hover { border-color: var(--teal); background: #F1F7F6; }
+.td-chu-nut span { font-family: var(--ui); font-weight: 500; font-size: 0.76rem; color: var(--ink-soft); }
+
+.td-chude { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 9px; }
+
+.td-chude-o {
+  padding: 13px 15px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  background: var(--paper); text-decoration: none; display: block;
+}
+.td-chude-o:hover { border-color: var(--teal); background: #F1F7F6; }
+.td-chude-o b { display: block; font-size: 0.95rem; color: var(--ink); margin-bottom: 2px; }
+.td-chude-o span { font-size: 0.8rem; color: var(--ink-soft); }
+
+@media (max-width: 560px) {
+  .td-chan .btn-sm { margin-left: 0; flex: 1 1 100%; }
+  .td-nghe { margin-left: 0; }
+}
+
+/* ---- Từ học viên tra hụt (js/vocab-hut.js) ---- */
+
+.hut-ds { display: flex; flex-direction: column; gap: 8px; }
+
+.hut-mot {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 12px 15px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  background: var(--paper);
+}
+
+.hut-tu { flex: 1 1 200px; min-width: 0; }
+.hut-tu b {
+  display: block;
+  font-family: var(--disp); font-weight: 700; font-size: 1.02rem; color: var(--ink);
+}
+.hut-tu span {
+  display: block; margin-top: 2px;
+  font-size: 0.82rem; color: var(--ink-soft); opacity: .85;
+}
+
+.hut-nut { display: flex; gap: 7px; flex-wrap: wrap; }
+.hut-nut .btn-sm { flex: 0 0 auto; }

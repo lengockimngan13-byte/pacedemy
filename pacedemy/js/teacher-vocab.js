@@ -98,7 +98,9 @@ function bindTabs() {
       $('pane-bulk').classList.toggle('hidden', b.dataset.tab !== 'bulk');
       $('pane-dan').classList.toggle('hidden', b.dataset.tab !== 'dan');
       $('pane-single').classList.toggle('hidden', b.dataset.tab !== 'single');
+      $('pane-hut').classList.toggle('hidden', b.dataset.tab !== 'hut');
       if (b.dataset.tab === 'dan' && typeof VocabDan !== 'undefined') VocabDan.moLai();
+      if (b.dataset.tab === 'hut' && typeof VocabHut !== 'undefined') VocabHut.moLai();
     });
   });
 }

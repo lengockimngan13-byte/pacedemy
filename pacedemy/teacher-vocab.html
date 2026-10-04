@@ -32,6 +32,7 @@
       <button class="test-tab on" data-tab="bulk">Thêm hàng loạt (AI)</button>
       <button class="test-tab" data-tab="dan">Dán từ bảng</button>
       <button class="test-tab" data-tab="single">Sửa từng từ</button>
+      <button class="test-tab" data-tab="hut">Học viên tra hụt</button>
     </div>
 
     <div id="pane-bulk">
@@ -155,6 +156,20 @@
       <button class="qz-add-btn" id="btn-add-word">+ Thêm thẻ</button>
     </div>
 
+
+    <!-- ===== Học viên tra hụt ===== -->
+    <div class="hidden" id="pane-hut">
+      <div class="tbox">
+        <h3>Từ học viên tra mà kho chưa có</h3>
+        <p style="margin:0;font-size:0.94rem;line-height:1.65">
+          Đây là danh sách việc cần làm, xếp theo số lượt tra. Từ nào nhiều bạn
+          tra nhất thì thêm trước — đó là chỗ học viên đang thật sự vướng.
+          Thêm xong bấm "Đã thêm" để nó rời khỏi danh sách.
+        </p>
+      </div>
+      <div id="hut-list"><p class="empty">Đang tải…</p></div>
+    </div>
+
     <div id="note" class="note hidden"></div>
 
   </section>
@@ -169,5 +184,6 @@
 <script src="js/teacher-nav.js"></script>
 <script src="js/teacher-vocab.js"></script>
 <script src="js/vocab-dan.js"></script>
+<script src="js/vocab-hut.js"></script>
 </body>
 </html>
