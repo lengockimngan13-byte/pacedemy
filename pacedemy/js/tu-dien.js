@@ -41,7 +41,7 @@ async function napKho() {
   const [{ data: ws }, { data: ts }] = await Promise.all([
     db.from('vocabulary')
       .select('id, topic_id, word, phonetic, pos, meaning_vi, dinh_nghia_vi, vi_du, ghi_chu, ' +
-              'example_en, example_vi, synonyms, collocations, image_url')
+              'example_en, example_vi, synonyms, collocations, image_url, am_thanh')
       .order('word'),
     db.from('topics').select('id, name_vi, slug')
   ]);
@@ -108,9 +108,17 @@ const LOAI = {
   phr: 'CỤM TỪ', 'phr v': 'ĐỘNG TỪ CỤM'
 };
 
-function nutNghe(text, nho) {
+// Có file ghi âm thì gắn vào nút, không thì để máy đọc.
+// File luôn hơn: mọi máy nghe cùng một giọng người thật.
+//
+// Từ nào đã dò mà không có file thì trong kho ghi 'khong-co'. Đánh
+// dấu như vậy để lần sau khỏi dò lại, nhưng ở đây phải bỏ qua, nếu
+// không trình duyệt sẽ đi tải một đường dẫn không tồn tại.
+function nutNghe(text, nho, am) {
+  if (am && am.indexOf('http') !== 0) am = null;
   return '<button class="td-loa' + (nho ? ' td-loa-nho' : '') + '" type="button" ' +
-           'data-doc="' + esc(text) + '" aria-label="Nghe phát âm">' +
+           'data-doc="' + esc(text) + '"' +
+           (am ? ' data-am="' + esc(am) + '"' : '') + ' aria-label="Nghe phát âm">' +
            '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
              '<path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>' +
            '</svg></button>';
@@ -142,7 +150,7 @@ function veTu(w, q, ngoai) {
               (loai ? '<span class="td-loai">' + esc(loai) + '</span>' : '') +
             '</div>' +
             '<p class="td-am">' +
-              (w.phonetic ? esc(w.phonetic) + ' ' : '') + nutNghe(w.word) +
+              (w.phonetic ? esc(w.phonetic) + ' ' : '') + nutNghe(w.word, false, w.am_thanh) +
             '</p>' +
           '</div>';
 
@@ -288,6 +296,7 @@ function tuNgoai(the) {
     synonyms: the.dong_nghia,
     collocations: null,
     image_url: null,
+    am_thanh: the.am_thanh || null,
     example_en: null, example_vi: null
   };
 }
@@ -423,7 +432,7 @@ $('chu-cai').addEventListener('click', function (e) {
 document.addEventListener('click', async function (e) {
   const nghe = e.target.closest('[data-doc]');
   if (nghe) {
-    if (typeof Speak !== 'undefined') Speak.say(nghe.dataset.doc);
+    if (typeof Speak !== 'undefined') Speak.phat(nghe.dataset.am, nghe.dataset.doc);
     return;
   }
 

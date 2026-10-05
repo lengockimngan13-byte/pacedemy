@@ -269,3 +269,55 @@ function json(o, status) {
     headers: { 'content-type': 'application/json; charset=utf-8' }
   });
 }
+
+
+// ============================================================
+// Lấy file phát âm cho kho từ của cô
+//
+//   POST /api/am-thanh   body { tu_list: ["invoice", "warehouse", ...] }
+//
+// Giọng máy mỗi điện thoại một kiểu. File ghi âm thì ai nghe cũng
+// giống nhau, nên đáng công đi lấy một lần cho cả kho.
+// Chỉ giáo viên gọi được, mỗi lần tối đa 25 từ cho đỡ nặng.
+// ============================================================
+
+export async function layAmThanh(request, env) {
+  if (request.method !== 'POST') return json({ loi: 'Phương thức không hỗ trợ.' }, 405);
+
+  if (!(await laGiaoVien(request, env))) {
+    return json({ loi: 'Chỉ giáo viên dùng được.' }, 403);
+  }
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ loi: 'Dữ liệu không đọc được.' }, 400); }
+
+  const ds = Array.isArray(body && body.tu_list) ? body.tu_list.slice(0, 25) : [];
+  if (!ds.length) return json({ loi: 'Chưa có từ nào.' }, 400);
+
+  const ra = [];
+  for (const raw of ds) {
+    const tu = chuanHoa(raw);
+    if (!tu) { ra.push({ tu: raw, am_thanh: null }); continue; }
+    const anh = await layTuDienMo(tu);
+    ra.push({ tu: tu, am_thanh: anh && anh.am_thanh ? anh.am_thanh : null });
+  }
+
+  return json({ ket_qua: ra });
+}
+
+async function laGiaoVien(request, env) {
+  const auth = request.headers.get('authorization') || '';
+  if (!auth.startsWith('Bearer ')) return false;
+  const h = { apikey: env.SUPABASE_KEY, authorization: auth };
+  try {
+    const u = await fetch(env.SUPABASE_URL + '/auth/v1/user', { headers: h });
+    if (!u.ok) return false;
+    const user = await u.json();
+    if (!user || !user.id) return false;
+    const r = await fetch(env.SUPABASE_URL + '/rest/v1/profiles?select=role&id=eq.' +
+                          encodeURIComponent(user.id), { headers: h });
+    if (!r.ok) return false;
+    const rows = await r.json();
+    return Array.isArray(rows) && rows[0] && rows[0].role === 'teacher';
+  } catch (e) { return false; }
+}

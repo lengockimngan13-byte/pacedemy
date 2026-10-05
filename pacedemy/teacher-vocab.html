@@ -32,6 +32,7 @@
       <button class="test-tab on" data-tab="bulk">Thêm hàng loạt (AI)</button>
       <button class="test-tab" data-tab="dan">Dán từ bảng</button>
       <button class="test-tab" data-tab="single">Sửa từng từ</button>
+      <button class="test-tab" data-tab="am">Phát âm</button>
       <button class="test-tab" data-tab="duyet">Máy soạn chờ duyệt</button>
       <button class="test-tab" data-tab="hut">Học viên tra hụt</button>
     </div>
@@ -159,6 +160,23 @@
 
 
 
+
+    <!-- ===== Phát âm ===== -->
+    <div class="hidden" id="pane-am">
+      <div class="tbox">
+        <h3>Lấy file phát âm cho cả kho</h3>
+        <p style="margin:0 0 14px;font-size:0.94rem;line-height:1.65">
+          Giọng máy trong điện thoại mỗi máy một kiểu, có máy còn đọc tiếng Anh
+          bằng giọng tiếng Việt. File ghi âm người thật thì ai nghe cũng giống nhau.
+          Bấm một lần, hệ thống đi dò cả kho, từ nào có file thì gắn vào.
+          Từ nào không có vẫn để máy đọc như cũ.
+        </p>
+        <p id="am-dem" style="margin:0 0 14px;font-size:0.94rem">Đang đếm…</p>
+        <button class="btn btn-gold" id="am-chay">Bắt đầu lấy</button>
+        <p id="am-tien" style="margin:14px 0 0;font-size:0.92rem;line-height:1.6;color:var(--ink-soft)"></p>
+      </div>
+    </div>
+
     <!-- ===== Máy soạn chờ duyệt ===== -->
     <div class="hidden" id="pane-duyet">
       <div class="tbox">
@@ -202,5 +220,6 @@
 <script src="js/vocab-dan.js"></script>
 <script src="js/vocab-hut.js"></script>
 <script src="js/vocab-duyet.js"></script>
+<script src="js/vocab-am.js"></script>
 </body>
 </html>
