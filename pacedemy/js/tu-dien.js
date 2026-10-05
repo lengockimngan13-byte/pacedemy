@@ -40,7 +40,8 @@ function bo(s) {
 async function napKho() {
   const [{ data: ws }, { data: ts }] = await Promise.all([
     db.from('vocabulary')
-      .select('id, topic_id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations')
+      .select('id, topic_id, word, phonetic, pos, meaning_vi, dinh_nghia_vi, vi_du, ghi_chu, ' +
+              'example_en, example_vi, synonyms, collocations, image_url')
       .order('word'),
     db.from('topics').select('id, name_vi, slug')
   ]);
@@ -97,33 +98,93 @@ function tim(q) {
 
 // ---------- Vẽ một từ ----------
 
+// Thẻ từ dựng theo kiểu từ điển thật, không phải một dòng nghĩa:
+// khối tiếng Việt ở trên, khối tiếng Anh ở dưới, rồi tới ví dụ và ghi chú.
+// Mỗi khối chỉ hiện khi có dữ liệu, nên từ nào cô chưa soạn kỹ vẫn gọn gàng.
+
+const LOAI = {
+  n: 'NOUN', v: 'VERB', adj: 'ADJ', adv: 'ADV',
+  prep: 'PREP', conj: 'CONJ', pron: 'PRON',
+  phr: 'CỤM TỪ', 'phr v': 'ĐỘNG TỪ CỤM'
+};
+
+function nutNghe(text, nho) {
+  return '<button class="td-loa' + (nho ? ' td-loa-nho' : '') + '" type="button" ' +
+           'data-doc="' + esc(text) + '" aria-label="Nghe phát âm">' +
+           '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+             '<path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>' +
+           '</svg></button>';
+}
+
 function veTu(w, q) {
   const trongSo = soTu.has(String(w.word).toLowerCase());
   const ten = chuDe[w.topic_id];
+  const loai = LOAI[w.pos] || (w.pos ? w.pos.toUpperCase() : '');
 
   let html = '<article class="td-the">';
 
-  html += '<div class="td-dau">' +
-            '<h3>' + danhDau(w.word, q) + '</h3>' +
-            (w.pos ? '<span class="td-loai">' + esc(w.pos) + '</span>' : '') +
-            (w.phonetic ? '<span class="td-am">' + esc(w.phonetic) + '</span>' : '') +
-            '<button class="td-nghe" type="button" data-doc="' + esc(w.word) + '" ' +
-              'aria-label="Nghe phát âm">' +
-              '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
-                '<path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>' +
-              '</svg>' +
-            '</button>' +
+  // ---- khối tiếng Việt ----
+  html += '<div class="td-khoi td-khoi-vi">' +
+            '<div>' +
+              '<p class="td-nhan">TIẾNG VIỆT</p>' +
+              '<h3 class="td-vi">' + danhDau(w.meaning_vi, q) + '</h3>' +
+            '</div>' +
+            (w.image_url
+              ? '<img class="td-anh" src="' + esc(w.image_url) + '" alt="" loading="lazy">'
+              : '') +
           '</div>';
 
-  html += '<p class="td-nghia">' + danhDau(w.meaning_vi, q) + '</p>';
+  // ---- khối tiếng Anh ----
+  html += '<div class="td-khoi">' +
+            '<p class="td-nhan">TIẾNG ANH</p>' +
+            '<div class="td-dau">' +
+              '<h3 class="td-en">' + danhDau(w.word, q) + '</h3>' +
+              (loai ? '<span class="td-loai">' + esc(loai) + '</span>' : '') +
+            '</div>' +
+            '<p class="td-am">' +
+              (w.phonetic ? esc(w.phonetic) + ' ' : '') + nutNghe(w.word) +
+            '</p>' +
+          '</div>';
 
-  if (w.example_en) {
-    html += '<div class="td-vd">' +
-              '<p class="td-vd-en">' + esc(w.example_en) + '</p>' +
-              (w.example_vi ? '<p class="td-vd-vi">' + esc(w.example_vi) + '</p>' : '') +
-            '</div>';
+  // ---- định nghĩa ----
+  const dn = w.dinh_nghia_vi || w.meaning_vi;
+  html += '<p class="td-nghia">' + danhDau(dn, q) + '</p>';
+
+  // ---- ví dụ ----
+  let vd = Array.isArray(w.vi_du) ? w.vi_du : [];
+  if (!vd.length && w.example_en) vd = [{ vi: w.example_vi, en: w.example_en }];
+  vd = vd.filter(function (x) { return x && x.en; });
+
+  if (vd.length) {
+    html += '<section class="td-hop td-hop-vd">' +
+              '<p class="td-hop-dau">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+                  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                  '<path d="M4 5h16v11H9l-5 4z"/></svg>Ví dụ</p>' +
+              '<ol class="td-vd">' +
+              vd.map(function (x) {
+                return '<li>' +
+                         (x.vi ? '<p class="td-vd-vi">' + esc(x.vi) + '</p>' : '') +
+                         '<p class="td-vd-en">' + nutNghe(x.en, true) +
+                           '<span>' + esc(x.en) + '</span></p>' +
+                       '</li>';
+              }).join('') +
+              '</ol>' +
+            '</section>';
   }
 
+  // ---- ghi chú của cô ----
+  if (w.ghi_chu) {
+    html += '<section class="td-hop td-hop-gc">' +
+              '<p class="td-hop-dau">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+                  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                  '<path d="M5 3h14v18l-7-4-7 4zM9 8h6M9 12h4"/></svg>Ghi chú</p>' +
+              '<div class="td-gc">' + vanBan(w.ghi_chu) + '</div>' +
+            '</section>';
+  }
+
+  // ---- từ gần nghĩa và cụm hay đi kèm ----
   const them = [];
   if (w.synonyms) them.push(['Gần nghĩa', w.synonyms]);
   if (w.collocations) them.push(['Hay đi với', w.collocations]);
@@ -142,6 +203,16 @@ function veTu(w, q) {
           '</div>';
 
   return html + '</article>';
+}
+
+// Ghi chú cô gõ nhiều dòng, giữ nguyên cách xuống dòng và cho in đậm
+// bằng **hai dấu sao**, vì cô hay viết kiểu đó trong giáo án.
+function vanBan(s) {
+  return esc(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .split(/\n{2,}/)
+    .map(function (p) { return '<p>' + p.replace(/\n/g, '<br>') + '</p>'; })
+    .join('');
 }
 
 // Tô vàng đúng đoạn người ta vừa gõ, kể cả khi họ gõ không dấu

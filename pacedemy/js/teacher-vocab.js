@@ -444,7 +444,8 @@ async function loadWordsForTopic(topicId) {
   box.innerHTML = '<p class="empty" style="text-align:left">Đang tải…</p>';
 
   const { data: ws, error } = await db.from('vocabulary')
-    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, order_index, image_url')
+    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, ' +
+            'collocations, level, order_index, image_url, dinh_nghia_vi, vi_du, ghi_chu')
     .eq('topic_id', topicId)
     .order('level').order('order_index').order('id');
 
@@ -458,6 +459,30 @@ async function loadWordsForTopic(topicId) {
   }
 
   ws.forEach(function (w, i) { box.appendChild(svRow(w, i + 1)); });
+}
+
+
+// Ô nhập ví dụ cho cô gõ kiểu hai dòng một ví dụ: dòng tiếng Việt rồi
+// dòng tiếng Anh, các ví dụ cách nhau một dòng trống. Dễ gõ hơn JSON nhiều.
+function viDuRaChu(ds) {
+  if (!Array.isArray(ds)) return '';
+  return ds.map(function (x) {
+    return (x.vi || '') + '\n' + (x.en || '');
+  }).join('\n\n');
+}
+
+function chuRaViDu(s) {
+  const ra = String(s || '').split(/\n{2,}/).map(function (khoi) {
+    const dong = khoi.split('\n').map(function (d) { return d.trim(); }).filter(Boolean);
+    if (!dong.length) return null;
+    // chỉ một dòng thì đoán theo chữ: có dấu tiếng Việt là câu dịch
+    if (dong.length === 1) {
+      return /[àáạảãăằắặâầấậèéẹêềếệìíịòóọôồốộơờớợùúụưừứựỳýỵđ]/i.test(dong[0])
+        ? { vi: dong[0], en: '' } : { vi: '', en: dong[0] };
+    }
+    return { vi: dong[0], en: dong.slice(1).join(' ') };
+  }).filter(function (x) { return x && (x.vi || x.en); });
+  return ra.length ? ra : null;
 }
 
 function svRow(w, index) {
@@ -507,6 +532,16 @@ function svRow(w, index) {
       '<textarea class="sv-example-vi" rows="2" placeholder="bản dịch câu ví dụ">' + esc(w.example_vi || '') + '</textarea>' +
       '<input type="text" class="sv-synonyms" placeholder="từ đồng nghĩa, ngăn nhau bằng dấu phẩy" value="' + esc(w.synonyms || '') + '">' +
       '<input type="text" class="sv-collocations" placeholder="cụm từ — nghĩa; cụm khác — nghĩa" value="' + esc(w.collocations || '') + '">' +
+
+      // Ba ô dưới đây chỉ hiện ở thẻ Từ điển. Bỏ trống cũng được:
+      // thẻ tự lùi về dùng định nghĩa ngắn và ví dụ ở trên.
+      '<p class="sv-nhom">Phần hiện trong Từ điển</p>' +
+      '<textarea class="sv-dinhnghia" rows="2" placeholder="định nghĩa đầy đủ bằng tiếng Việt, viết thành câu">' +
+        esc(w.dinh_nghia_vi || '') + '</textarea>' +
+      '<textarea class="sv-vidu" rows="4" placeholder="ví dụ thêm, mỗi ví dụ hai dòng: dòng tiếng Việt rồi dòng tiếng Anh, cách nhau một dòng trống">' +
+        esc(viDuRaChu(w.vi_du)) + '</textarea>' +
+      '<textarea class="sv-ghichu" rows="5" placeholder="ghi chú: phân biệt từ dễ nhầm, bẫy ngữ pháp. Bọc **hai dấu sao** để in đậm">' +
+        esc(w.ghi_chu || '') + '</textarea>' +
     '</div>';
 
   const id = w.id;
@@ -519,6 +554,9 @@ function svRow(w, index) {
   bindSave(row.querySelector('.sv-example-vi'), id, 'example_vi', function (v) { return v.trim() || null; });
   bindSave(row.querySelector('.sv-synonyms'), id, 'synonyms', function (v) { return v.trim() || null; });
   bindSave(row.querySelector('.sv-collocations'), id, 'collocations', function (v) { return v.trim() || null; });
+  bindSave(row.querySelector('.sv-dinhnghia'), id, 'dinh_nghia_vi', function (v) { return v.trim() || null; });
+  bindSave(row.querySelector('.sv-ghichu'), id, 'ghi_chu', function (v) { return v.trim() || null; });
+  bindSave(row.querySelector('.sv-vidu'), id, 'vi_du', chuRaViDu);
 
   row.querySelector('.sv-pos').addEventListener('change', function () {
     saveField(id, 'pos', this.value);
@@ -738,7 +776,8 @@ $('btn-add-word').addEventListener('click', async function () {
     pos: 'n',
     level: 1,
     order_index: (max ? max.order_index : 0) + 1
-  }).select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, image_url').single();
+  }).select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, ' +
+    'collocations, level, image_url, dinh_nghia_vi, vi_du, ghi_chu').single();
 
   this.disabled = false;
 
