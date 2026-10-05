@@ -347,6 +347,14 @@ const GIONG_AZURE = {
   AU: { ten: 'en-AU-NatashaNeural',         lang: 'en-AU' }
 };
 
+// Giọng đọc có sẵn trong Cloudflare, dùng được ngay không cần tài khoản
+// nào bên ngoài. Thử lần lượt, cái nào ra tiếng thì lấy — tên model bên
+// Cloudflare có thay đổi theo thời gian nên đừng trông vào đúng một cái.
+const GIONG_CF = [
+  { may: '@cf/deepgram/aura-1',    vao: function (tu) { return { text: tu, speaker: 'asteria' }; } },
+  { may: '@cf/myshell-ai/melotts', vao: function (tu) { return { prompt: tu, lang: 'en' }; } }
+];
+
 export async function taoAm(request, env) {
   if (request.method !== 'POST') return json({ loi: 'Phương thức không hỗ trợ.' }, 405);
 
@@ -354,10 +362,13 @@ export async function taoAm(request, env) {
     return json({ loi: 'Chỉ giáo viên dùng được.' }, 403);
   }
 
-  if (!env.TTS_KEY || !env.TTS_REGION) {
+  // Có khoá Azure thì dùng Azure: giọng hay hơn và chọn được Anh/Mỹ/Úc.
+  // Không có cũng chạy được, bằng giọng sẵn trong Cloudflare.
+  const coAzure = !!(env.TTS_KEY && env.TTS_REGION);
+  if (!coAzure && !env.AI) {
     return json({
-      loi: 'Chưa cài khoá giọng đọc. Chạy: npx wrangler secret put TTS_KEY ' +
-           'và npx wrangler secret put TTS_REGION'
+      loi: 'Chưa có giọng đọc nào. Bật Workers AI trong Cloudflare, ' +
+           'hoặc đặt khoá TTS_KEY và TTS_REGION.'
     }, 400);
   }
 
@@ -365,35 +376,94 @@ export async function taoAm(request, env) {
   try { body = await request.json(); } catch (e) { return json({ loi: 'Dữ liệu không đọc được.' }, 400); }
 
   const kieu = GIONG_AZURE[body && body.giong] ? body.giong : 'US';
-  const giong = GIONG_AZURE[kieu];
+  const lamLai = !!(body && body.lam_lai);
   const ds = Array.isArray(body && body.tu_list) ? body.tu_list.slice(0, 15) : [];
   if (!ds.length) return json({ loi: 'Chưa có từ nào.' }, 400);
 
+  // Tên file mang theo tên giọng, nên sau này cô thêm khoá Azure thì file
+  // mới nằm riêng, không đè lên file cũ.
+  const thuMuc = coAzure ? kieu.toLowerCase() : 'cf';
   const ra = [];
+  let may = '';
 
   for (const raw of ds) {
     const tu = chuanHoa(raw);
     if (!tu) { ra.push({ tu: raw, am_thanh: null, loi: 'từ không hợp lệ' }); continue; }
 
-    const key = 'phat-am/' + kieu.toLowerCase() + '/' + tu.replace(/[^a-z0-9]+/g, '-') + '.mp3';
+    const ten = tu.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'tu';
+    const key = 'phat-am/' + thuMuc + '/' + ten + '.mp3';
 
-    // Đã tạo rồi thì khỏi gọi lại cho tốn
+    // Đã tạo rồi thì khỏi gọi lại cho tốn, trừ khi cô bảo tạo lại
+    if (!lamLai) {
+      try {
+        const co = await env.MEDIA.head(key);
+        if (co) { ra.push({ tu: tu, am_thanh: '/media/' + key, san_co: true }); continue; }
+      } catch (e) { /* không có thì tạo mới */ }
+    }
+
+    let am;
     try {
-      const co = await env.MEDIA.head(key);
-      if (co) { ra.push({ tu: tu, am_thanh: '/media/' + key, san_co: true }); continue; }
-    } catch (e) { /* không có thì tạo mới */ }
+      am = coAzure
+        ? { mp3: await docBangAzure(env, tu, GIONG_AZURE[kieu]), may: 'azure' }
+        : await docBangCloudflare(env, tu);
+    } catch (e) {
+      ra.push({ tu: tu, am_thanh: null, loi: String((e && e.message) || e) });
+      continue;
+    }
 
-    let mp3;
-    try { mp3 = await docBangAzure(env, tu, giong); }
-    catch (e) { ra.push({ tu: tu, am_thanh: null, loi: String(e.message || e) }); continue; }
+    if (!am || !am.mp3) { ra.push({ tu: tu, am_thanh: null, loi: 'không tạo được' }); continue; }
 
-    if (!mp3) { ra.push({ tu: tu, am_thanh: null, loi: 'không tạo được' }); continue; }
-
-    await env.MEDIA.put(key, mp3, { httpMetadata: { contentType: 'audio/mpeg' } });
+    may = am.may;
+    await env.MEDIA.put(key, am.mp3, { httpMetadata: { contentType: loaiAm(am.mp3) } });
     ra.push({ tu: tu, am_thanh: '/media/' + key });
   }
 
-  return json({ ket_qua: ra, giong: kieu });
+  return json({ ket_qua: ra, giong: coAzure ? kieu : 'CF', may: may });
+}
+
+async function docBangCloudflare(env, tu) {
+  if (!env.AI) throw new Error('Workers AI chưa bật');
+
+  let loiCuoi = '';
+  for (const g of GIONG_CF) {
+    try {
+      const buf = await rutAmThanh(await env.AI.run(g.may, g.vao(tu)));
+      // File quá nhỏ là im lặng hoặc lỗi trả về dạng tiếng, đừng lưu
+      if (buf && buf.byteLength > 800) return { mp3: buf, may: g.may };
+      loiCuoi = g.may + ' trả về file rỗng';
+    } catch (e) {
+      loiCuoi = g.may + ': ' + String((e && e.message) || e);
+    }
+  }
+  throw new Error(loiCuoi || 'không giọng nào đọc được');
+}
+
+// Mỗi model trả về một kiểu khác nhau: có cái trả luồng, có cái trả
+// chuỗi base64 trong JSON. Nhận hết cho chắc.
+async function rutAmThanh(r) {
+  if (!r) return null;
+  if (r instanceof ArrayBuffer) return r;
+  if (typeof r === 'string') return giaiB64(r);
+  if (typeof r.getReader === 'function') return await new Response(r).arrayBuffer();
+  if (r.buffer instanceof ArrayBuffer) return r.buffer;
+  if (r.audio) return await rutAmThanh(r.audio);
+  return null;
+}
+
+function giaiB64(s) {
+  const chuoi = String(s).replace(/^data:[^,]*,/, '');
+  const b = atob(chuoi);
+  const u = new Uint8Array(b.length);
+  for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+  return u.buffer;
+}
+
+// Có model trả wav chứ không phải mp3. Ghi sai loại là máy không phát.
+function loaiAm(buf) {
+  const u = new Uint8Array(buf, 0, Math.min(4, buf.byteLength));
+  if (u[0] === 0x52 && u[1] === 0x49 && u[2] === 0x46 && u[3] === 0x46) return 'audio/wav';
+  if (u[0] === 0x4f && u[1] === 0x67 && u[2] === 0x67) return 'audio/ogg';
+  return 'audio/mpeg';
 }
 
 async function docBangAzure(env, tu, giong) {

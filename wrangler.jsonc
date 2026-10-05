@@ -10,6 +10,11 @@
     // Hai đường dẫn này luôn đi qua Worker (file nghe/ảnh trên R2)
     "run_worker_first": ["/media/*", "/api/*"]
   },
+  // Giọng đọc có sẵn trong Cloudflare, không cần tài khoản bên ngoài.
+  // Có khoá Azure (TTS_KEY) thì Worker tự dùng Azure cho giọng hay hơn.
+  "ai": {
+    "binding": "AI"
+  },
   "r2_buckets": [
     {
       "binding": "MEDIA",

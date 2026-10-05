@@ -135,30 +135,46 @@ const VocabAm = (function () {
     if (dangChay) { dungLai = true; return; }
 
     const giong = $('am-giong').value;
+    const lamLai = $('am-lai') && $('am-lai').checked;
     batDau('am-tao');
 
     const tk = await token();
     if (!tk) { bao('Phiên đăng nhập đã hết, bạn đăng nhập lại nhé.'); ketThuc(); return; }
 
-    let daXong = 0, loi = 0;
+    let daXong = 0, loi = 0, moc = 0, may = '';
 
     while (!dungLai) {
       // Từ nào đang dùng file của Pacedemy rồi thì bỏ qua, còn lại
       // đều tạo — kể cả từ đang dùng file Wiktionary, vì giọng mình
-      // tự tạo đều hơn.
-      const { data: ds, error } = await db.from('vocabulary')
-        .select('id, word').not('am_thanh', 'like', '/media/phat-am/%')
-        .order('id').limit(LO_TAO);
+      // tự tạo đều hơn. Tích "tạo lại" thì làm hết, dùng khi đổi giọng.
+      // Luôn đi theo id tăng dần. Nếu chỉ dựa vào điều kiện lọc thì từ
+      // nào tạo lỗi sẽ nằm lại, vòng lặp hỏi mãi đúng mấy từ đó.
+      let q = db.from('vocabulary').select('id, word');
+      if (!lamLai) q = q.not('am_thanh', 'like', '/media/phat-am/%');
+      if (moc) q = q.gt('id', moc);
+
+      const { data: ds, error } = await q.order('id').limit(LO_TAO);
 
       if (error) { bao('Lỗi đọc kho: ' + esc(error.message)); break; }
-      if (!ds || !ds.length) { bao('Xong. Cả kho đã có file của Pacedemy.'); break; }
+      if (!ds || !ds.length) {
+        bao(daXong
+          ? 'Xong. Đã tạo <b>' + daXong + '</b> file' +
+            (loi ? ', ' + loi + ' từ không tạo được' : '') +
+            (may ? ' · giọng ' + esc(tenMay(may)) : '') + '.'
+          : 'Cả kho đã có file của Pacedemy rồi, không cần tạo thêm.');
+        break;
+      }
 
       let res;
       try {
         res = await fetch('/api/tao-am', {
           method: 'POST',
           headers: { 'content-type': 'application/json', authorization: 'Bearer ' + tk },
-          body: JSON.stringify({ tu_list: ds.map(function (x) { return x.word; }), giong: giong })
+          body: JSON.stringify({
+            tu_list: ds.map(function (x) { return x.word; }),
+            giong: giong,
+            lam_lai: !!lamLai
+          })
         });
       } catch (e) { bao('Mất kết nối, bạn thử lại sau nhé.'); break; }
 
@@ -170,6 +186,8 @@ const VocabAm = (function () {
       }
 
       const o = await res.json();
+      if (o.may) may = o.may;
+
       const map = {};
       for (const r of (o.ket_qua || [])) map[r.tu] = r.am_thanh;
 
@@ -183,12 +201,22 @@ const VocabAm = (function () {
         }
       }
 
-      bao('Đã tạo <b>' + daXong + '</b> file' + (loi ? ' · ' + loi + ' từ lỗi' : '') + '…');
+      moc = ds[ds.length - 1].id;
+
+      bao('Đã tạo <b>' + daXong + '</b> file' + (loi ? ' · ' + loi + ' từ lỗi' : '') +
+          (may ? ' · giọng ' + esc(tenMay(may)) : '') + '…');
     }
 
     if (dungLai) bao($('am-tien').innerHTML + ' <i>Đã dừng.</i>');
     await veDem();
     ketThuc();
+  }
+
+  function tenMay(m) {
+    if (m === 'azure') return 'Azure neural';
+    if (String(m).indexOf('aura') >= 0) return 'Cloudflare Aura';
+    if (String(m).indexOf('melotts') >= 0) return 'Cloudflare MeloTTS';
+    return m;
   }
 
   function loiMay(status) {
