@@ -6067,3 +6067,25 @@ html { scroll-behavior: smooth; }
 .dy-bao { margin: 9px 0 0; font-size: 0.86rem; font-weight: 600; }
 .dy-bao.tot { color: var(--teal); }
 .dy-bao.xau { color: var(--danger); }
+
+/* ---- Phát âm cho cả kho (js/vocab-am.js) ---- */
+
+.am-cach { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.am-cach > div {
+  padding: 15px 17px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  background: #FAFCFB;
+}
+.am-cach > div:first-child { border-color: var(--teal); background: #F2F8F7; }
+.am-cach h4 {
+  margin: 0 0 7px;
+  font-family: var(--disp); font-weight: 700; font-size: 0.96rem; color: var(--ink);
+}
+.am-cach p { margin: 0 0 14px; font-size: 0.89rem; line-height: 1.65; color: var(--ink-soft); }
+.am-nut { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+#am-tien code {
+  padding: 1px 6px; border-radius: 3px;
+  background: var(--mist); font-family: ui-monospace, monospace; font-size: 0.86rem;
+}
+
+@media (max-width: 760px) { .am-cach { grid-template-columns: 1fr; } }

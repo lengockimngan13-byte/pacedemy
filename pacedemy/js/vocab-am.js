@@ -1,18 +1,25 @@
 // ============================================================
-// Pacedemy — lấy file phát âm cho cả kho từ
+// Pacedemy — phát âm cho cả kho từ
 //
-// Giọng máy trong điện thoại mỗi máy một kiểu, và nhiều máy đọc
-// tiếng Anh bằng giọng Việt. File ghi âm người thật thì ai nghe
-// cũng giống nhau, nên đáng công đi lấy một lần cho cả kho.
+// Hai cách, cô Ngân chọn:
 //
-// Không phải từ nào cũng có file. Từ nào không có thì vẫn để máy
-// đọc như cũ, không sao cả.
+//   A. Tìm file ghi âm có sẵn (Wiktionary) — miễn phí, nhưng chỉ
+//      khoảng một nửa số từ có, và mỗi từ một người đọc nên giọng
+//      không đều nhau.
+//
+//   B. Tự tạo file bằng giọng neural rồi lưu vào kho của Pacedemy —
+//      tốn vài nghìn đồng cho cả kho, nhưng phủ 100% số từ, giọng
+//      giống hệt nhau ở mọi từ, và file nằm trên máy chủ của mình.
+//      Đây mới là cách ra được từ điển giống Cambridge, Oxford.
+//
+// Cách B tốt hơn hẳn, A chỉ để dùng khi chưa có khoá giọng đọc.
 // ============================================================
 
 const VocabAm = (function () {
 
   const $ = function (id) { return document.getElementById(id); };
-  const LO = 20;                  // mỗi lượt gọi hỏi 20 từ
+  const LO_TIM = 20;      // tìm file có sẵn: mỗi lượt 20 từ
+  const LO_TAO = 12;      // tự tạo file: mỗi lượt 12 từ cho nhẹ
 
   let dangChay = false;
   let dungLai = false;
@@ -26,58 +33,139 @@ const VocabAm = (function () {
   async function dem() {
     const [{ count: tong }, { count: co }] = await Promise.all([
       db.from('vocabulary').select('id', { count: 'exact', head: true }),
-      db.from('vocabulary').select('id', { count: 'exact', head: true }).not('am_thanh', 'is', null)
+      db.from('vocabulary').select('id', { count: 'exact', head: true })
+        .like('am_thanh', 'http%')
     ]);
-    return { tong: tong || 0, co: co || 0 };
+    const [{ count: cuaMinh }] = await Promise.all([
+      db.from('vocabulary').select('id', { count: 'exact', head: true })
+        .like('am_thanh', '/media/phat-am/%')
+    ]);
+    return { tong: tong || 0, ngoai: co || 0, cuaMinh: cuaMinh || 0 };
   }
 
   async function veDem() {
     const d = await dem();
-    const thieu = d.tong - d.co;
+    const roi = d.ngoai + d.cuaMinh;
+    const thieu = d.tong - roi;
+
     $('am-dem').innerHTML =
-      '<b>' + d.co + '</b> trên ' + d.tong + ' từ đã có file phát âm.' +
-      (thieu
-        ? ' Còn <b>' + thieu + '</b> từ đang dùng giọng máy.'
-        : ' Cả kho đã có file.');
-    $('am-chay').disabled = !thieu;
-    return thieu;
+      '<b>' + d.cuaMinh + '</b> từ dùng file của Pacedemy · ' +
+      '<b>' + d.ngoai + '</b> từ dùng file Wiktionary · ' +
+      '<b>' + thieu + '</b> từ còn để máy đọc. Tổng ' + d.tong + ' từ.';
+
+    return { thieu: thieu, chuaCoCuaMinh: d.tong - d.cuaMinh };
   }
 
-  function bao(msg) {
-    $('am-tien').innerHTML = msg;
+  function bao(msg) { $('am-tien').innerHTML = msg; }
+
+  function batDau(nhan) {
+    dangChay = true; dungLai = false;
+    $('am-tim').disabled = true;
+    $('am-tao').disabled = true;
+    $(nhan).disabled = false;
+    $(nhan).textContent = 'Dừng lại';
   }
 
-  async function chay() {
-    if (dangChay) { dungLai = true; return; }
+  function ketThuc() {
+    dangChay = false; dungLai = false;
+    $('am-tim').disabled = false;
+    $('am-tao').disabled = false;
+    $('am-tim').textContent = 'Tìm file có sẵn';
+    $('am-tao').textContent = 'Tự tạo file cho cả kho';
+  }
 
-    dangChay = true;
-    dungLai = false;
-    $('am-chay').textContent = 'Dừng lại';
-
+  async function token() {
     const { data } = await db.auth.getSession();
-    const token = data && data.session && data.session.access_token;
-    if (!token) { bao('Phiên đăng nhập đã hết, bạn đăng nhập lại nhé.'); xong(); return; }
+    return data && data.session && data.session.access_token;
+  }
 
-    let daXong = 0, daCo = 0, khongCo = 0;
+  // ---------- A. Tìm file có sẵn ----------
+
+  async function tim() {
+    if (dangChay) { dungLai = true; return; }
+    batDau('am-tim');
+
+    const tk = await token();
+    if (!tk) { bao('Phiên đăng nhập đã hết, bạn đăng nhập lại nhé.'); ketThuc(); return; }
+
+    let daXong = 0, daCo = 0;
 
     while (!dungLai) {
       const { data: ds, error } = await db.from('vocabulary')
-        .select('id, word').is('am_thanh', null).order('id').limit(LO);
+        .select('id, word').is('am_thanh', null).order('id').limit(LO_TIM);
 
       if (error) { bao('Lỗi đọc kho: ' + esc(error.message)); break; }
-      if (!ds || !ds.length) { bao('Xong. Không còn từ nào thiếu file.'); break; }
+      if (!ds || !ds.length) { bao('Xong. Không còn từ nào chưa dò.'); break; }
 
       let res;
       try {
         res = await fetch('/api/am-thanh', {
           method: 'POST',
-          headers: { 'content-type': 'application/json', authorization: 'Bearer ' + token },
+          headers: { 'content-type': 'application/json', authorization: 'Bearer ' + tk },
           body: JSON.stringify({ tu_list: ds.map(function (x) { return x.word; }) })
         });
       } catch (e) { bao('Mất kết nối, bạn thử lại sau nhé.'); break; }
 
+      if (!res.ok) { bao(loiMay(res.status)); break; }
+
+      const o = await res.json();
+      const map = {};
+      for (const r of (o.ket_qua || [])) map[r.tu] = r.am_thanh;
+
+      for (const w of ds) {
+        const am = map[String(w.word).toLowerCase()];
+        // Từ không có file vẫn phải đánh dấu, nếu không vòng lặp cứ
+        // hỏi đi hỏi lại đúng mấy từ đó mãi không hết.
+        await db.from('vocabulary').update({ am_thanh: am || 'khong-co' }).eq('id', w.id);
+        if (am) daCo++;
+        daXong++;
+      }
+
+      bao('Đã dò <b>' + daXong + '</b> từ — ' + daCo + ' từ có file sẵn.');
+    }
+
+    if (dungLai) bao($('am-tien').innerHTML + ' <i>Đã dừng.</i>');
+    await veDem();
+    ketThuc();
+  }
+
+  // ---------- B. Tự tạo file ----------
+
+  async function tao() {
+    if (dangChay) { dungLai = true; return; }
+
+    const giong = $('am-giong').value;
+    batDau('am-tao');
+
+    const tk = await token();
+    if (!tk) { bao('Phiên đăng nhập đã hết, bạn đăng nhập lại nhé.'); ketThuc(); return; }
+
+    let daXong = 0, loi = 0;
+
+    while (!dungLai) {
+      // Từ nào đang dùng file của Pacedemy rồi thì bỏ qua, còn lại
+      // đều tạo — kể cả từ đang dùng file Wiktionary, vì giọng mình
+      // tự tạo đều hơn.
+      const { data: ds, error } = await db.from('vocabulary')
+        .select('id, word').not('am_thanh', 'like', '/media/phat-am/%')
+        .order('id').limit(LO_TAO);
+
+      if (error) { bao('Lỗi đọc kho: ' + esc(error.message)); break; }
+      if (!ds || !ds.length) { bao('Xong. Cả kho đã có file của Pacedemy.'); break; }
+
+      let res;
+      try {
+        res = await fetch('/api/tao-am', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', authorization: 'Bearer ' + tk },
+          body: JSON.stringify({ tu_list: ds.map(function (x) { return x.word; }), giong: giong })
+        });
+      } catch (e) { bao('Mất kết nối, bạn thử lại sau nhé.'); break; }
+
       if (!res.ok) {
-        bao('Máy chủ trả về lỗi ' + res.status + '. Có thể Worker chưa được deploy bản mới.');
+        let m = loiMay(res.status);
+        try { const o = await res.json(); if (o.loi) m = esc(o.loi); } catch (e) {}
+        bao(m);
         break;
       }
 
@@ -85,36 +173,36 @@ const VocabAm = (function () {
       const map = {};
       for (const r of (o.ket_qua || [])) map[r.tu] = r.am_thanh;
 
-      // Từ không có file vẫn phải đánh dấu, nếu không vòng lặp sẽ
-      // hỏi đi hỏi lại đúng mấy từ đó mãi không hết.
       for (const w of ds) {
         const am = map[String(w.word).toLowerCase()];
-        await db.from('vocabulary')
-          .update({ am_thanh: am || 'khong-co' }).eq('id', w.id);
-        if (am) daCo++; else khongCo++;
-        daXong++;
+        if (am) {
+          await db.from('vocabulary').update({ am_thanh: am }).eq('id', w.id);
+          daXong++;
+        } else {
+          loi++;
+        }
       }
 
-      bao('Đã xử lý <b>' + daXong + '</b> từ — ' + daCo + ' từ có file, ' +
-          khongCo + ' từ không có, vẫn để máy đọc.');
+      bao('Đã tạo <b>' + daXong + '</b> file' + (loi ? ' · ' + loi + ' từ lỗi' : '') + '…');
     }
 
     if (dungLai) bao($('am-tien').innerHTML + ' <i>Đã dừng.</i>');
     await veDem();
-    xong();
+    ketThuc();
   }
 
-  function xong() {
-    dangChay = false;
-    dungLai = false;
-    $('am-chay').textContent = 'Bắt đầu lấy';
+  function loiMay(status) {
+    if (status === 403) return 'Chỉ tài khoản giáo viên dùng được.';
+    if (status === 404) return 'Chưa có đường dẫn này. Worker cần deploy bản mới: <code>npx wrangler deploy</code>';
+    return 'Máy chủ trả về lỗi ' + status + '.';
   }
 
   let daNoi = false;
 
   async function moLai() {
     if (!daNoi) {
-      $('am-chay').addEventListener('click', chay);
+      $('am-tim').addEventListener('click', tim);
+      $('am-tao').addEventListener('click', tao);
       daNoi = true;
     }
     await veDem();

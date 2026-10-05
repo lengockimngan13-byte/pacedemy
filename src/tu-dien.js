@@ -321,3 +321,109 @@ async function laGiaoVien(request, env) {
     return Array.isArray(rows) && rows[0] && rows[0].role === 'teacher';
   } catch (e) { return false; }
 }
+
+
+// ============================================================
+// Tự tạo file phát âm bằng giọng neural, lưu vào R2 của Pacedemy
+//
+//   POST /api/tao-am   body { tu_list: [...], giong: "US" | "UK" }
+//
+// Đây mới là cách ra được từ điển giống Cambridge hay Oxford: file
+// nằm trên máy chủ của mình, giọng giống hệt nhau ở mọi từ và mọi
+// máy, và phủ được 100% số từ chứ không phụ thuộc có ai tình nguyện
+// ghi âm từ đó hay chưa.
+//
+// Cambridge và Oxford thuê người đọc trong phòng thu, mỗi từ hai
+// giọng Anh và Mỹ, làm hàng chục năm. Mình không làm nổi chuyện đó,
+// nhưng giọng neural bây giờ đọc một từ đơn gần như không phân biệt
+// được, mà tốn vài nghìn đồng cho cả kho.
+//
+// Tạo một lần rồi thôi: file nằm trong R2, lần sau chỉ việc phát.
+// ============================================================
+
+const GIONG_AZURE = {
+  US: { ten: 'en-US-AvaMultilingualNeural', lang: 'en-US' },
+  UK: { ten: 'en-GB-SoniaNeural',           lang: 'en-GB' },
+  AU: { ten: 'en-AU-NatashaNeural',         lang: 'en-AU' }
+};
+
+export async function taoAm(request, env) {
+  if (request.method !== 'POST') return json({ loi: 'Phương thức không hỗ trợ.' }, 405);
+
+  if (!(await laGiaoVien(request, env))) {
+    return json({ loi: 'Chỉ giáo viên dùng được.' }, 403);
+  }
+
+  if (!env.TTS_KEY || !env.TTS_REGION) {
+    return json({
+      loi: 'Chưa cài khoá giọng đọc. Chạy: npx wrangler secret put TTS_KEY ' +
+           'và npx wrangler secret put TTS_REGION'
+    }, 400);
+  }
+
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ loi: 'Dữ liệu không đọc được.' }, 400); }
+
+  const kieu = GIONG_AZURE[body && body.giong] ? body.giong : 'US';
+  const giong = GIONG_AZURE[kieu];
+  const ds = Array.isArray(body && body.tu_list) ? body.tu_list.slice(0, 15) : [];
+  if (!ds.length) return json({ loi: 'Chưa có từ nào.' }, 400);
+
+  const ra = [];
+
+  for (const raw of ds) {
+    const tu = chuanHoa(raw);
+    if (!tu) { ra.push({ tu: raw, am_thanh: null, loi: 'từ không hợp lệ' }); continue; }
+
+    const key = 'phat-am/' + kieu.toLowerCase() + '/' + tu.replace(/[^a-z0-9]+/g, '-') + '.mp3';
+
+    // Đã tạo rồi thì khỏi gọi lại cho tốn
+    try {
+      const co = await env.MEDIA.head(key);
+      if (co) { ra.push({ tu: tu, am_thanh: '/media/' + key, san_co: true }); continue; }
+    } catch (e) { /* không có thì tạo mới */ }
+
+    let mp3;
+    try { mp3 = await docBangAzure(env, tu, giong); }
+    catch (e) { ra.push({ tu: tu, am_thanh: null, loi: String(e.message || e) }); continue; }
+
+    if (!mp3) { ra.push({ tu: tu, am_thanh: null, loi: 'không tạo được' }); continue; }
+
+    await env.MEDIA.put(key, mp3, { httpMetadata: { contentType: 'audio/mpeg' } });
+    ra.push({ tu: tu, am_thanh: '/media/' + key });
+  }
+
+  return json({ ket_qua: ra, giong: kieu });
+}
+
+async function docBangAzure(env, tu, giong) {
+  // Đọc một từ đơn thì nói hơi chậm lại cho rõ âm cuối, đó là chỗ
+  // học viên Việt hay nuốt mất.
+  const ssml =
+    '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="' + giong.lang + '">' +
+      '<voice name="' + giong.ten + '">' +
+        '<prosody rate="-8%">' + thoat(tu) + '</prosody>' +
+      '</voice>' +
+    '</speak>';
+
+  const r = await fetch(
+    'https://' + env.TTS_REGION + '.tts.speech.microsoft.com/cognitiveservices/v1', {
+      method: 'POST',
+      headers: {
+        'Ocp-Apim-Subscription-Key': env.TTS_KEY,
+        'Content-Type': 'application/ssml+xml',
+        'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3',
+        'User-Agent': 'Pacedemy'
+      },
+      body: ssml
+    });
+
+  if (!r.ok) throw new Error('Azure trả về ' + r.status);
+  return await r.arrayBuffer();
+}
+
+function thoat(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}

@@ -164,16 +164,44 @@
     <!-- ===== Phát âm ===== -->
     <div class="hidden" id="pane-am">
       <div class="tbox">
-        <h3>Lấy file phát âm cho cả kho</h3>
+        <h3>Phát âm cho cả kho từ</h3>
         <p style="margin:0 0 14px;font-size:0.94rem;line-height:1.65">
-          Giọng máy trong điện thoại mỗi máy một kiểu, có máy còn đọc tiếng Anh
-          bằng giọng tiếng Việt. File ghi âm người thật thì ai nghe cũng giống nhau.
-          Bấm một lần, hệ thống đi dò cả kho, từ nào có file thì gắn vào.
-          Từ nào không có vẫn để máy đọc như cũ.
+          Giọng máy trong điện thoại mỗi máy một kiểu. Muốn mọi học viên nghe
+          giống nhau thì phải có file, và file phải nằm trên máy chủ của mình.
         </p>
-        <p id="am-dem" style="margin:0 0 14px;font-size:0.94rem">Đang đếm…</p>
-        <button class="btn btn-gold" id="am-chay">Bắt đầu lấy</button>
-        <p id="am-tien" style="margin:14px 0 0;font-size:0.92rem;line-height:1.6;color:var(--ink-soft)"></p>
+        <p id="am-dem" style="margin:0 0 18px;font-size:0.94rem;line-height:1.7">Đang đếm…</p>
+
+        <div class="am-cach">
+          <div>
+            <h4>Tự tạo file — nên dùng cách này</h4>
+            <p>Giọng neural đọc rồi lưu vào kho Pacedemy. Phủ 100% số từ,
+               giọng giống hệt nhau ở mọi từ, file thuộc về mình.
+               Cả kho tốn khoảng vài nghìn đồng, tạo một lần dùng mãi.
+               Cần cài khoá giọng đọc trước.</p>
+            <div class="am-nut">
+              <label class="sn-o"><span>Giọng</span>
+                <select id="am-giong">
+                  <option value="US">Mỹ — Ava</option>
+                  <option value="UK">Anh — Sonia</option>
+                  <option value="AU">Úc — Natasha</option>
+                </select>
+              </label>
+              <button class="btn btn-gold" id="am-tao">Tự tạo file cho cả kho</button>
+            </div>
+          </div>
+
+          <div>
+            <h4>Tìm file có sẵn — miễn phí</h4>
+            <p>Lấy bản ghi âm tình nguyện trên Wiktionary. Không tốn gì, nhưng
+               chỉ khoảng một nửa số từ có file, và mỗi từ một người đọc nên
+               giọng không đều nhau. Dùng tạm khi chưa có khoá.</p>
+            <div class="am-nut">
+              <button class="btn btn-line" id="am-tim">Tìm file có sẵn</button>
+            </div>
+          </div>
+        </div>
+
+        <p id="am-tien" style="margin:16px 0 0;font-size:0.92rem;line-height:1.6;color:var(--ink-soft)"></p>
       </div>
     </div>
 

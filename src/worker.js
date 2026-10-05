@@ -4,14 +4,15 @@
 //   GET  /media/<đường-dẫn>      → lấy file từ R2 (hỗ trợ tua audio)
 //   PUT  /api/media/<đường-dẫn>  → tải file lên R2, CHỈ giáo viên
 //   POST /api/tu-dien            → tra từ ngoài kho (src/tu-dien.js)
-//   POST /api/am-thanh           → lấy file phát âm, CHỈ giáo viên
+//   POST /api/am-thanh           → tìm file phát âm có sẵn, CHỈ giáo viên
+//   POST /api/tao-am             → tự tạo file phát âm, CHỈ giáo viên
 //   Mọi đường dẫn khác           → trả trang web tĩnh trong thư mục pacedemy/
 //
 // Kiểm tra giáo viên: hỏi Supabase xem người đang đăng nhập là ai,
 // rồi đọc cột role trong bảng profiles. Không cần khoá bí mật nào.
 // ============================================================
 
-import { traTu, layAmThanh } from './tu-dien.js';
+import { traTu, layAmThanh, taoAm } from './tu-dien.js';
 
 const MAX_BYTES = 50 * 1024 * 1024; // 50 MB mỗi file
 
@@ -40,6 +41,10 @@ export default {
 
     if (url.pathname === '/api/am-thanh') {
       return layAmThanh(request, env);
+    }
+
+    if (url.pathname === '/api/tao-am') {
+      return taoAm(request, env);
     }
 
     if (url.pathname.startsWith('/api/media/')) {
