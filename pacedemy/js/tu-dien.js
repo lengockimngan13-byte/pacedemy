@@ -116,7 +116,7 @@ function nutNghe(text, nho) {
            '</svg></button>';
 }
 
-function veTu(w, q) {
+function veTu(w, q, ngoai) {
   const trongSo = soTu.has(String(w.word).toLowerCase());
   const ten = chuDe[w.topic_id];
   const loai = LOAI[w.pos] || (w.pos ? w.pos.toUpperCase() : '');
@@ -195,6 +195,9 @@ function veTu(w, q) {
   }
 
   html += '<div class="td-chan">' +
+            (ngoai
+              ? '<span class="td-nguon" title="' + esc(ngoai.chuThich) + '">' + esc(ngoai.nhan) + '</span>'
+              : '') +
             (ten ? '<a class="q-tag" href="topic.html?id=' + w.topic_id + '">' + esc(ten) + '</a>' : '') +
             '<button class="btn-sm' + (trongSo ? '' : ' test') + '" type="button" ' +
               'data-luu="' + esc(w.word) + '"' + (trongSo ? ' disabled' : '') + '>' +
@@ -230,29 +233,89 @@ function danhDau(text, q) {
          esc(s.slice(i + k.length));
 }
 
-// ---------- Không tìm thấy ----------
+// ---------- Không có trong kho thì hỏi ra ngoài ----------
+//
+// Kho của cô Ngân là lớp một: nghĩa cô tự viết, ví dụ lấy từ đề, có
+// ghi chú giảng bài. Từ nào kho chưa có thì gọi /api/tu-dien, Worker
+// lấy phiên âm và nghĩa tiếng Anh từ từ điển mở rồi nhờ AI viết phần
+// tiếng Việt. Kết quả được ghi vào bộ đệm nên lần sau ra ngay.
+//
+// Thẻ ngoài kho luôn gắn nhãn nguồn, để học viên biết phần nào là bài
+// giảng của cô và phần nào là tra cứu tự động.
 
-async function ghiHut(q) {
-  const k = String(q || '').trim().toLowerCase();
-  if (!k || daGhiHut.has(k)) return;
-  if (!/^[a-z][a-z'\- ]*$/.test(k)) return;   // chỉ ghi khi trông như từ tiếng Anh
-  daGhiHut.add(k);
-  try { await db.rpc('ghi_tra_cuu_hut', { p_tu: k }); } catch (e) { /* ghi hụt thì thôi */ }
+const NGUON = {
+  co: null,
+  ai: { nhan: 'Máy soạn, cô chưa duyệt',
+        chuThich: 'Mục này do máy dựng tự động từ từ điển mở. Cô Ngân sẽ rà lại.' },
+  wiktionary: { nhan: 'Từ điển mở Wiktionary',
+                chuThich: 'Phiên âm và nghĩa tiếng Anh lấy từ Wiktionary, giấy phép CC BY-SA.' },
+  auto: { nhan: 'Máy soạn, cô chưa duyệt',
+          chuThich: 'Mục này do máy dựng tự động. Cô Ngân sẽ rà lại.' }
+};
+
+let dangHoi = null;
+
+async function hoiNgoai(q) {
+  const tu = String(q || '').trim().toLowerCase();
+  if (!/^[a-z][a-z'\- ]*$/.test(tu)) return null;    // chỉ hỏi khi là từ tiếng Anh
+
+  const { data } = await db.auth.getSession();
+  const token = data && data.session && data.session.access_token;
+  if (!token) return null;
+
+  const res = await fetch('/api/tu-dien', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: 'Bearer ' + token },
+    body: JSON.stringify({ tu: tu })
+  });
+
+  if (!res.ok) return null;
+  const o = await res.json();
+  return o && o.the ? o : null;
 }
 
-function veKhongCo(q) {
-  const laAnh = /^[a-zA-Z][a-zA-Z'\- ]*$/.test(q.trim());
+// Đổi dữ liệu Worker trả về thành đúng hình dạng mà veTu() đang dùng
+function tuNgoai(the) {
+  return {
+    topic_id: null,
+    word: the.tu,
+    phonetic: the.phien_am,
+    pos: the.loai_tu,
+    meaning_vi: the.nghia_ngan || the.dinh_nghia_en || the.tu,
+    dinh_nghia_vi: the.dinh_nghia_vi || the.dinh_nghia_en,
+    vi_du: the.vi_du || (the.vi_du_en ? [{ vi: '', en: the.vi_du_en }] : null),
+    ghi_chu: the.ghi_chu,
+    synonyms: the.dong_nghia,
+    collocations: null,
+    image_url: null,
+    example_en: null, example_vi: null
+  };
+}
 
+function veKhongCo(q, dangTim) {
+  if (dangTim) {
+    return '<div class="td-trong"><p class="td-trong-dau">Đang tra «' + esc(q.trim()) + '»…</p>' +
+           '<p>Từ này chưa có trong kho, đang hỏi từ điển ngoài.</p></div>';
+  }
+  const laAnh = /^[a-zA-Z][a-zA-Z\'\- ]*$/.test(q.trim());
   return '<div class="td-trong">' +
-           '<p class="td-trong-dau">Từ điển chưa có «' + esc(q.trim()) + '»</p>' +
+           '<p class="td-trong-dau">Không tra được «' + esc(q.trim()) + '»</p>' +
            (laAnh
-             ? '<p>Đã ghi lại để cô Ngân bổ sung. Từ nào nhiều bạn tra thì cô thêm trước.</p>'
+             ? '<p>Từ điển ngoài cũng không có từ này. Đã ghi lại để cô Ngân xem.</p>'
              : '<p>Bạn thử gõ lại, hoặc gõ từ tiếng Anh xem sao.</p>') +
            '<div class="td-trong-nut">' +
              '<a class="btn-sm test" href="vocab.html">Xem các chủ đề từ vựng</a>' +
              '<a class="btn-sm" href="so-tu.html">Mở sổ từ của tôi</a>' +
            '</div>' +
          '</div>';
+}
+
+async function ghiHut(q) {
+  const k = String(q || '').trim().toLowerCase();
+  if (!k || daGhiHut.has(k)) return;
+  if (!/^[a-z][a-z'\- ]*$/.test(k)) return;
+  daGhiHut.add(k);
+  try { await db.rpc('ghi_tra_cuu_hut', { p_tu: k }); } catch (e) { /* ghi hụt thì thôi */ }
 }
 
 // ---------- Vẽ kết quả ----------
@@ -273,19 +336,39 @@ function chay() {
   $('duyet').classList.add('hidden');
 
   const ds = tim(q);
+  const lan = ++goLan;
 
-  if (!ds.length) {
-    $('dem').textContent = '';
-    $('ket-qua').innerHTML = veKhongCo(q);
-    const lan = ++goLan;
-    // chờ một nhịp rồi mới ghi, để người đang gõ dở không bị ghi oan
-    setTimeout(function () { if (lan === goLan) ghiHut(q); }, 1200);
+  if (ds.length) {
+    $('dem').textContent = ds.length + ' từ';
+    $('ket-qua').innerHTML =
+      ds.slice(0, 60).map(function (w) { return veTu(w, q); }).join('') +
+      (ds.length > 60
+        ? '<p class="td-dem">Còn ' + (ds.length - 60) + ' từ nữa, bạn gõ thêm cho gọn lại nhé.</p>'
+        : '');
     return;
   }
 
-  $('dem').textContent = ds.length + ' từ';
-  $('ket-qua').innerHTML = ds.slice(0, 60).map(function (w) { return veTu(w, q); }).join('') +
-    (ds.length > 60 ? '<p class="td-dem">Còn ' + (ds.length - 60) + ' từ nữa, bạn gõ thêm cho gọn lại nhé.</p>' : '');
+  // Chưa có trong kho. Chờ một nhịp cho người ta gõ xong rồi mới hỏi ra ngoài,
+  // khỏi gọi một lần cho mỗi chữ cái.
+  $('dem').textContent = '';
+  $('ket-qua').innerHTML = veKhongCo(q, true);
+
+  clearTimeout(dangHoi);
+  dangHoi = setTimeout(async function () {
+    if (lan !== goLan) return;
+    let o = null;
+    try { o = await hoiNgoai(q); } catch (e) { o = null; }
+    if (lan !== goLan) return;
+
+    if (!o) {
+      $('ket-qua').innerHTML = veKhongCo(q, false);
+      ghiHut(q);
+      return;
+    }
+
+    $('dem').textContent = '1 từ';
+    $('ket-qua').innerHTML = veTu(tuNgoai(o.the), q, NGUON[o.nguon] || NGUON.auto);
+  }, 650);
 }
 
 // ---------- Duyệt ----------

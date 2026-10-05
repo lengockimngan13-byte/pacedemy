@@ -32,6 +32,7 @@
       <button class="test-tab on" data-tab="bulk">Thêm hàng loạt (AI)</button>
       <button class="test-tab" data-tab="dan">Dán từ bảng</button>
       <button class="test-tab" data-tab="single">Sửa từng từ</button>
+      <button class="test-tab" data-tab="duyet">Máy soạn chờ duyệt</button>
       <button class="test-tab" data-tab="hut">Học viên tra hụt</button>
     </div>
 
@@ -157,6 +158,21 @@
     </div>
 
 
+
+    <!-- ===== Máy soạn chờ duyệt ===== -->
+    <div class="hidden" id="pane-duyet">
+      <div class="tbox">
+        <h3>Mục từ điển do máy soạn, chờ cô rà lại</h3>
+        <p style="margin:0;font-size:0.94rem;line-height:1.65">
+          Học viên tra một từ kho chưa có thì hệ thống dựng tạm một mục và hiện kèm
+          nhãn "máy soạn, cô chưa duyệt". Ở đây cô sửa lại rồi bấm <b>Đã duyệt</b>
+          để bỏ nhãn đó, hoặc chọn một chủ đề để đưa hẳn từ này vào kho chính.
+          Xếp theo số lượt tra nên từ nhiều người cần nằm trên.
+        </p>
+      </div>
+      <div id="duyet-list"><p class="empty">Đang tải…</p></div>
+    </div>
+
     <!-- ===== Học viên tra hụt ===== -->
     <div class="hidden" id="pane-hut">
       <div class="tbox">
@@ -185,5 +201,6 @@
 <script src="js/teacher-vocab.js"></script>
 <script src="js/vocab-dan.js"></script>
 <script src="js/vocab-hut.js"></script>
+<script src="js/vocab-duyet.js"></script>
 </body>
 </html>

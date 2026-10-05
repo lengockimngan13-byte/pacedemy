@@ -6018,3 +6018,52 @@ html { scroll-behavior: smooth; }
   letter-spacing: .07em; text-transform: uppercase;
   color: var(--teal);
 }
+
+/* Nhãn nguồn trên thẻ từ ngoài kho */
+.td-nguon {
+  display: inline-block;
+  padding: 3px 9px; border-radius: 999px;
+  background: #FDF3E3; color: #8A6212;
+  font-size: 0.74rem; font-weight: 600;
+  cursor: help;
+}
+
+/* ---- Duyệt mục từ điển máy soạn (js/vocab-duyet.js) ---- */
+
+.dy-mot { border-left: 3px solid var(--gold); }
+
+.dy-dau {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.dy-dau b { font-family: var(--disp); font-weight: 700; font-size: 1.06rem; color: var(--ink); }
+.dy-am { margin-left: 9px; font-family: ui-monospace, monospace; font-size: 0.86rem; color: var(--ink-soft); }
+.dy-loai {
+  margin-left: 8px; padding: 1px 7px; border-radius: 999px;
+  background: var(--mist); color: var(--teal); font-size: 0.7rem; font-weight: 700;
+}
+.dy-dem { font-size: 0.82rem; color: var(--ink-soft); opacity: .85; }
+
+.dy-ta {
+  width: 100%; margin-bottom: 9px; padding: 9px 11px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  font-family: var(--ui); font-size: 0.9rem; line-height: 1.6;
+  background: var(--paper); color: var(--ink);
+}
+
+.dy-nut { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+.dy-nut .btn-sm { flex: 0 0 auto; }
+
+.dy-vao {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.86rem; font-weight: 600; color: var(--ink-soft);
+}
+.dy-vao select {
+  padding: 6px 9px; border: 1.5px solid var(--line); border-radius: var(--r);
+  font-family: var(--ui); font-size: 0.86rem; font-weight: 400;
+  background: var(--paper); color: var(--ink);
+}
+
+.dy-bao { margin: 9px 0 0; font-size: 0.86rem; font-weight: 600; }
+.dy-bao.tot { color: var(--teal); }
+.dy-bao.xau { color: var(--danger); }
