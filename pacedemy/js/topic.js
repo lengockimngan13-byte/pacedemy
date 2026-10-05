@@ -201,13 +201,12 @@ function drawWords(key) {
 
 // ---------- Đọc to bằng giọng của trình duyệt ----------
 
+// Gọi qua speak.js chứ không tự đọc: ở đây không chọn giọng nào cả,
+// nên trình duyệt tự lấy giọng mặc định — máy nào nghe cũng khác máy
+// nào, và máy nhiều giọng thì mỗi lần mở trang lại đổi.
 function say(text) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US';
-  u.rate = 0.95;
-  window.speechSynthesis.speak(u);
+  if (!text || typeof Speak === 'undefined') return;
+  Speak.say(text, 'US');
 }
 
 // ============================================================

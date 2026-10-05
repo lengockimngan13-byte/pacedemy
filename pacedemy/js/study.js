@@ -679,11 +679,10 @@ async function showNotMastered() {
 
 // ---------- Đọc to bằng giọng của trình duyệt ----------
 
+// Gọi qua speak.js như mọi chỗ khác trong trang này, để cùng một
+// giọng. Tự dựng utterance ở đây là không chọn giọng nào, trình
+// duyệt lấy mặc định của máy — nghe lệch hẳn với các nút bên trên.
 function doc(text) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US';
-  u.rate = 0.92;
-  window.speechSynthesis.speak(u);
+  if (!text || typeof Speak === 'undefined') return;
+  Speak.say(text, 'US');
 }

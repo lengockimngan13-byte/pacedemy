@@ -198,10 +198,30 @@ const Speak = (function () {
   // Có file thì luôn ưu tiên: cùng một giọng trên mọi máy, và là
   // giọng người thật chứ không phải máy đọc.
 
+  // Trong kho còn giá trị 'khong-co' đánh dấu từ đã dò mà không có
+  // file. Đem chuỗi đó làm địa chỉ thì trình duyệt đi tải một trang
+  // không tồn tại rồi mới chịu báo lỗi — chậm và bẩn log.
+  function laFile(url) {
+    return typeof url === 'string' &&
+      (url.charAt(0) === '/' || /^https?:\/\//i.test(url));
+  }
+
+  // File của Pacedemy nằm trong /media/phat-am/<giọng>/. Học viên bấm
+  // nút giọng Anh mà mình phát file giọng Mỹ thì nghe sai hẳn, nên
+  // trường hợp đó bỏ file, để máy đọc đúng giọng được yêu cầu.
+  // Không nói rõ muốn giọng nào thì file nào cũng được.
+  function hopGiong(url, kieu) {
+    if (!kieu) return true;
+    const m = String(url).match(/\/media\/phat-am\/([a-z]+)\//);
+    if (!m) return true;                       // file ngoài, không biết giọng
+    const cua = m[1] === 'cf' ? 'us' : m[1];   // giọng sẵn của Cloudflare là giọng Mỹ
+    return cua === String(kieu).toLowerCase();
+  }
+
   function phat(url, text, kieu, xong) {
     thoi();
 
-    if (!url) return say(text, kieu, xong);
+    if (!laFile(url) || !hopGiong(url, kieu)) return say(text, kieu, xong);
 
     try {
       const a = new Audio(url);

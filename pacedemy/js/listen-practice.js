@@ -460,15 +460,12 @@ function vocabHtml(s) {
   '</div>';
 }
 
-// Bấm loa để nghe cách đọc từ, dùng giọng đọc trình duyệt
+// Bấm loa để nghe cách đọc từ. Qua speak.js cho cùng giọng với
+// các trang khác, và để nó chờ danh sách giọng về rồi mới đọc.
 document.addEventListener('click', function (e) {
   const btn = e.target.closest('[data-say]');
-  if (!btn || !('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(btn.dataset.say);
-  u.lang = 'en-US';
-  u.rate = 0.9;
-  window.speechSynthesis.speak(u);
+  if (!btn || typeof Speak === 'undefined') return;
+  Speak.say(btn.dataset.say, 'US');
 });
 
 // ---------- Nút điều khiển âm thanh ----------

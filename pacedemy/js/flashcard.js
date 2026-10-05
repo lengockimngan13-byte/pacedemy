@@ -31,7 +31,6 @@ const AUDIO_KEY = 'pacedemy_tu_doc';
   bo  = q.get('bo');
   const only = q.get('danh-dau');
 
-  loadVoices();
   await loadDeck(only);
 
   if (!deck.length) {
@@ -102,7 +101,7 @@ async function loadDeck(onlyIds) {
   $('topic-name').textContent = t.name_vi;
 
   const { data: words } = await db.from('vocabulary')
-    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, image_url')
+    .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, collocations, level, image_url, am_thanh')
     .eq('topic_id', t.id)
     .order('level')
     .order('order_index')
@@ -287,73 +286,50 @@ function bindSayTargets() {
   });
 }
 
+// ---------- Giọng đọc ----------
+//
+// Trước đây trang này có bộ đọc riêng, không dùng chung với cả web.
+// Nó mang đúng ba lỗi mà speak.js đã chữa: lấy giọng en-US đầu tiên
+// tìm thấy nên mỗi máy một giọng, đọc cả khi danh sách giọng chưa
+// về, và tốc độ 0.8 chậm hơn người nói thật nhiều. Nó cũng không
+// đụng tới file ghi âm trong kho, nên bao nhiêu file tạo ra cũng
+// không được dùng ở đúng trang học viên mở nhiều nhất.
+//
+// Giờ gọi thẳng Speak: có file thì phát file, không thì máy đọc.
+
+// Từ của thẻ đang mở mới có file ghi âm; câu ví dụ thì không.
+function amCuaThe(text) {
+  const t = deck[at] || {};
+  const w = String(t.word || '').trim().toLowerCase();
+  return w && String(text).trim().toLowerCase() === w ? t.am_thanh : null;
+}
+
 // Đọc và tô sáng đúng phần tử vừa bấm
 function sayHere(el, text) {
-  if (!text) return;
-  if (!('speechSynthesis' in window)) return;
+  if (!text || typeof Speak === 'undefined') return;
 
-  try {
-    window.speechSynthesis.cancel();
-    document.querySelectorAll('.speaking').forEach(function (x) {
-      x.classList.remove('speaking');
-    });
+  document.querySelectorAll('.speaking').forEach(function (x) {
+    x.classList.remove('speaking');
+  });
+  el.classList.add('speaking');
 
-    const u = new SpeechSynthesisUtterance(text);
-    const v = pickVoice('US');
-    if (v) u.voice = v;
-    u.lang = 'en-US';
-    u.rate = text.split(' ').length > 4 ? 0.85 : 0.8;
-
-    el.classList.add('speaking');
-    u.onend = function () { el.classList.remove('speaking'); };
-    u.onerror = function () { el.classList.remove('speaking'); };
-
-    window.speechSynthesis.speak(u);
-  } catch (e) { /* trình duyệt không hỗ trợ thì bỏ qua */ }
-}
-
-// ---------- Giọng đọc Mỹ và Anh ----------
-
-let voices = [];
-
-function loadVoices() {
-  if (!('speechSynthesis' in window)) return;
-  voices = window.speechSynthesis.getVoices();
-  window.speechSynthesis.onvoiceschanged = function () {
-    voices = window.speechSynthesis.getVoices();
-  };
-}
-
-function pickVoice(kind) {
-  const want = kind === 'UK' ? 'en-GB' : 'en-US';
-
-  let v = voices.find(function (x) { return x.lang === want || x.lang === want.replace('-', '_'); });
-  if (v) return v;
-
-  // Không có giọng đúng vùng thì lấy giọng tiếng Anh bất kỳ
-  v = voices.find(function (x) { return x.lang && x.lang.indexOf('en') === 0; });
-  return v || null;
+  Speak.phat(amCuaThe(text), text, 'US', function () {
+    el.classList.remove('speaking');
+  });
 }
 
 function speak(text, kind) {
-  if (!('speechSynthesis' in window)) return;
-  try {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    const v = pickVoice(kind);
-    if (v) u.voice = v;
-    u.lang = kind === 'UK' ? 'en-GB' : 'en-US';
-    u.rate = 0.88;
+  if (!text || typeof Speak === 'undefined') return;
 
-    const btn = document.querySelector('.audio-btn[data-voice="' + kind + '"]');
-    if (btn) {
-      btn.classList.add('playing');
-      u.onend = function () { btn.classList.remove('playing'); };
-      u.onerror = function () { btn.classList.remove('playing'); };
-    }
+  document.querySelectorAll('.audio-btn.playing').forEach(function (x) {
+    x.classList.remove('playing');
+  });
+  const btn = document.querySelector('.audio-btn[data-voice="' + kind + '"]');
+  if (btn) btn.classList.add('playing');
 
-    window.speechSynthesis.speak(u);
-  } catch (e) { /* trình duyệt không hỗ trợ thì bỏ qua */ }
+  Speak.phat(amCuaThe(text), text, kind, function () {
+    if (btn) btn.classList.remove('playing');
+  });
 }
 
 $('btn-say-ex').addEventListener('click', function (e) {

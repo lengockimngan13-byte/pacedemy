@@ -169,13 +169,12 @@ function resetRecordButton() {
   btn.onclick = function () { if (!recognizing && current.en) startRecording(); };
 }
 
+// Qua speak.js cho cùng giọng với cả web. Nhất là ở trang này: học
+// viên nghe mẫu rồi nói lại, mẫu mà đổi giọng mỗi lần thì không lấy
+// gì làm chuẩn để bắt chước.
 function speak(text) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US';
-  u.rate = 0.92;
-  window.speechSynthesis.speak(u);
+  if (!text || typeof Speak === 'undefined') return;
+  Speak.say(text, 'US');
 }
 
 // ---------- Ghi âm + nhận diện giọng nói ----------
