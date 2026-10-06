@@ -311,3 +311,104 @@ body.moi #muctieu-box .tbox {
   border: none !important;
   background: var(--mem);
 }
+
+/* ============================================================
+   Chuyển động
+   Bốn chỗ, mỗi chỗ có lý do. Không làm kiểu mỗi mục trượt lên khi
+   cuộn tới — thứ đó nhìn qua thì sinh động, dùng hàng ngày thì mệt
+   mắt và chậm.
+   ============================================================ */
+
+/* 1. Thỏ thở và chớp mắt.
+   Linh vật đứng im thì trang chết. Nhịp thở chậm hơn nhịp người một
+   chút cho thấy thong thả, không hối. */
+
+.tho-o { flex: 0 0 auto; width: 132px; }
+.tho-o svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+.tho-nhip {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: tho-tho 4.2s ease-in-out infinite;
+}
+@keyframes tho-tho {
+  0%, 100% { transform: scale(1, 1); }
+  50%      { transform: scale(1.015, 0.985); }
+}
+
+/* Nghiêng đầu thỉnh thoảng — thưa thôi, để lúc nó xảy ra mới đáng nhìn */
+.tho-nghieng {
+  transform-box: fill-box;
+  transform-origin: 50% 92%;
+  animation: tho-nghieng 11s ease-in-out infinite;
+}
+@keyframes tho-nghieng {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  70%, 78%      { transform: rotate(-2.6deg); }
+  86%           { transform: rotate(0.8deg); }
+}
+
+.tho-mi {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  transform: scaleY(0);
+  animation: tho-chop 6.8s infinite;
+}
+@keyframes tho-chop {
+  0%, 90%, 100% { transform: scaleY(0); }
+  92.5%         { transform: scaleY(1); }
+  95%           { transform: scaleY(0); }
+  /* nháy hai cái liền nhau, như mắt thật */
+  96.5%         { transform: scaleY(1); }
+  98%           { transform: scaleY(0); }
+}
+
+/* 2. Thanh tiến độ tuần chạy từ 0 lên đúng mức — một lần khi mở trang.
+   Đây là chỗ chuyển động MANG THÔNG TIN: mắt thấy được quãng đã đi. */
+
+.m-thanh > span {
+  width: 0;
+  transition: width 0.9s cubic-bezier(0.22, 0.75, 0.3, 1) 0.25s;
+}
+
+/* 3. Mở hay gập một mục: nội dung trôi xuống chứ không nhảy ra.
+   Chuyển động trả lời đúng cái vừa bấm, nên nó có ích. */
+
+.m-gap[open] .m-gap-than { animation: m-mo 0.22s ease-out; }
+@keyframes m-mo {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. Nút lún xuống khi bấm, cho biết máy đã nhận */
+
+.m-batdau { transition: background 0.15s ease, transform 0.08s ease; }
+.m-batdau:active { transform: translateY(1px); }
+.m-o { transition: background 0.15s ease; }
+.m-viec-mot a { transition: color 0.12s ease; }
+
+/* Máy nào cài giảm chuyển động thì đứng yên hết, kể cả con thỏ */
+@media (prefers-reduced-motion: reduce) {
+  .tho-nhip, .tho-nghieng, .tho-mi,
+  .m-gap[open] .m-gap-than { animation: none; }
+  .tho-mi { transform: scaleY(0); }
+  .m-thanh > span { transition: none; }
+}
+
+/* Thỏ đứng cạnh việc tối nay */
+.m-hero-hang { display: flex; align-items: flex-start; gap: 24px; }
+.m-hero-chu { flex: 1 1 auto; min-width: 0; }
+
+@media (max-width: 560px) {
+  .m-hero-hang { gap: 12px; }
+  .tho-o { width: 84px; margin-top: 4px; }
+}
+
+/* Dòng chuỗi ngày: không cho tách "14" với "ngày" xuống hai dòng */
+.m-chuoi b { white-space: nowrap; }
+@media (max-width: 560px) {
+  .m-chuoi { flex-wrap: wrap; gap: 0 8px; }
+  .m-chuoi::after { display: none; }
+  /* Chừa chỗ cho nút mở menu ở góc, thỏ mới không đụng vào */
+  body.moi .m-hero { padding-top: 34px; }
+}

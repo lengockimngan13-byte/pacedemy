@@ -33,9 +33,19 @@
 
   const [lt, toiHan, ho] = await Promise.all([ loTrinh(), demToiHan(), hoSo() ]);
 
+  veTho();
   chao((ho.full_name || '').split(' ').pop());
   veChuoi(ho);
   dat(lt, toiHan);
+
+  // ---------- thỏ ----------
+
+  function veTho() {
+    const o = $('tho-o');
+    if (!o || typeof Tho === 'undefined') return;
+    // Khung rộng hơn con thỏ để lúc nghiêng đầu không bị cắt mất tai
+    o.innerHTML = '<svg viewBox="-54 -104 108 118">' + Tho.song(0, 6, 1) + '</svg>';
+  }
 
   // ---------- lời chào ----------
 
@@ -163,7 +173,7 @@
     $('m-tuan-ten').textContent = 'Tuần ' + t.tuan + ' · ' + t.tieu_de;
 
     $('m-tuan').innerHTML =
-      '<div class="m-thanh"><span style="width:' + pct + '%"></span></div>' +
+      '<div class="m-thanh"><span></span></div>' +
       '<p class="m-pct">' + pct + '% việc của tuần</p>' +
       t.viec.map(function (v) {
         const xong = v.lam >= v.amount;
@@ -174,5 +184,12 @@
       }).join('');
 
     $('m-tuan-muc').classList.remove('hidden');
+
+    // Đặt bề rộng sau một nhịp để trình duyệt kịp vẽ mốc 0 rồi mới
+    // chạy lên. Gán thẳng lúc dựng thì nó nhảy luôn tới đích.
+    const thanh = $('m-tuan').querySelector('.m-thanh > span');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { thanh.style.width = pct + '%'; });
+    });
   }
 })();

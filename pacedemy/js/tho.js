@@ -13,6 +13,7 @@
 //
 //   Tho.ngoi(x, y, co)   — ngồi, dùng trong các cảnh Thỏ hỏi
 //   Tho.mung(x, y, co)   — ngồi, hai chân trước giơ lên ăn mừng
+//   Tho.song(x, y, co)   — ngồi, có thở và chớp mắt (cần css)
 //   Tho.dung(...)        — tên cũ, vẫn chạy, gọi sang ngoi()
 // ============================================================
 
@@ -290,9 +291,45 @@ const Tho = (function () {
     });
   }
 
+
+  // ---------- Thỏ sống ----------
+  //
+  // Cùng con thỏ đó, nhưng chia thành mấy lớp lồng nhau để CSS động
+  // vào được từng lớp: lớp ngoài nghiêng đầu, lớp trong thở. Vẽ
+  // không đổi một nét nào, nên mấy trang đang dùng Tho.ngoi() không
+  // bị ảnh hưởng.
+  //
+  // Mí mắt là hai ô chữ nhật tô đúng màu lông đầu, bình thường dẹp
+  // bằng 0 nên không thấy; lúc chớp thì cao lên che mắt một nhịp.
+  // Làm vậy để khỏi phải sửa hàm vẽ mắt — chỗ đó đã chỉnh rất lâu
+  // mới ra được ánh mắt không lừ đừ.
+  function song(x, y, co) {
+    const p = 'th' + (++demId);
+    const X = 8.4, Y = -63, R = 6.3;
+
+    // Mí vẽ bằng hình bầu dục chứ không phải ô vuông: ô vuông sập
+    // xuống nhìn ra ngay là miếng vá. Tô màu đặc lấy đúng sắc lông ở
+    // quanh mắt — dùng lại dải màu của đầu thì ra một mảng phẳng,
+    // vì dải đó trải trên cả con thỏ chứ không riêng chỗ này.
+    // Mắt phải tối hơn mắt trái, theo đúng hướng sáng của đầu.
+    const mi = [[-X, '#F0E1C6'], [X, '#E7D4B1']].map(function (o) {
+      return '<ellipse class="tho-mi" cx="' + o[0] + '" cy="' + (Y - R - 0.6) + '" ' +
+        'rx="' + (R + 1.1) + '" ry="' + (R + 1.9) + '" fill="' + o[1] + '"/>';
+    }).join('');
+
+    return '<g class="tho-song" transform="translate(' + x + ' ' + y + ') scale(' + (co || 1) + ')">' +
+        defs(p) + bong(p) +
+        '<g class="tho-nghieng">' +
+          '<g class="tho-nhip">' +
+            than(p) + chanTruoc(p, -1) + chanTruoc(p, 1) + dau(p) + mi +
+          '</g>' +
+        '</g>' +
+      '</g>';
+  }
+
   function doiMat(k) {
     if (k === 'hien' || k === 'cuoi' || k === 'tron') kieuMat = k;
   }
 
-  return { ngoi: ngoi, mung: mung, dung: ngoi, doiMat: doiMat, HONG: HONG };
+  return { ngoi: ngoi, mung: mung, song: song, dung: ngoi, doiMat: doiMat, HONG: HONG };
 })();
