@@ -6482,3 +6482,152 @@ body.nen-dang-mo { overflow: hidden; }
 .ai-mottuan p { margin: 5px 0 0; font-size: 0.84rem; line-height: 1.55; color: var(--ink-soft); }
 .ai-mottuan ul { margin: 7px 0 0; padding-left: 20px; }
 .ai-mottuan li { font-size: 0.86rem; line-height: 1.75; }
+
+/* ---------- Luyện nói ---------- */
+
+.noi-dau { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.noi-day { flex: 1 1 auto; }
+.noi-dau .btn-sm {
+  flex: 0 0 auto; border-color: var(--line); color: var(--ink);
+  background: none; cursor: pointer; font-family: var(--ui);
+}
+.noi-dau .btn-sm:hover { background: var(--mist); }
+.noi-nhan {
+  padding: 3px 10px; border-radius: 999px; background: var(--mist);
+  font-size: 0.75rem; font-weight: 600; color: var(--ink-soft);
+}
+
+.noi-tinhhuong {
+  margin: 0 0 6px; font-family: var(--disp);
+  font-size: clamp(1.3rem, 4vw, 1.75rem); font-weight: 600; line-height: 1.35;
+}
+.noi-th-vi { margin: 0 0 10px; font-size: 0.95rem; color: var(--ink-soft); }
+
+.noi-cum { margin: 12px 0 2px; font-size: 0.98rem; line-height: 1.7; }
+.noi-cum b { font-weight: 700; }
+.noi-loai, .noi-am { font-size: 0.84rem; color: var(--ink-soft); }
+.noi-am { font-family: ui-monospace, monospace; }
+.noi-nghia { margin: 0 0 4px; font-size: 0.86rem; color: var(--ink-soft); }
+.noi-goiy {
+  margin: 12px 0 0; padding: 10px 13px; border-radius: 9px;
+  background: var(--gold-dim); font-size: 0.88rem; line-height: 1.6;
+}
+
+.noi-loa {
+  border: none; background: none; cursor: pointer;
+  font-size: 0.95rem; padding: 0 4px; line-height: 1;
+}
+
+.noi-ghi { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+.noi-ghi .btn { flex: 0 0 auto; }
+#btn-ghi.dang-ghi { background: var(--danger, #C0392B); color: #fff; }
+.noi-dem { font-family: ui-monospace, monospace; font-size: 1.05rem; font-weight: 600; }
+
+#noi-go-box { margin-top: 16px; }
+#noi-go {
+  width: 100%; box-sizing: border-box; padding: 11px 13px;
+  border: 2px solid var(--line); border-radius: 9px;
+  font-family: var(--ui); font-size: 0.95rem; resize: vertical;
+}
+
+/* ----- kết quả ----- */
+
+.noi-cau {
+  margin-top: 18px; padding: 13px 15px;
+  border: 1.5px solid var(--line); border-radius: 11px; background: #FAFBFA;
+}
+.noi-cau-nhan { font-size: 0.76rem; font-weight: 600; color: var(--ink-soft); }
+.noi-cau p { margin: 5px 0 0; font-size: 1.02rem; line-height: 1.6; }
+.noi-cau mark { background: var(--gold-dim); padding: 1px 3px; border-radius: 3px; }
+.noi-tuyeu { margin: 9px 0 0 !important; font-size: 0.84rem !important; color: var(--ink-soft); }
+.noi-tuyeu small { color: #B4442F; }
+
+.noi-diem { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
+.noi-tong {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 52px; height: 52px; padding: 0 10px; border-radius: 12px;
+  font-size: 1.3rem; font-weight: 700; color: #fff;
+}
+.noi-tong.tot { background: var(--teal); }
+.noi-tong.kha { background: var(--gold); color: var(--ink); }
+.noi-tong.yeu { background: #C0392B; }
+.noi-mot {
+  display: inline-flex; flex-direction: column; gap: 1px;
+  padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 10px;
+}
+.noi-mot i { font-style: normal; font-size: 0.75rem; color: var(--ink-soft); }
+.noi-mot b { font-size: 1rem; }
+
+.noi-chuacham, .noi-chitiet {
+  margin: 11px 0 0; font-size: 0.82rem; line-height: 1.55; color: var(--ink-soft);
+}
+
+.noi-nhanxet, .noi-loi, .noi-mau {
+  margin-top: 16px; padding: 13px 15px; border-radius: 11px;
+}
+.noi-nhanxet { background: var(--mist); }
+.noi-nhanxet p, .noi-mau p { margin: 6px 0 0; font-size: 0.93rem; line-height: 1.65; }
+.noi-nhanxet b, .noi-loi b, .noi-mau b { font-size: 0.82rem; }
+
+.noi-loi { border: 1.5px solid var(--line); }
+.noi-motloi { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line); }
+.noi-motloi:first-of-type { border-top: none; padding-top: 4px; }
+.noi-sai { color: #B4442F; text-decoration: line-through; }
+.noi-mui { margin: 0 7px; color: var(--ink-soft); }
+.noi-dung { color: var(--teal); font-weight: 600; }
+.noi-motloi p { margin: 4px 0 0; font-size: 0.84rem; line-height: 1.55; color: var(--ink-soft); }
+
+.noi-mau { background: #F2F8F7; border: 1.5px solid var(--teal-dim); }
+
+.noi-nut { display: flex; gap: 10px; margin-top: 18px; }
+.noi-nut .btn { flex: 1; }
+
+/* ---------- Soạn đề luyện nói ---------- */
+
+.dn-nut { display: flex; gap: 10px; flex-wrap: wrap; }
+.dn-nut .btn { flex: 0 0 auto; }
+
+.dn-mot .dn-dau { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 12px; }
+.dn-mot .dn-dau b { font-size: 0.96rem; }
+.dn-cho, .dn-tat {
+  padding: 2px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 600;
+}
+.dn-cho { background: var(--gold-dim); color: #7A4B00; }
+.dn-tat { background: var(--mist); color: var(--ink-soft); }
+.dn-meta { font-size: 0.78rem; color: var(--ink-soft); }
+
+.dn-o {
+  width: 100%; box-sizing: border-box; margin-bottom: 8px;
+  padding: 8px 11px; border: 1.5px solid var(--line); border-radius: 8px;
+  font-family: var(--ui); font-size: 0.88rem;
+}
+.dn-o:focus { border-color: var(--teal); outline: none; }
+.dn-ba { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 8px; }
+.dn-ba .dn-o { margin-bottom: 8px; }
+@media (max-width: 760px) { .dn-ba { grid-template-columns: 1fr; } }
+
+.dn-doi { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dn-doi input {
+  padding: 10px 12px; border: 2px solid var(--line); border-radius: 9px;
+  font-family: var(--ui); font-size: 0.92rem;
+}
+
+.dn-nut-mot { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 4px; }
+.dn-nut-mot .btn-sm {
+  flex: 0 0 auto; border-color: var(--line); color: var(--ink);
+  background: none; cursor: pointer; font-family: var(--ui);
+}
+.dn-nut-mot .btn-sm:hover { background: var(--mist); }
+.dn-nut-mot .btn-sm.test { background: var(--ink); color: #fff; border-color: var(--ink); }
+.dn-nut-mot .btn-sm.test:hover { background: var(--ink-soft); }
+.dn-bao { font-size: 0.82rem; color: #B4442F; }
+
+#dntay-che .nen-hop input[type="text"],
+#dntay-che .nen-hop select,
+#dnai-che .nen-hop select {
+  width: 100%; box-sizing: border-box; padding: 10px 12px;
+  border: 2px solid var(--line); border-radius: 9px;
+  font-family: var(--ui); font-size: 0.92rem;
+}
+#dntay-che .dn-doi input { width: 100%; }
+.ai-mottuan code { font-family: ui-monospace, monospace; font-size: 0.84rem; }

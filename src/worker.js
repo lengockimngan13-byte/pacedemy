@@ -7,6 +7,9 @@
 //   POST /api/am-thanh           → tìm file phát âm có sẵn, CHỈ giáo viên
 //   POST /api/tao-am             → tự tạo file phát âm, CHỈ giáo viên
 //   POST /api/lo-trinh-ai        → nhờ AI soạn nháp lộ trình, CHỈ giáo viên
+//   POST /api/cham-noi           → chấm ngữ pháp, từ vựng, mạch lạc câu nói
+//   POST /api/cham-phat-am       → chấm phát âm thật bằng Azure
+//   POST /api/de-noi-ai          → nhờ AI soạn đề nói, CHỈ giáo viên
 //   Mọi đường dẫn khác           → trả trang web tĩnh trong thư mục pacedemy/
 //
 // Kiểm tra giáo viên: hỏi Supabase xem người đang đăng nhập là ai,
@@ -15,6 +18,7 @@
 
 import { traTu, layAmThanh, taoAm } from './tu-dien.js';
 import { soanLoTrinh } from './lo-trinh-ai.js';
+import { chamNoi, chamPhatAm, soanDeNoi } from './noi.js';
 
 const MAX_BYTES = 50 * 1024 * 1024; // 50 MB mỗi file
 
@@ -51,6 +55,18 @@ export default {
 
     if (url.pathname === '/api/lo-trinh-ai') {
       return soanLoTrinh(request, env);
+    }
+
+    if (url.pathname === '/api/cham-noi') {
+      return chamNoi(request, env);
+    }
+
+    if (url.pathname === '/api/cham-phat-am') {
+      return chamPhatAm(request, env);
+    }
+
+    if (url.pathname === '/api/de-noi-ai') {
+      return soanDeNoi(request, env);
     }
 
     if (url.pathname.startsWith('/api/media/')) {

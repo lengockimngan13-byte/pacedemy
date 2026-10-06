@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đề luyện nói — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="teacher">
+
+<main class="t-main">
+  <div class="wrap">
+
+    <div class="section-head"><h1>Đề luyện nói</h1></div>
+
+    <p class="sub" style="margin:-6px 0 20px">
+      Mỗi đề là một tình huống ngắn kèm một cụm từ học viên phải dùng trong câu
+      trả lời. Ba cách tạo: lấy cụm từ trong kho từ vựng, nhờ AI nghĩ theo chủ đề,
+      hoặc cô tự gõ.
+    </p>
+
+    <section id="view-deny" class="hidden tbox">
+      <h3>Không truy cập được</h3>
+      <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    </section>
+
+    <section id="view-main" class="hidden">
+
+      <div class="tbox">
+        <div class="dn-nut">
+          <button class="btn btn-gold" id="dn-ai" type="button">✦ Nhờ AI soạn đề</button>
+          <button class="btn btn-line" id="dn-tay" type="button">+ Tự gõ một đề</button>
+        </div>
+        <p id="dn-dem" class="sub" style="margin:14px 0 0">Đang đếm…</p>
+      </div>
+
+      <div class="test-tabs" id="dn-tabs">
+        <button class="test-tab on" data-loc="cho">Chờ duyệt</button>
+        <button class="test-tab" data-loc="giao-tiep">Giao tiếp</button>
+        <button class="test-tab" data-loc="toeic">Công sở — TOEIC</button>
+      </div>
+
+      <div id="dn-ds"><p class="empty">Đang tải…</p></div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Nhờ AI soạn đề -->
+<div class="nen-che" id="dnai-che" hidden>
+  <div class="nen-hop ai-hop" role="dialog" aria-modal="true" aria-labelledby="dnai-tieu">
+    <div class="nen-dau">
+      <h2 id="dnai-tieu">✦ Nhờ AI soạn đề nói</h2>
+      <button class="nen-dong" id="dnai-dong" type="button" aria-label="Đóng">×</button>
+    </div>
+
+    <div id="dnai-hoi">
+      <label class="nen-nhan" for="dnai-kieu">Kiểu đề</label>
+      <select id="dnai-kieu">
+        <option value="giao-tiep">Giao tiếp đời thường</option>
+        <option value="toeic">Công sở — kiểu ngữ cảnh TOEIC</option>
+      </select>
+
+      <label class="nen-nhan" for="dnai-chude">Lấy cụm từ trong kho từ vựng</label>
+      <select id="dnai-chude">
+        <option value="">Không lấy — để AI tự nghĩ cụm từ</option>
+      </select>
+      <p class="nen-goi">Chọn một chủ đề thì AI dùng đúng những cụm từ cô đã nhập cho
+        chủ đề đó, nên nói và học từ khớp nhau.</p>
+
+      <label class="nen-nhan" for="dnai-them">Yêu cầu thêm — không bắt buộc</label>
+      <textarea id="dnai-them" rows="2"
+        placeholder="ví dụ: cho em mới bắt đầu, tình huống ngắn và dễ"></textarea>
+
+      <label class="nen-nhan" for="dnai-so">Số đề</label>
+      <input type="number" id="dnai-so" min="1" max="10" value="5">
+
+      <div class="nen-nut">
+        <span class="nen-day"></span>
+        <button class="btn btn-line" id="dnai-huy" type="button">Huỷ</button>
+        <button class="btn btn-gold" id="dnai-chay" type="button">Soạn nháp</button>
+      </div>
+    </div>
+
+    <div id="dnai-xem" class="hidden"></div>
+  </div>
+</div>
+
+<!-- Tự gõ một đề -->
+<div class="nen-che" id="dntay-che" hidden>
+  <div class="nen-hop" role="dialog" aria-modal="true" aria-labelledby="dntay-tieu">
+    <div class="nen-dau">
+      <h2 id="dntay-tieu">Tự gõ một đề</h2>
+      <button class="nen-dong" id="dntay-dong" type="button" aria-label="Đóng">×</button>
+    </div>
+
+    <label class="nen-nhan" for="t-kieu">Kiểu đề</label>
+    <select id="t-kieu">
+      <option value="giao-tiep">Giao tiếp đời thường</option>
+      <option value="toeic">Công sở — kiểu ngữ cảnh TOEIC</option>
+    </select>
+
+    <label class="nen-nhan" for="t-th">Tình huống — tiếng Anh</label>
+    <input type="text" id="t-th" placeholder="Your friend is already waiting at the café.">
+
+    <label class="nen-nhan" for="t-thvi">Tình huống — tiếng Việt</label>
+    <input type="text" id="t-thvi" placeholder="Bạn em đã ngồi đợi ở quán.">
+
+    <label class="nen-nhan" for="t-cum">Cụm từ bắt buộc dùng</label>
+    <input type="text" id="t-cum" placeholder="run late">
+
+    <label class="nen-nhan" for="t-am">Phiên âm · nghĩa tiếng Việt</label>
+    <div class="dn-doi">
+      <input type="text" id="t-am" placeholder="/rʌn leɪt/">
+      <input type="text" id="t-nghia" placeholder="trễ giờ">
+    </div>
+
+    <label class="nen-nhan" for="t-goiy">Gợi ý cho học viên</label>
+    <input type="text" id="t-goiy" placeholder="Xin lỗi và nói chừng bao lâu nữa em tới.">
+
+    <div class="nen-nut">
+      <span class="nen-day"></span>
+      <button class="btn btn-line" id="t-huy" type="button">Huỷ</button>
+      <button class="btn btn-gold" id="t-luu" type="button">Thêm đề</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-noi.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luyện nói — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="side-nav-user">
+
+<header class="app-bar">
+  <div class="wrap"><a class="brand" href="app.html">Pac<span class="brand-e">e</span>demy</a></div>
+</header>
+
+<main class="wrap">
+
+  <section class="greet">
+    <h1>Luyện nói</h1>
+    <p>Đọc tình huống, nói ra câu trả lời của mình có dùng cụm từ gợi ý.
+       Máy chấm ngữ pháp, từ vựng, mạch lạc và phát âm.</p>
+  </section>
+
+  <div class="test-tabs" id="kieu-tabs">
+    <button class="test-tab on" data-kieu="giao-tiep">Giao tiếp</button>
+    <button class="test-tab" data-kieu="toeic">Công sở — kiểu TOEIC</button>
+  </div>
+
+  <div id="noi-bao"></div>
+
+  <section class="tbox hidden" id="noi-the">
+    <div class="noi-dau">
+      <button class="btn-sm" type="button" id="btn-doi">↻ Đổi câu hỏi</button>
+      <span class="noi-nhan" id="noi-mucdo">—</span>
+      <span class="noi-day"></span>
+      <button class="btn-sm" type="button" id="btn-vi" aria-pressed="false">Tiếng Việt</button>
+      <button class="btn-sm" type="button" id="btn-nghe-de" title="Nghe tình huống">🔊</button>
+    </div>
+
+    <p class="noi-tinhhuong" id="noi-th">—</p>
+    <p class="noi-th-vi hidden" id="noi-th-vi"></p>
+
+    <p class="noi-cum">Hãy thử dùng
+      <b id="noi-cum-tu">—</b>
+      <span class="noi-loai" id="noi-loai"></span>
+      <span class="noi-am" id="noi-am"></span>
+      <button class="noi-loa" type="button" id="btn-nghe-cum" title="Nghe cụm từ">🔊</button>
+      trong câu trả lời
+    </p>
+    <p class="noi-nghia" id="noi-nghia"></p>
+    <p class="noi-goiy hidden" id="noi-goiy"></p>
+
+    <div class="noi-ghi">
+      <button class="btn btn-gold" id="btn-ghi">🎙 Bấm để nói</button>
+      <span class="noi-dem hidden" id="noi-dem">0:00</span>
+    </div>
+
+    <div class="hidden" id="noi-go-box">
+      <label class="nen-nhan" for="noi-go">Máy chưa nghe được. Em gõ lại câu mình vừa nói:</label>
+      <textarea id="noi-go" rows="2" placeholder="gõ câu tiếng Anh em vừa nói…"></textarea>
+      <button class="btn btn-line btn-sm" id="btn-go-cham" type="button"
+              style="margin-top:10px;flex:0 0 auto">Chấm câu này</button>
+    </div>
+
+    <div class="hidden" id="noi-ketqua"></div>
+
+    <audio id="noi-playback" controls class="hidden" style="width:100%;margin-top:14px"></audio>
+
+    <div class="noi-nut hidden" id="noi-nut">
+      <button class="btn btn-line" id="btn-lai" type="button">🎙 Thử lại</button>
+      <button class="btn btn-ink" id="btn-tiep" type="button">Câu tiếp theo</button>
+    </div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/gate.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/speak.js"></script>
+<script src="js/nen.js"></script>
+<script src="js/ghi-am.js"></script>
+<script src="js/noi.js"></script>
+</body>
+</html>

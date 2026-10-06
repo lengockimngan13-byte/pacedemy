@@ -14,6 +14,8 @@
       icon: '<path d="M4 20l5-16M15 20l5-16M3 9h18M2 15h18"/>' },
     { href: 'teacher-exam.html',  label: 'Bộ đề thi thử',
       icon: '<path d="M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm2 5h10M7 12h10M7 16h6"/>' },
+    { href: 'teacher-noi.html',     label: 'Đề luyện nói',
+      icon: '<path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12z"/>' },
     { href: 'teacher-vocab.html',   label: 'Nhập từ vựng',
       icon: '<path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zm16 0h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7z"/>' },
     { href: 'teacher-import.html',  label: 'Nhập đề Part 5',
