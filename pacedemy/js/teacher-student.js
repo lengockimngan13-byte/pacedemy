@@ -39,6 +39,7 @@ const PART_NAME = {
   if (!sid) { $('body').innerHTML = '<p class="empty">Thiếu mã học viên.</p>'; return; }
 
   $('view-main').classList.remove('hidden');
+  StudentLoTrinh.dat(sid);
 
   const { data: p } = await db.from('profiles')
     .select('id, full_name, target_score, goal_note, total_xp, streak_days, best_streak, daily_goal, last_active, created_at')
@@ -63,6 +64,7 @@ const PART_NAME = {
 
   header();
   bindTabs();
+  bindLong();
   show('tong-quan');
 })();
 
@@ -99,6 +101,16 @@ function header() {
     : '';
 }
 
+// Bấm "Lồng bài" ở bảng dạng hay sai: thêm thẳng một việc vào tuần
+// em đó đang học trong lộ trình.
+function bindLong() {
+  $('body').addEventListener('click', function (e) {
+    const b = e.target.closest('.lt-long');
+    if (!b) return;
+    StudentLoTrinh.long(b.dataset.tag, parseInt(b.dataset.part, 10) || 5);
+  });
+}
+
 function bindTabs() {
   $('tabs').querySelectorAll('button[data-t]').forEach(function (b) {
     b.addEventListener('click', function () {
@@ -111,6 +123,7 @@ function bindTabs() {
 
 function show(t) {
   if (t === 'tong-quan') return tabOverview();
+  if (t === 'lo-trinh')  return StudentLoTrinh.tab();
   if (t === 'luyen-de')  return tabDrill();
   if (t === 'thi-thu')   return tabMock();
   if (t === 'tu-vung')   return tabVocab();
@@ -435,11 +448,18 @@ async function tabWrong() {
 
     card('Toàn bộ các dạng, xếp từ yếu nhất',
       list.map(function (x) {
+        // Dạng nào còn dưới 70% thì cho bấm lồng thẳng vào lộ trình,
+        // khỏi phải nhớ tên dạng rồi sang tab khác gõ lại.
+        const nut = x.pct < 70
+          ? '<button class="btn-sm lt-long" type="button" data-tag="' + esc(x.tag) +
+            '" data-part="' + (x.part || 0) + '">Lồng bài</button>'
+          : '';
         return row(
           esc(x.tag) + (x.part ? ' · Part ' + x.part : ''),
           bar(x.pct),
           x.ok + '/' + x.n,
-          x.pct + '%');
+          x.pct + '%',
+          nut || '<span class="stat-lab" style="min-width:58px"></span>');
       }).join('') +
       (thin ? '<p class="review-note">Còn ' + thin +
               ' dạng khác chưa đủ 4 câu nên chưa đưa vào bảng.</p>' : '')) +

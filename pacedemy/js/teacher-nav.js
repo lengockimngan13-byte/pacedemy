@@ -10,6 +10,8 @@
       icon: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>' },
     { href: 'teacher-class.html', label: 'Lớp học',
       icon: '<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 9c0-3 3-5 7-5s7 2 7 5"/>' },
+    { href: 'teacher-lo-trinh.html', label: 'Lộ trình học',
+      icon: '<path d="M4 20l5-16M15 20l5-16M3 9h18M2 15h18"/>' },
     { href: 'teacher-exam.html',  label: 'Bộ đề thi thử',
       icon: '<path d="M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm2 5h10M7 12h10M7 16h6"/>' },
     { href: 'teacher-vocab.html',   label: 'Nhập từ vựng',

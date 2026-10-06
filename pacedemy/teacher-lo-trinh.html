@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lộ trình học — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="teacher">
+
+<main class="t-main">
+  <div class="wrap">
+
+    <div class="section-head">
+      <h1>Lộ trình học</h1>
+    </div>
+
+    <p class="sub" style="margin:-6px 0 20px">
+      Soạn một lần rồi gắn cho từng em. Tuần 1 tính từ ngày cô gắn, nên mỗi em
+      một khung ngày riêng dù dùng chung một mẫu. Gắn lộ trình ở trong hồ sơ
+      từng học viên.
+    </p>
+
+    <section id="view-deny" class="hidden tbox">
+      <h3>Không truy cập được</h3>
+      <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    </section>
+
+    <section id="view-main" class="hidden">
+
+      <div class="lt-cot2">
+        <!-- Danh sách lộ trình -->
+        <div>
+          <div class="tbox">
+            <h3>Các lộ trình đã có</h3>
+            <div id="lt-ds"><p class="empty">Đang tải…</p></div>
+            <button class="btn btn-line" id="lt-moi" type="button" style="margin-top:14px">
+              + Lộ trình mới
+            </button>
+          </div>
+        </div>
+
+        <!-- Nội dung một lộ trình -->
+        <div>
+          <div class="tbox hidden" id="lt-soan">
+            <div class="lt-soan-dau">
+              <h3 id="lt-ten-hien">—</h3>
+              <button class="btn-sm" id="lt-xoa" type="button">Ngừng dùng</button>
+            </div>
+
+            <div class="sn-hang">
+              <label class="sn-o sn-rong"><span>Tên lộ trình</span>
+                <input type="text" id="f-ten" placeholder="ví dụ: Lộ trình 650+"></label>
+            </div>
+            <div class="sn-hang">
+              <label class="sn-o"><span>Điểm nhắm tới</span>
+                <input type="number" id="f-muc" min="100" max="990" step="5" placeholder="650"></label>
+              <label class="sn-o"><span>Thiên về kỹ năng</span>
+                <select id="f-ky">
+                  <option value="all">Cả hai kỹ năng</option>
+                  <option value="listening">Listening</option>
+                  <option value="reading">Reading</option>
+                </select></label>
+              <label class="sn-o"><span>Số tuần</span>
+                <input type="number" id="f-tuan" min="1" max="52" value="4"></label>
+            </div>
+            <div class="sn-hang">
+              <label class="sn-o sn-rong"><span>Mô tả — dành cho em nào, đi theo hướng gì</span>
+                <textarea id="f-mo" rows="2"></textarea></label>
+            </div>
+            <button class="btn btn-line" id="f-luu" type="button">Lưu phần trên</button>
+
+            <h4 class="lt-h4">Từng tuần</h4>
+            <div id="lt-tuan"></div>
+            <button class="btn btn-line" id="lt-them-tuan" type="button" style="margin-top:12px">
+              + Thêm tuần
+            </button>
+          </div>
+
+          <div class="tbox" id="lt-chua">
+            <p class="empty" style="margin:0">Chọn một lộ trình bên trái để xem và sửa.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+</main>
+
+<!-- Hộp thêm việc vào một tuần -->
+<div class="nen-che" id="viec-che" hidden>
+  <div class="nen-hop" role="dialog" aria-modal="true" aria-labelledby="viec-tieu">
+    <div class="nen-dau">
+      <h2 id="viec-tieu">Thêm việc</h2>
+      <button class="nen-dong" id="viec-dong" type="button" aria-label="Đóng">×</button>
+    </div>
+
+    <label class="nen-nhan" for="v-kind">Loại việc</label>
+    <select id="v-kind">
+      <option value="vocab">Từ vựng</option>
+      <option value="part5">Part 5 — Hoàn thành câu</option>
+      <option value="listen">Nghe — Part 1 đến 4</option>
+      <option value="read">Đọc — Part 6 và 7</option>
+      <option value="mock">Thi thử full test</option>
+    </select>
+
+    <label class="nen-nhan" for="v-target">Nhắm vào</label>
+    <select id="v-target"></select>
+
+    <label class="nen-nhan" for="v-amount">Số lượng trong tuần — <b id="v-dv">câu</b></label>
+    <input type="number" id="v-amount" min="1" max="500" value="25">
+
+    <label class="nen-nhan" for="v-label">Tên hiện cho học viên</label>
+    <input type="text" id="v-label" placeholder="để trống thì mình tự đặt">
+
+    <div class="nen-nut">
+      <span class="nen-day"></span>
+      <button class="btn btn-line" id="v-huy" type="button">Huỷ</button>
+      <button class="btn btn-gold" id="v-ok" type="button">Thêm việc</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/lo-trinh.js"></script>
+<script src="js/teacher-lo-trinh.js"></script>
+</body>
+</html>
