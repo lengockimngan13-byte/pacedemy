@@ -1,0 +1,313 @@
+/* ============================================================
+   Pacedemy — trang học, bản thử theo hướng gọn hơn
+   Chỉ áp dụng cho body.moi, không đụng tới trang hiện tại.
+
+   Ba thay đổi gốc:
+
+   1. SÁU cỡ chữ, không hơn. File cũ có 59 cỡ khác nhau, nên mắt
+      không đọc ra được cái gì quan trọng hơn cái gì.
+   2. Không viền. Tách bằng khoảng trắng và một nền hơi ngả màu.
+      Viền chỉ còn ở chỗ thật sự là một cái khung.
+   3. Chữ nằm trong cột hẹp. Dòng quá dài thì đọc mỏi mắt.
+
+   Giữ nguyên màu thương hiệu, chỉ dùng ít đi: màu để chỉ ra việc
+   cần làm, không để trang trí.
+   ============================================================ */
+
+body.moi {
+  /* Thang chữ — chỉ sáu bậc, tỉ lệ 1.25 */
+  --t1: 0.8125rem;   /* chú thích, số phụ */
+  --t2: 0.9375rem;   /* chữ phụ */
+  --t3: 1.0625rem;   /* chữ thường */
+  --t4: 1.3125rem;   /* tên mục */
+  --t5: 1.75rem;     /* việc tối nay */
+  --t6: 2.5rem;      /* chỉ dùng một lần trên trang */
+
+  /* Nền nhạt thay cho viền */
+  --mem: #F4F8F7;
+  --mem-2: #EDF3F1;
+
+  --cot: 680px;      /* bề rộng cột chữ */
+  --cot-rong: 1040px;
+
+  background: var(--paper);
+}
+
+body.moi main.wrap { max-width: var(--cot-rong); padding: 0 20px; }
+
+/* Thanh đầu trang: bỏ viền dưới, nhẹ đi */
+body.moi .app-bar { border-bottom: none; background: none; }
+body.moi .app-bar .wrap { padding-top: 6px; padding-bottom: 0; }
+
+/* Mọi khối chữ nằm trong cột hẹp; chỉ lưới học gì mới được rộng */
+body.moi .hep { max-width: var(--cot); }
+
+/* ---------- Việc tối nay ---------- */
+
+.m-hero { padding: 30px 0 4px; max-width: var(--cot); }
+
+.m-chao {
+  margin: 0 0 20px;
+  font-family: var(--ui);
+  font-size: var(--t3);
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.m-viec {
+  margin: 0 0 8px;
+  font-family: var(--disp);
+  font-size: var(--t5);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.m-vi-sao { margin: 0 0 22px; font-size: var(--t2); color: var(--ink-soft); }
+
+.m-batdau {
+  display: inline-block;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: var(--t3);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.m-batdau:hover { background: #E59A1F; }
+
+.m-hoac { margin: 16px 0 0; font-size: var(--t2); color: var(--ink-soft); }
+.m-hoac a { color: var(--teal); text-decoration: none; font-weight: 500; }
+.m-hoac a:hover { text-decoration: underline; }
+.m-hoac a + a { margin-left: 16px; }
+
+/* ---------- Dải chuỗi ngày ---------- */
+
+.m-chuoi {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 34px 0;
+  max-width: var(--cot);
+  font-size: var(--t2);
+  color: var(--ink-soft);
+}
+.m-chuoi::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.m-chuoi b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Mục ---------- */
+
+body.moi .m-muc { margin: 0 0 38px; }
+
+body.moi .m-muc > h2 {
+  margin: 0 0 16px;
+  font-family: var(--ui);
+  font-size: var(--t4);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* ---------- Tuần này ---------- */
+
+.m-tuan { max-width: var(--cot); }
+
+.m-thanh {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--mem-2);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.m-thanh > span { display: block; height: 100%; background: var(--teal); }
+
+.m-pct { margin: 0 0 16px; font-size: var(--t1); color: var(--ink-soft); }
+
+.m-viec-mot {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  font-size: var(--t2);
+}
+.m-viec-mot + .m-viec-mot { border-top: 1px solid var(--mem-2); }
+.m-viec-mot a { color: var(--ink); text-decoration: none; flex: 1; }
+.m-viec-mot a:hover { color: var(--teal); }
+.m-viec-mot .so { color: var(--ink-soft); font-size: var(--t1); font-variant-numeric: tabular-nums; }
+.m-viec-mot.xong a { color: var(--ink-soft); }
+.m-viec-mot.xong .so { color: var(--teal); }
+
+/* ---------- Học gì khác ---------- */
+
+.m-luoi {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.m-o {
+  display: block;
+  padding: 18px 18px 20px;
+  border: none;
+  border-radius: 12px;
+  background: var(--mem);
+  text-decoration: none;
+  color: inherit;
+}
+.m-o:hover { background: var(--mem-2); }
+.m-o h3 {
+  margin: 0 0 5px;
+  font-family: var(--ui);
+  font-size: var(--t3);
+  font-weight: 600;
+}
+.m-o p { margin: 0; font-size: var(--t1); line-height: 1.55; color: var(--ink-soft); }
+
+@media (max-width: 860px) { .m-luoi { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 460px) { .m-luoi { grid-template-columns: 1fr; } }
+
+/* ---------- Mục gập lại ---------- */
+/* Tiến độ, thi đua, bốc quẻ đều là thứ xem khi muốn, không phải thứ
+   chắn đường vào bài. Gập lại thành một dòng. */
+
+.m-gap {
+  max-width: var(--cot);
+  border-top: 1px solid var(--mem-2);
+}
+.m-gap > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  cursor: pointer;
+  font-size: var(--t3);
+  font-weight: 500;
+  list-style: none;
+}
+.m-gap > summary::-webkit-details-marker { display: none; }
+.m-gap > summary::after {
+  content: '';
+  width: 7px; height: 7px;
+  margin-left: auto;
+  border-right: 1.5px solid var(--ink-soft);
+  border-bottom: 1.5px solid var(--ink-soft);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+.m-gap[open] > summary::after { transform: rotate(-135deg); }
+.m-gap > summary span { font-size: var(--t2); color: var(--ink-soft); font-weight: 400; }
+.m-gap-than { padding: 0 0 22px; }
+
+/* Những khối cũ nằm trong phần gập: bỏ viền cho đồng bộ */
+body.moi .m-gap .tbox,
+body.moi .m-gap .fc,
+body.moi .m-gap .tstats-grid > * {
+  border: none;
+  background: var(--mem);
+}
+
+/* ---------- Khối do mã cũ dựng ra ---------- */
+/* Lộ trình, nhắc nhở, mục tiêu… vẫn dùng .tbox. Gỡ viền để không
+   quay lại cảm giác hộp chồng hộp. */
+
+body.moi #lo-trinh-box .tbox,
+body.moi #muctieu-box .tbox,
+body.moi #reminder-box .tbox,
+body.moi #as-box .tbox,
+body.moi #fb-box .tbox {
+  border: none;
+  background: var(--mem);
+  border-radius: 12px;
+  max-width: var(--cot);
+}
+
+body.moi .app-foot {
+  margin-top: 46px;
+  padding: 26px 0 40px;
+  border-top: 1px solid var(--mem-2);
+  font-size: var(--t1);
+  color: var(--ink-soft);
+}
+
+/* ---------- Điện thoại ---------- */
+
+@media (max-width: 560px) {
+  body.moi { --t5: 1.5rem; --t6: 2rem; }
+  .m-hero { padding-top: 22px; }
+  .m-batdau { display: block; text-align: center; }
+  .m-hoac a + a { margin-left: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-gap > summary::after { transition: none; }
+}
+
+/* ---------- Gỡ mấy thói quen cũ trong các khối mã sẵn ---------- */
+/* Nhãn viết hoa toàn bộ và hộp lồng trong hộp là hai thứ làm trang
+   rối nhất. Ở bản thử này bỏ hẳn: nhãn viết thường, hộp con chỉ còn
+   khoảng cách. */
+
+body.moi .mt-lab,
+body.moi .tstats-grid .ts-lab,
+body.moi .stat-lab {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: var(--t1);
+  font-weight: 500;
+}
+
+body.moi .mt-o,
+body.moi .tstats-grid > div {
+  border: none;
+  background: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+body.moi .mt,
+body.moi .mt-head { border: none; }
+body.moi .mt-head h3 { font-size: var(--t4); }
+body.moi .mt-big { font-size: var(--t5); }
+
+/* Chừa chỗ cho nút mở menu ở góc trái trên điện thoại */
+@media (max-width: 860px) {
+  body.moi .app-bar .wrap { padding-left: 62px; }
+  body.moi .m-hero { padding-top: 26px; }
+}
+
+/* Lưới ba con số của khối mục tiêu: bỏ khung ngoài và vạch ngăn,
+   để ba con số tự đứng bằng khoảng cách. */
+body.moi .mt-cot {
+  border: none;
+  gap: 18px 24px;
+}
+body.moi .mt-cot > * { border: none !important; }
+body.moi .mt-nut { border-color: transparent; background: var(--paper); }
+body.moi .mt-nut:hover { background: var(--mem-2); }
+
+@media (max-width: 560px) {
+  body.moi .mt-cot { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  body.moi .mt-big { font-size: var(--t4); }
+}
+
+/* Lời nhắc giữ chuỗi đã gộp vào dòng dưới nút Bắt đầu, nên khung
+   riêng của nó thành thừa. Ba chỗ cùng bảo "đi học đi" thì không
+   chỗ nào được nghe. */
+body.moi #reminder-box { display: none; }
+
+/* Vài khối cũ đặt màu viền thẳng trong thẻ HTML nên phải ghi đè hẳn */
+body.moi #join-box .tbox,
+body.moi #break-box .tbox,
+body.moi #as-box .tbox,
+body.moi #muctieu-box .tbox {
+  border: none !important;
+  background: var(--mem);
+}
