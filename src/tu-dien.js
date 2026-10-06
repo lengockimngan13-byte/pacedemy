@@ -18,6 +18,8 @@
 // Không có khoá AI thì vẫn chạy, chỉ là thẻ chỉ có phần tiếng Anh.
 // ============================================================
 
+import { xinLuot, tuChoi } from './han-muc.js';
+
 const TU_DIEN_MO = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
 
 // Nhãn loại từ cho khớp với kho của cô
@@ -57,7 +59,12 @@ export async function traTu(request, env) {
 
   // ---- lớp 3: AI viết phần tiếng Việt ----
   let viet = null;
+  // Tới đây là từ chưa có trong đệm, phải nhờ AI viết — chỗ này mới
+  // tốn tiền. Từ đã tra rồi thì không vào hạn mức.
   if (env.AI_KEY) {
+    const luot = await xinLuot(request, env, 'tu-dien');
+    if (!luot.ok) return tuChoi(luot);
+
     try { viet = await nhoAiDich(env, tu, anh); } catch (e) { viet = null; }
   }
 

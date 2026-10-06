@@ -22,6 +22,7 @@
 // ============================================================
 
 import { laGiaoVien } from './tu-dien.js';
+import { xinLuot, tuChoi } from './han-muc.js';
 
 // ============================================================
 // 1. Chấm ngữ pháp, từ vựng, mạch lạc
@@ -61,6 +62,10 @@ export async function chamNoi(request, env) {
 
   const cau = String((body && body.cau_noi) || '').trim().slice(0, 1200);
   if (!cau) return json({ loi: 'Chưa nghe được em nói gì.' }, 400);
+
+  // Xin lượt TRƯỚC khi gọi AI, vì gọi rồi mới chặn là đã mất tiền
+  const luot = await xinLuot(request, env, 'cham-noi');
+  if (!luot.ok) return tuChoi(luot);
 
   const de = (body && body.de) || {};
 
@@ -117,6 +122,12 @@ export async function chamPhatAm(request, env) {
       chua_cai: true
     }, 400);
   }
+
+  // Azure tính tiền theo giây nên cũng phải vào hạn mức, nhưng để
+  // quỹ RIÊNG với phần chấm chữ. Hai dịch vụ, hai nhà cung cấp, hai
+  // hoá đơn — gộp chung thì không biết chỗ nào đang ngốn.
+  const luot = await xinLuot(request, env, 'phat-am');
+  if (!luot.ok) return tuChoi(luot);
 
   const url = new URL(request.url);
   const text = (url.searchParams.get('text') || '').trim().slice(0, 500);
@@ -226,6 +237,9 @@ export async function soanDeNoi(request, env) {
 
   let body;
   try { body = await request.json(); } catch (e) { return json({ loi: 'Dữ liệu không đọc được.' }, 400); }
+
+  const luot = await xinLuot(request, env, 'de-noi');
+  if (!luot.ok) return tuChoi(luot);
 
   const kieu = (body && body.kieu) === 'giao-tiep' ? 'giao-tiep' : 'toeic';
   const soDe = Math.min(10, Math.max(1, parseInt((body && body.so_de) || 5, 10) || 5));

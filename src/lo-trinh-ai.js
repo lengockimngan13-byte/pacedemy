@@ -21,6 +21,7 @@
 // ============================================================
 
 import { laGiaoVien } from './tu-dien.js';
+import { xinLuot, tuChoi } from './han-muc.js';
 
 const KIND = ['vocab', 'part5', 'listen', 'read', 'mock'];
 
@@ -42,6 +43,9 @@ export async function soanLoTrinh(request, env) {
   if (!yeuCau) return json({ loi: 'Chưa nói muốn lộ trình thế nào.' }, 400);
 
   const soTuan = Math.min(16, Math.max(1, parseInt((body && body.so_tuan) || 4, 10) || 4));
+
+  const luot = await xinLuot(request, env, 'lo-trinh');
+  if (!luot.ok) return tuChoi(luot);
 
   const kho = await hoiKho(request, env);
   if (!kho) return json({ loi: 'Không đọc được kho bài hiện có.' }, 502);
