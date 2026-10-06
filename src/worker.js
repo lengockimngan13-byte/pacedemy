@@ -6,6 +6,7 @@
 //   POST /api/tu-dien            → tra từ ngoài kho (src/tu-dien.js)
 //   POST /api/am-thanh           → tìm file phát âm có sẵn, CHỈ giáo viên
 //   POST /api/tao-am             → tự tạo file phát âm, CHỈ giáo viên
+//   POST /api/lo-trinh-ai        → nhờ AI soạn nháp lộ trình, CHỈ giáo viên
 //   Mọi đường dẫn khác           → trả trang web tĩnh trong thư mục pacedemy/
 //
 // Kiểm tra giáo viên: hỏi Supabase xem người đang đăng nhập là ai,
@@ -13,6 +14,7 @@
 // ============================================================
 
 import { traTu, layAmThanh, taoAm } from './tu-dien.js';
+import { soanLoTrinh } from './lo-trinh-ai.js';
 
 const MAX_BYTES = 50 * 1024 * 1024; // 50 MB mỗi file
 
@@ -45,6 +47,10 @@ export default {
 
     if (url.pathname === '/api/tao-am') {
       return taoAm(request, env);
+    }
+
+    if (url.pathname === '/api/lo-trinh-ai') {
+      return soanLoTrinh(request, env);
     }
 
     if (url.pathname.startsWith('/api/media/')) {

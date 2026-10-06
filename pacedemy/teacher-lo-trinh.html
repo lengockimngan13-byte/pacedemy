@@ -40,8 +40,11 @@
           <div class="tbox">
             <h3>Các lộ trình đã có</h3>
             <div id="lt-ds"><p class="empty">Đang tải…</p></div>
-            <button class="btn btn-line" id="lt-moi" type="button" style="margin-top:14px">
-              + Lộ trình mới
+            <button class="btn btn-gold" id="lt-ai" type="button" style="margin-top:14px;width:100%">
+              ✦ Nhờ AI soạn lộ trình
+            </button>
+            <button class="btn btn-line" id="lt-moi" type="button" style="margin-top:8px;width:100%">
+              + Tự soạn từ đầu
             </button>
           </div>
         </div>
@@ -94,6 +97,37 @@
   </div>
 </main>
 
+<!-- Hộp nhờ AI soạn lộ trình -->
+<div class="nen-che" id="ai-che" hidden>
+  <div class="nen-hop ai-hop" role="dialog" aria-modal="true" aria-labelledby="ai-tieu">
+    <div class="nen-dau">
+      <h2 id="ai-tieu">✦ Nhờ AI soạn lộ trình</h2>
+      <button class="nen-dong" id="ai-dong" type="button" aria-label="Đóng">×</button>
+    </div>
+
+    <div id="ai-hoi">
+      <label class="nen-nhan" for="ai-yeu">Cô muốn lộ trình thế nào</label>
+      <textarea id="ai-yeu" rows="3"
+        placeholder="ví dụ: lộ trình 800+ cho em đã được 650, nghe tạm ổn nhưng Part 7 hay không kịp giờ"></textarea>
+      <p class="nen-goi">Nói rõ em đang ở mức nào và kẹt ở đâu thì nháp sát hơn.
+        AI chỉ được giao bài có thật trong kho của mình.</p>
+
+      <div class="ai-goiy" id="ai-goiy"></div>
+
+      <label class="nen-nhan" for="ai-tuan">Số tuần</label>
+      <input type="number" id="ai-tuan" min="1" max="16" value="8">
+
+      <div class="nen-nut">
+        <span class="nen-day"></span>
+        <button class="btn btn-line" id="ai-huy" type="button">Huỷ</button>
+        <button class="btn btn-gold" id="ai-chay" type="button">Soạn nháp</button>
+      </div>
+    </div>
+
+    <div id="ai-xem" class="hidden"></div>
+  </div>
+</div>
+
 <!-- Hộp thêm việc vào một tuần -->
 <div class="nen-che" id="viec-che" hidden>
   <div class="nen-hop" role="dialog" aria-modal="true" aria-labelledby="viec-tieu">
@@ -135,5 +169,6 @@
 <script src="js/teacher-nav.js"></script>
 <script src="js/lo-trinh.js"></script>
 <script src="js/teacher-lo-trinh.js"></script>
+<script src="js/lo-trinh-ai.js"></script>
 </body>
 </html>

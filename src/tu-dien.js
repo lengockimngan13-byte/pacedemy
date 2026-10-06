@@ -305,7 +305,7 @@ export async function layAmThanh(request, env) {
   return json({ ket_qua: ra });
 }
 
-async function laGiaoVien(request, env) {
+export async function laGiaoVien(request, env) {
   const auth = request.headers.get('authorization') || '';
   if (!auth.startsWith('Bearer ')) return false;
   const h = { apikey: env.SUPABASE_KEY, authorization: auth };
