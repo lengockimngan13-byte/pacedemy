@@ -57,6 +57,22 @@
     <div id="note" class="note hidden"></div>
     <div id="preview"></div>
 
+    <div class="tbox" style="margin-top:22px">
+      <h3>Giải thích bốn phương án</h3>
+      <p style="margin:0 0 14px;font-size:0.94rem;line-height:1.65">
+        Lúc chữa bài, mỗi phương án A B C D có một dòng riêng. Dạng về nghĩa thì
+        dòng đó là nghĩa tiếng Việt; dạng ngữ pháp thì nói từ loại và vì sao không
+        lắp vào chỗ trống được. Câu nào chưa có thì chỉ hiện dấu gạch ngang.
+      </p>
+      <p id="gd-dem" class="sub" style="margin:0 0 14px">Đang đếm…</p>
+      <div class="dn-nut">
+        <button class="btn btn-gold" id="gd-chay" type="button">Điền cho các câu còn thiếu</button>
+        <button class="btn btn-line" id="gd-thu-nut" type="button">Xem thử một câu</button>
+      </div>
+      <p id="gd-tien" style="margin:14px 0 0;font-size:0.92rem;line-height:1.6;color:var(--ink-soft)"></p>
+      <div id="gd-thu" class="hidden"></div>
+    </div>
+
     <div class="section-head" style="margin-top:34px"><h2>Câu Part 5 đã có</h2></div>
 
     <div class="filter-bar">
@@ -84,5 +100,7 @@
 <script src="js/teacher-nav.js"></script>
 <script src="js/bulk-list.js"></script>
 <script src="js/teacher-import.js"></script>
+<script src="js/giai-dap-an.js"></script>
+<script>document.addEventListener("DOMContentLoaded", function () { GiaiDapAn.moLai(); });</script>
 </body>
 </html>

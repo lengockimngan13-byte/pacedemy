@@ -6631,3 +6631,24 @@ body.nen-dang-mo { overflow: hidden; }
 }
 #dntay-che .dn-doi input { width: 100%; }
 .ai-mottuan code { font-family: ui-monospace, monospace; font-size: 0.84rem; }
+
+/* ---------- Xem thử giải thích bốn phương án ---------- */
+
+#gd-thu { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.gd-thu-cau { margin: 0 0 10px; font-size: 0.95rem; line-height: 1.6; }
+.gd-thu-dang {
+  margin-left: 8px; padding: 2px 9px; border-radius: 999px;
+  background: var(--mist); font-size: 0.74rem; color: var(--ink-soft);
+}
+.gd-thu-op {
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 8px 0; border-top: 1px solid var(--line); font-size: 0.89rem;
+}
+.gd-thu-op b { flex: 0 0 150px; }
+.gd-thu-op span { color: var(--ink-soft); }
+.gd-thu-op.dung b { color: var(--teal); }
+.gd-thu-op.dung span { color: var(--ink); }
+@media (max-width: 560px) {
+  .gd-thu-op { flex-direction: column; gap: 2px; }
+  .gd-thu-op b { flex: none; }
+}
