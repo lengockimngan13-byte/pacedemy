@@ -6582,6 +6582,82 @@ body.nen-dang-mo { overflow: hidden; }
 .noi-nut { display: flex; gap: 10px; margin-top: 18px; }
 .noi-nut .btn { flex: 1; }
 
+/* ----- bản miễn phí: đọc theo câu mẫu ----- */
+
+.noi-dan {
+  margin: 8px 0 0 !important; padding: 9px 13px;
+  border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0;
+  background: var(--gold-dim);
+  font-size: 0.88rem !important; line-height: 1.6;
+}
+.noi-dan:empty { display: none; }
+
+.noi-khongnghe {
+  margin-top: 16px; padding: 14px 16px;
+  border: 1.5px solid var(--line); border-radius: 11px; background: var(--mist);
+}
+.noi-khongnghe b { font-size: 0.92rem; }
+.noi-khongnghe p { margin: 8px 0 0; font-size: 0.89rem; line-height: 1.65; color: var(--ink-soft); }
+
+.noi-doi { line-height: 2 !important; }
+.noi-doi .tu-khop { color: var(--ink); }
+.noi-doi .tu-hut {
+  color: #B4442F; font-weight: 600;
+  border-bottom: 2px dotted #B4442F;
+}
+
+.noi-dem-tu {
+  margin: 13px 0 0; padding: 10px 14px;
+  border-radius: 10px; background: var(--mist);
+  font-size: 0.93rem; line-height: 1.6;
+}
+.noi-dem-tu b { font-weight: 700; }
+
+.noi-thatthe {
+  margin: 10px 0 0; font-size: 0.82rem; line-height: 1.6; color: var(--ink-soft);
+}
+
+/* Ba ô bỏ trống, làm mờ: cho thấy bản đầy đủ có thêm gì, mà không
+   hiện con số nào không có thật. */
+.noi-diem.mo { opacity: 0.45; }
+.noi-diem.mo .noi-mot { border-style: dashed; }
+.noi-diem.mo .noi-mot b { color: var(--ink-soft); }
+
+.noi-nangcap {
+  margin-top: 16px; padding: 14px 16px;
+  border: 1.5px solid var(--teal-dim); border-radius: 11px; background: #F2F8F7;
+}
+.noi-nangcap b { font-size: 0.82rem; }
+.noi-nangcap ul { margin: 8px 0 0; padding-left: 20px; }
+.noi-nangcap li { margin: 4px 0; font-size: 0.9rem; line-height: 1.6; }
+.noi-nangcap p { margin: 10px 0 0; font-size: 0.88rem; line-height: 1.6; color: var(--ink-soft); }
+
+/* ---------- Ô gói trong hồ sơ học viên ---------- */
+
+.goi-box { margin-bottom: 18px; }
+.goi-dau { display: flex; align-items: center; gap: 10px; }
+.goi-dau h3 { margin: 0; }
+.goi-cho {
+  padding: 3px 11px; border-radius: 999px;
+  font-size: 0.74rem; font-weight: 600;
+  background: var(--mist); color: var(--ink-soft);
+}
+.goi-cho.on { background: var(--teal); color: #fff; }
+
+.goi-vi { margin: 10px 0 0; font-size: 0.92rem; line-height: 1.65; }
+
+.goi-hang { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.goi-o { display: flex; flex-direction: column; gap: 5px; flex: 1 1 200px; }
+.goi-o span { font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); }
+.goi-o select, .goi-o input {
+  padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 9px;
+  font-family: var(--ui); font-size: 0.93rem; background: #fff;
+}
+
+.goi-nut { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
+.goi-nut .btn { flex: 0 0 auto; }
+.goi-bao { margin: 11px 0 0; font-size: 0.88rem; min-height: 1.2em; }
+
 /* ---------- Soạn đề luyện nói ---------- */
 
 .dn-nut { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -6702,3 +6778,15 @@ body.nen-dang-mo { overflow: hidden; }
   text-align: right;
 }
 .cp-gia-o i { font-style: normal; font-size: 0.8rem; color: var(--ink-soft); }
+
+.cp-tp-o {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 11px 0; border-top: 1px solid var(--line); font-size: 0.91rem;
+  cursor: pointer;
+}
+.cp-tp-o:first-child { border-top: none; }
+.cp-tp-o input { width: 17px; height: 17px; margin-top: 2px; flex: 0 0 auto; }
+.cp-tp-o > span { display: flex; flex-direction: column; gap: 3px; }
+.cp-tp-o i {
+  font-style: normal; font-size: 0.8rem; line-height: 1.55; color: var(--ink-soft);
+}

@@ -70,6 +70,125 @@ async function nap() {
   $('cp-tran-thang').value = data.tran_thang;
 
   await veGia();
+  await veTraPhi();
+  await veMo();
+}
+
+// ---------- trang mở cho người chưa vào lớp ----------
+
+const TRANG_HOC = [
+  { t: 'noi.html',             n: 'Luyện nói',
+    g: 'Bản miễn phí đọc theo câu mẫu, chạy trong trình duyệt nên tốn 0đ.' },
+  { t: 'tu-dien.html',         n: 'Từ điển',
+    g: 'Từ đã có trong kho thì tra miễn phí. Từ mới phải nhờ AI nên bị chặn riêng ở trên.' },
+  { t: 'vocab.html',           n: 'Học từ vựng', g: 'Mở là công khai toàn bộ kho từ cô soạn.' },
+  { t: 'flashcard.html',       n: 'Thẻ từ vựng', g: '' },
+  { t: 'topic.html',           n: 'Chủ đề từ vựng', g: '' },
+  { t: 'part5.html',           n: 'Luyện Part 5', g: 'Mở là công khai kho câu hỏi.' },
+  { t: 'practice.html',        n: 'Luyện đề', g: 'Mở là công khai kho câu hỏi.' },
+  { t: 'listen.html',          n: 'Bài nghe', g: '' },
+  { t: 'listen-practice.html', n: 'Luyện nghe', g: '' },
+  { t: 'shadow.html',          n: 'Nói nhại theo', g: '' },
+  { t: 'extra.html',           n: 'Ôn tổng hợp', g: '' },
+  { t: 'game.html',            n: 'Thỏ hỏi', g: '' },
+  { t: 'so-tu.html',           n: 'Sổ từ của em', g: '' },
+  { t: 'study.html',           n: 'Vào học', g: '' },
+  { t: 'progress.html',        n: 'Tiến độ', g: '' },
+  { t: 'fulltest.html',        n: 'Thi thử', g: 'Mở là công khai bộ đề thi thử.' },
+  { t: 'class.html',           n: 'Lớp của em', g: '' },
+  { t: 'leaderboard.html',     n: 'Bảng xếp hạng', g: '' }
+];
+
+const MO_MAC_DINH = ['noi.html'];
+
+async function veMo() {
+  const { data } = await db.from('site_settings')
+    .select('value').eq('key', 'trang_mo').maybeSingle();
+
+  const ds = (data && Array.isArray(data.value)) ? data.value : MO_MAC_DINH;
+
+  $('cp-mo').innerHTML = TRANG_HOC.map(function (x) {
+    return '<label class="cp-tp-o">' +
+      '<input type="checkbox" data-trang="' + x.t + '"' +
+        (ds.indexOf(x.t) >= 0 ? ' checked' : '') + '>' +
+      '<span>' + esc(x.n) + (x.g ? '<i>' + esc(x.g) + '</i>' : '') + '</span>' +
+    '</label>';
+  }).join('');
+}
+
+async function luuMo() {
+  const ds = [];
+  $('cp-mo').querySelectorAll('[data-trang]').forEach(function (x) {
+    if (x.checked) ds.push(x.dataset.trang);
+  });
+
+  const { error } = await db.from('site_settings')
+    .upsert({ key: 'trang_mo', value: ds }, { onConflict: 'key' });
+
+  const p = $('cp-mo-bao');
+  if (error) {
+    p.style.color = '#B4442F';
+    p.textContent = 'Không lưu được: ' + error.message;
+    return;
+  }
+
+  p.style.color = 'var(--teal)';
+  p.textContent = ds.length
+    ? 'Đã lưu — mở ' + ds.length + ' trang. Có hiệu lực ngay.'
+    : 'Đã lưu — không mở trang nào. Phải vào lớp mới học được, như trước đây.';
+}
+
+// ---------- việc nào cần bản đầy đủ ----------
+//
+// Mặc định ba việc tốn tiền. Để trong site_settings chứ không viết
+// cứng trong mã, vì cô đổi ý thì có hiệu lực ngay, không phải deploy.
+
+const TP_MAC_DINH = ['cham-noi', 'phat-am', 'tu-dien'];
+
+const TP_GHI_CHU = {
+  'tu-dien': 'Từ đã có trong kho thì ai cũng tra được miễn phí. ' +
+             'Chỉ từ mới, phải nhờ AI dựng, mới tính vào đây.'
+};
+
+async function veTraPhi() {
+  const { data } = await db.from('site_settings')
+    .select('value').eq('key', 'viec_tra_phi').maybeSingle();
+
+  const dat = (data && data.value) || null;
+  const co = function (k) {
+    return dat ? Object.prototype.hasOwnProperty.call(dat, k) : TP_MAC_DINH.indexOf(k) >= 0;
+  };
+
+  $('cp-tp').innerHTML = Object.keys(TEN_VIEC).map(function (k) {
+    return '<label class="cp-tp-o">' +
+      '<input type="checkbox" data-viec="' + k + '"' + (co(k) ? ' checked' : '') + '>' +
+      '<span>' + esc(TEN_VIEC[k]) +
+        (TP_GHI_CHU[k] ? '<i>' + esc(TP_GHI_CHU[k]) + '</i>' : '') +
+      '</span>' +
+    '</label>';
+  }).join('');
+}
+
+async function luuTraPhi() {
+  const o = {};
+  $('cp-tp').querySelectorAll('[data-viec]').forEach(function (x) {
+    if (x.checked) o[x.dataset.viec] = true;
+  });
+
+  const { error } = await db.from('site_settings')
+    .upsert({ key: 'viec_tra_phi', value: o }, { onConflict: 'key' });
+
+  const p = $('cp-tp-bao');
+  if (error) {
+    p.style.color = '#B4442F';
+    p.textContent = 'Không lưu được: ' + error.message;
+    return;
+  }
+
+  p.style.color = 'var(--teal)';
+  p.textContent = Object.keys(o).length
+    ? 'Đã lưu. Có hiệu lực ngay.'
+    : 'Đã lưu — hiện không việc nào cần bản đầy đủ. Trần chi tiêu vẫn chặn như cũ.';
 }
 
 // ---------- hai ô lớn ----------
@@ -210,4 +329,6 @@ function bao(msg, xau) {
 function noi() {
   $('cp-luu').addEventListener('click', luuTran);
   $('cp-gia-luu').addEventListener('click', luuGia);
+  $('cp-tp-luu').addEventListener('click', luuTraPhi);
+  $('cp-mo-luu').addEventListener('click', luuMo);
 }

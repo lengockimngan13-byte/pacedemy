@@ -22,8 +22,9 @@
 
   <section class="greet">
     <h1>Luyện nói</h1>
-    <p>Đọc tình huống, nói ra câu trả lời của mình có dùng cụm từ gợi ý.
+    <p id="noi-gioi">Đọc tình huống, nói ra câu trả lời của mình có dùng cụm từ gợi ý.
        Máy chấm ngữ pháp, từ vựng, mạch lạc và phát âm.</p>
+    <p class="noi-dan" id="noi-dan"></p>
   </section>
 
   <div class="test-tabs" id="kieu-tabs">
@@ -45,12 +46,12 @@
     <p class="noi-tinhhuong" id="noi-th">—</p>
     <p class="noi-th-vi hidden" id="noi-th-vi"></p>
 
-    <p class="noi-cum">Hãy thử dùng
+    <p class="noi-cum"><span id="noi-cum-truoc">Hãy thử dùng</span>
       <b id="noi-cum-tu">—</b>
       <span class="noi-loai" id="noi-loai"></span>
       <span class="noi-am" id="noi-am"></span>
       <button class="noi-loa" type="button" id="btn-nghe-cum" title="Nghe cụm từ">🔊</button>
-      trong câu trả lời
+      <span id="noi-cum-sau">trong câu trả lời</span>
     </p>
     <p class="noi-nghia" id="noi-nghia"></p>
     <p class="noi-goiy hidden" id="noi-goiy"></p>
@@ -59,6 +60,8 @@
       <button class="btn btn-gold" id="btn-ghi">🎙 Bấm để nói</button>
       <span class="noi-dem hidden" id="noi-dem">0:00</span>
     </div>
+
+    <div class="noi-khongnghe hidden" id="noi-khongnghe"></div>
 
     <div class="hidden" id="noi-go-box">
       <label class="nen-nhan" for="noi-go">Máy chưa nghe được. Em gõ lại câu mình vừa nói:</label>

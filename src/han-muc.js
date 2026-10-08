@@ -38,9 +38,19 @@ export async function xinLuot(request, env, viec) {
 
     const con = await r.json();
 
-    // -1 là riêng người này hết lượt, -2 là cả hệ thống chạm trần chi
-    // tiêu. Hai chuyện khác hẳn nhau nên phải nói khác nhau: em học
-    // viên không có lỗi gì trong trường hợp thứ hai.
+    // Ba con số âm, ba chuyện khác hẳn nhau, nên phải nói khác nhau:
+    //   -1  riêng người này hết lượt hôm nay
+    //   -2  cả hệ thống chạm trần chi tiêu — em học viên không có lỗi gì
+    //   -3  việc này thuộc bản trả phí, mà người này đang ở bản miễn phí
+    if (con === -3) {
+      return {
+        ok: false,
+        can_tra_phi: true,
+        loi: 'Phần này thuộc bản đầy đủ. Bản miễn phí vẫn có phần đọc theo câu mẫu, ' +
+             'dùng bao nhiêu cũng được.'
+      };
+    }
+
     if (con === -1) {
       return {
         ok: false,
@@ -67,10 +77,17 @@ export async function xinLuot(request, env, viec) {
 }
 
 export function tuChoi(kq) {
+  // 402 cho chuyện "cần bản trả phí", 429 cho "hết lượt", 401 cho
+  // "chưa đăng nhập". Trang web nhìn mã này để biết hiện gì.
+  const ma = kq.can_tra_phi ? 402 : (kq.het ? 429 : 401);
+
   return new Response(JSON.stringify({
-    loi: kq.loi, het_luot: !!kq.het, cham_tran: !!kq.tran
+    loi: kq.loi,
+    het_luot: !!kq.het,
+    cham_tran: !!kq.tran,
+    can_tra_phi: !!kq.can_tra_phi
   }), {
-    status: kq.het ? 429 : 401,
+    status: ma,
     headers: { 'content-type': 'application/json; charset=utf-8' }
   });
 }

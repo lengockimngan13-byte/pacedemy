@@ -277,6 +277,11 @@ async function hoiNgoai(q) {
     body: JSON.stringify({ tu: tu })
   });
 
+  // 402 nghĩa là từ này chưa có trong kho, mà dựng mục từ mới thì cần
+  // bản đầy đủ. Nói đúng chuyện đó, đừng báo "không có từ này" — từ
+  // thì có, chỉ là phần dựng mục từ đang khoá.
+  if (res.status === 402) return { khoa: true };
+
   if (!res.ok) return null;
   const o = await res.json();
   return o && o.the ? o : null;
@@ -312,6 +317,19 @@ function veKhongCo(q, dangTim) {
            (laAnh
              ? '<p>Từ điển ngoài cũng không có từ này. Đã ghi lại để cô Ngân xem.</p>'
              : '<p>Bạn thử gõ lại, hoặc gõ từ tiếng Anh xem sao.</p>') +
+           '<div class="td-trong-nut">' +
+             '<a class="btn-sm test" href="vocab.html">Xem các chủ đề từ vựng</a>' +
+             '<a class="btn-sm" href="so-tu.html">Mở sổ từ của tôi</a>' +
+           '</div>' +
+         '</div>';
+}
+
+function veKhoa(q) {
+  return '<div class="td-trong">' +
+           '<p class="td-trong-dau">«' + esc(q.trim()) + '» chưa có trong kho</p>' +
+           '<p>Mọi từ đã có trong kho thì tra thoải mái, không giới hạn. Riêng từ chưa có ' +
+           'thì máy phải dựng mục từ mới — phần này nằm ở bản đầy đủ. Đã ghi lại từ này ' +
+           'để cô Ngân thêm vào kho.</p>' +
            '<div class="td-trong-nut">' +
              '<a class="btn-sm test" href="vocab.html">Xem các chủ đề từ vựng</a>' +
              '<a class="btn-sm" href="so-tu.html">Mở sổ từ của tôi</a>' +
@@ -368,6 +386,12 @@ function chay() {
     let o = null;
     try { o = await hoiNgoai(q); } catch (e) { o = null; }
     if (lan !== goLan) return;
+
+    if (o && o.khoa) {
+      $('ket-qua').innerHTML = veKhoa(q);
+      ghiHut(q);
+      return;
+    }
 
     if (!o) {
       $('ket-qua').innerHTML = veKhongCo(q, false);

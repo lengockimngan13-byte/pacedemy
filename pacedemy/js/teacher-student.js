@@ -40,6 +40,7 @@ const PART_NAME = {
 
   $('view-main').classList.remove('hidden');
   StudentLoTrinh.dat(sid);
+  StudentGoi.nap(sid);
 
   const { data: p } = await db.from('profiles')
     .select('id, full_name, target_score, goal_note, total_xp, streak_days, best_streak, daily_goal, last_active, created_at')
