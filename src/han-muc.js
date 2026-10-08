@@ -9,8 +9,10 @@
 // do update ... returning), nên hai lần bấm cùng lúc cũng không đếm
 // hụt.
 //
-// Giáo viên không bị chặn: cô soạn bài thì cần làm liên tục, và cô
-// là người trả tiền nên tự biết điểm dừng.
+// Giáo viên không bị hạn mức cá nhân: cô soạn bài thì cần làm liên
+// tục. Nhưng cô VẪN tính vào trần chi tiêu chung — nếu không thì cô
+// chạy một lô lớn là trần mất tác dụng, mà cô lại là người trả tiền
+// nên cô cũng cần biết mình đang tiêu tới đâu.
 // ============================================================
 
 export async function xinLuot(request, env, viec) {
@@ -36,12 +38,25 @@ export async function xinLuot(request, env, viec) {
 
     const con = await r.json();
 
+    // -1 là riêng người này hết lượt, -2 là cả hệ thống chạm trần chi
+    // tiêu. Hai chuyện khác hẳn nhau nên phải nói khác nhau: em học
+    // viên không có lỗi gì trong trường hợp thứ hai.
     if (con === -1) {
       return {
         ok: false,
         het: true,
         loi: 'Hôm nay em đã dùng hết lượt cho phần này. Mai vào lại nhé — ' +
              'mỗi ngày có hạn mức để giữ chi phí cho cả lớp.'
+      };
+    }
+
+    if (con === -2) {
+      return {
+        ok: false,
+        het: true,
+        tran: true,
+        loi: 'Phần này tạm nghỉ tới ngày mai vì hôm nay cả lớp dùng nhiều quá mức ' +
+             'dự tính. Mấy phần khác vẫn học bình thường nhé.'
       };
     }
 
@@ -52,7 +67,9 @@ export async function xinLuot(request, env, viec) {
 }
 
 export function tuChoi(kq) {
-  return new Response(JSON.stringify({ loi: kq.loi, het_luot: !!kq.het }), {
+  return new Response(JSON.stringify({
+    loi: kq.loi, het_luot: !!kq.het, cham_tran: !!kq.tran
+  }), {
     status: kq.het ? 429 : 401,
     headers: { 'content-type': 'application/json; charset=utf-8' }
   });

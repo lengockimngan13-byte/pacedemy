@@ -33,6 +33,8 @@
       icon: '<path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/>' },
     { href: 'teacher-cau.html',     label: 'Bài Thỏ hỏi',
       icon: '<path d="M4 5h16v11H8l-4 4zM8 9h8M8 12h5"/>' },
+    { href: 'teacher-chi-phi.html', label: 'Chi phí AI',
+      icon: '<path d="M12 2v20M17 6.5c0-2-2.2-3-5-3s-5 .9-5 2.7c0 4.3 10 2 10 6.3 0 1.9-2.2 3-5 3s-5-1-5-3"/>' },
     { href: 'teacher-site.html',    label: 'Chỉnh trang web',
       icon: '<path d="M4 20l4.5-1.5L20 7 17 4 5.5 15.5 4 20zM15 6l3 3"/>' },
     { href: 'teacher-about.html',   label: 'Trang giới thiệu',

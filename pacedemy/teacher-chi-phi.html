@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi phí AI — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="teacher">
+
+<main class="t-main">
+  <div class="wrap">
+
+    <div class="section-head"><h1>Chi phí AI</h1></div>
+
+    <p class="sub" style="margin:-6px 0 20px">
+      Phần lớn web không tốn gì mỗi lượt. Chỉ ba việc tính tiền theo lượt dùng:
+      chấm bài nói, chấm phát âm, và dựng mục từ điển cho từ chưa có trong kho.
+      Trang này cho thấy hôm nay đã tiêu tới đâu, và đặt trần để không bao giờ vượt.
+    </p>
+
+    <section id="view-deny" class="hidden tbox">
+      <h3>Không truy cập được</h3>
+      <p class="sub">Khu vực này chỉ dành cho giáo viên.</p>
+    </section>
+
+    <section id="view-main" class="hidden">
+
+      <div class="cp-hai">
+        <div class="tbox cp-dong" id="cp-ngay">
+          <h3>Hôm nay</h3>
+          <p class="cp-so" id="cp-ngay-so">—</p>
+          <div class="cp-thanh"><span id="cp-ngay-thanh"></span></div>
+          <p class="cp-phu" id="cp-ngay-phu">—</p>
+        </div>
+
+        <div class="tbox cp-dong" id="cp-thang">
+          <h3>Tháng này</h3>
+          <p class="cp-so" id="cp-thang-so">—</p>
+          <div class="cp-thanh"><span id="cp-thang-thanh"></span></div>
+          <p class="cp-phu" id="cp-thang-phu">—</p>
+        </div>
+      </div>
+
+      <div class="tbox">
+        <h3>Hôm nay tiêu vào đâu</h3>
+        <div id="cp-viec"><p class="empty">Hôm nay chưa dùng lượt nào.</p></div>
+      </div>
+
+      <div class="tbox">
+        <h3>Ba mươi ngày gần nhất</h3>
+        <div class="cp-bieu" id="cp-bieu"></div>
+        <p class="cp-phu" id="cp-bieu-phu" style="margin-top:12px"></p>
+      </div>
+
+      <div class="tbox">
+        <h3>Đặt trần</h3>
+        <p style="margin:0 0 16px;font-size:0.94rem;line-height:1.65">
+          Chạm trần thì ba việc tốn tiền tự nghỉ tới hôm sau, và học viên thấy một
+          dòng báo tử tế chứ không phải lỗi. Mọi phần khác — từ vựng, luyện đề,
+          thi thử, lộ trình — vẫn chạy bình thường vì chúng không tốn gì.
+        </p>
+
+        <div class="sn-hang">
+          <label class="sn-o"><span>Trần mỗi ngày (đồng)</span>
+            <input type="number" id="cp-tran-ngay" min="0" step="10000"></label>
+          <label class="sn-o"><span>Trần mỗi tháng (đồng)</span>
+            <input type="number" id="cp-tran-thang" min="0" step="100000"></label>
+        </div>
+
+        <button class="btn btn-gold" id="cp-luu" type="button" style="margin-top:6px">
+          Lưu trần
+        </button>
+        <p id="cp-bao" style="margin:12px 0 0;font-size:0.9rem"></p>
+      </div>
+
+      <div class="tbox">
+        <h3>Đơn giá đang dùng để tính</h3>
+        <p style="margin:0 0 14px;font-size:0.92rem;line-height:1.6;color:var(--ink-soft)">
+          Đây là ước tính, không phải hoá đơn thật. Khi nhà cung cấp đổi giá thì
+          sửa ở đây cho con số trên trang khớp lại với thực tế.
+        </p>
+        <div id="cp-gia"></div>
+        <button class="btn btn-line" id="cp-gia-luu" type="button" style="margin-top:14px">
+          Lưu đơn giá
+        </button>
+      </div>
+
+    </section>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/teacher-nav.js"></script>
+<script src="js/teacher-chi-phi.js"></script>
+</body>
+</html>

@@ -6652,3 +6652,53 @@ body.nen-dang-mo { overflow: hidden; }
   .gd-thu-op { flex-direction: column; gap: 2px; }
   .gd-thu-op b { flex: none; }
 }
+
+/* ---------- Chi phí AI ---------- */
+
+.cp-hai { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .cp-hai { grid-template-columns: 1fr; } }
+
+.cp-dong h3 { margin: 0 0 8px; }
+.cp-so { margin: 0 0 12px; font-family: var(--disp); font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.cp-phu { margin: 10px 0 0; font-size: 0.84rem; line-height: 1.55; color: var(--ink-soft); }
+
+.cp-thanh { height: 8px; border-radius: 999px; background: var(--mist); overflow: hidden; }
+.cp-thanh > span {
+  display: block; height: 100%; width: 0; background: var(--teal);
+  border-radius: 999px; transition: width 0.6s ease;
+}
+.cp-dong.gan .cp-thanh > span { background: var(--gold); }
+.cp-dong.het .cp-thanh > span { background: #C0392B; }
+.cp-dong.gan { border-color: var(--gold); }
+.cp-dong.het { border-color: #C0392B; }
+
+.cp-hang {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 0; border-top: 1px solid var(--line); font-size: 0.89rem;
+}
+.cp-hang:first-child { border-top: none; }
+.cp-ten { flex: 1 1 160px; min-width: 120px; }
+.cp-thanh.nho { flex: 1 1 80px; max-width: 140px; height: 6px; }
+.cp-lan { min-width: 64px; text-align: right; font-size: 0.82rem; color: var(--ink-soft); }
+.cp-tien { min-width: 80px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.cp-bieu {
+  display: flex; align-items: flex-end; gap: 3px; height: 100px;
+  padding-bottom: 2px; border-bottom: 1px solid var(--line);
+}
+.cp-cot { flex: 1; min-width: 4px; background: var(--teal-dim); border-radius: 2px 2px 0 0; }
+.cp-cot:hover { background: var(--teal); }
+.cp-cot.het { background: #C0392B; }
+
+.cp-gia-o {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 9px 0; border-top: 1px solid var(--line); font-size: 0.89rem;
+}
+.cp-gia-o:first-child { border-top: none; }
+.cp-gia-o > span { flex: 1 1 180px; }
+.cp-gia-o input {
+  width: 100px; padding: 7px 10px; border: 1.5px solid var(--line);
+  border-radius: 8px; font-family: var(--ui); font-size: 0.89rem;
+  text-align: right;
+}
+.cp-gia-o i { font-style: normal; font-size: 0.8rem; color: var(--ink-soft); }
