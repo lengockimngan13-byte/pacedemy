@@ -2977,6 +2977,25 @@ body.focus-mode .side-toggle { display: none; }
 
 .qz-card-actions { display: flex; gap: 4px; }
 
+/* Báo trạng thái tự lưu của từng thẻ */
+.sv-trangthai {
+  margin-left: auto; margin-right: 10px;
+  font-size: 0.78rem; font-weight: 600;
+  transition: opacity 0.4s;
+}
+.sv-trangthai.dang { color: var(--ink-soft); }
+.sv-trangthai.xong { color: var(--teal); }
+.sv-trangthai.hong { color: var(--danger); }
+.sv-trangthai.im   { opacity: 0; }
+
+.sv-luat {
+  margin: 0 0 18px; padding: 11px 15px;
+  border-left: 3px solid var(--teal); border-radius: 0 9px 9px 0;
+  background: var(--mist);
+  font-size: 0.89rem; line-height: 1.7;
+}
+.sv-luat i { color: var(--teal); font-style: normal; font-weight: 600; }
+
 .qz-icon-btn {
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
@@ -3052,7 +3071,13 @@ body.focus-mode .side-toggle { display: none; }
   border-bottom: 1.5px solid var(--line);
   background: none;
 }
-.qz-field input:focus { outline: none; border-bottom-color: var(--teal); }
+/* Mấy ô này sửa được, nhưng không viền nên trông y như chữ chết. Rê
+   chuột vào là hiện nền mờ cho biết bấm vào gõ được. */
+.qz-field input:hover { background: var(--mist); border-radius: 6px 6px 0 0; }
+.qz-field input:focus {
+  outline: none; border-bottom-color: var(--teal);
+  background: var(--mist); border-radius: 6px 6px 0 0;
+}
 
 .qz-field label {
   margin-top: 6px;

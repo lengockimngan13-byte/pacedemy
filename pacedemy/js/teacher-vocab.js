@@ -563,7 +563,7 @@ function svRow(w, index) {
   bindSave(row.querySelector('.sv-vidu'), id, 'vi_du', chuRaViDu);
 
   row.querySelector('.sv-pos').addEventListener('change', function () {
-    saveField(id, 'pos', this.value);
+    saveField(id, 'pos', this.value, this);
   });
 
   bindImageBox(row.querySelector('.qz-image-box'), id);
@@ -674,7 +674,7 @@ async function uploadImage(imgBox, id, file) {
   const { data: pub } = db.storage.from(IMG_BUCKET).getPublicUrl(key);
   const url = pub.publicUrl;
 
-  await saveField(id, 'image_url', url);
+  await saveField(id, 'image_url', url, imgBox);
   toast('Đã thêm ảnh.', 'good');
 
   imgBox.dataset.has = '1';
@@ -687,7 +687,7 @@ async function uploadImage(imgBox, id, file) {
 }
 
 async function removeImage(imgBox, id) {
-  await saveField(id, 'image_url', null);
+  await saveField(id, 'image_url', null, imgBox);
   toast('Đã bỏ ảnh.', 'good');
 
   imgBox.dataset.has = '0';
@@ -699,18 +699,86 @@ async function removeImage(imgBox, id) {
   bindImageBox(imgBox, id);
 }
 
+// Tab này không có nút Lưu: sửa xong bấm ra ngoài ô là lưu luôn.
+// Nhưng trước đây nó lưu im re, nên cô gõ xong nhìn màn hình không
+// thấy gì khác và tưởng là chưa lưu. Giờ mỗi thẻ có một dòng nhỏ báo
+// đang lưu / đã lưu / lưu hỏng.
+
+let dangLuu = 0;          // đếm số lần lưu đang bay, để chặn đóng tab
+
 function bindSave(el, id, field, transform) {
+  // Nhớ giá trị lúc mới mở, để bấm qua bấm lại mà không sửa gì thì
+  // khỏi ghi xuống cơ sở dữ liệu.
+  el.dataset.cu = el.value;
+
   el.addEventListener('blur', function () {
-    saveField(id, field, transform(el.value));
+    if (el.value === el.dataset.cu) return;
+    el.dataset.cu = el.value;
+    saveField(id, field, transform(el.value), el);
   });
+
+  // Ô một dòng: bấm Enter là lưu luôn, khỏi phải bấm ra ngoài.
+  if (el.tagName === 'INPUT') {
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+    });
+  }
 }
 
-async function saveField(id, field, value) {
+function theCua(el) {
+  return el && el.closest ? el.closest('.qz-card') : null;
+}
+
+function bao(the, trangThai, chu) {
+  if (!the) return;
+  let o = the.querySelector('.sv-trangthai');
+  if (!o) {
+    o = document.createElement('span');
+    o.className = 'sv-trangthai';
+    const dau = the.querySelector('.qz-card-head');
+    if (dau) dau.insertBefore(o, dau.querySelector('.qz-card-actions'));
+    else return;
+  }
+  o.className = 'sv-trangthai ' + trangThai;
+  o.textContent = chu;
+}
+
+async function saveField(id, field, value, el) {
+  const the = theCua(el);
+  bao(the, 'dang', 'Đang lưu…');
+  dangLuu++;
+
   const patch = {};
   patch[field] = value;
   const { error } = await db.from('vocabulary').update(patch).eq('id', id);
-  if (error) toast('Không lưu được: ' + error.message, 'bad');
+
+  dangLuu--;
+
+  if (error) {
+    // Trả giá trị cũ về ô để lần blur sau lưu lại, đừng nuốt mất lần sửa
+    if (el) el.dataset.cu = '\u0000';
+    bao(the, 'hong', 'Chưa lưu được');
+    toast('Không lưu được: ' + error.message, 'bad');
+    return;
+  }
+
+  bao(the, 'xong', 'Đã lưu ' + gio());
+
+  // Giữ dòng "Đã lưu" một lát rồi mờ đi, để màn hình không đầy chữ
+  clearTimeout(the && the.__hen);
+  if (the) the.__hen = setTimeout(function () { bao(the, 'im', ''); }, 4000);
 }
+
+function gio() {
+  const d = new Date();
+  const p = d.getMinutes();
+  return d.getHours() + ':' + (p < 10 ? '0' : '') + p;
+}
+
+// Đang lưu dở mà đóng tab thì mất. Hỏi lại một câu.
+window.addEventListener('beforeunload', function (e) {
+  if (dangLuu > 0) { e.preventDefault(); e.returnValue = ''; }
+});
 
 // ---------- Tạo chủ đề mới ngay trong tab Sửa từng từ ----------
 
