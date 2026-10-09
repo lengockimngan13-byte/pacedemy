@@ -409,6 +409,27 @@ a { color: inherit; }
 
 .app-user { display: flex; align-items: center; gap: 18px; font-size: 0.92rem; }
 
+/* ---- Nút loa bật tắt âm thanh, trên thanh đầu trang ----
+   Có mặt ở mọi trang, kể cả mấy trang toàn màn hình đã ẩn thanh menu
+   bên trái — đó mới đúng là chỗ cần tắt tiếng nhất. */
+
+.am-loa {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex: 0 0 auto;
+  padding: 0; border: none; border-radius: 100px;
+  background: none; color: var(--ink-soft);
+  cursor: pointer;
+}
+.am-loa:hover { background: var(--mist); color: var(--ink); }
+.am-loa:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.am-loa svg { width: 20px; height: 20px; }
+
+/* Đang bật thì hiện sóng âm, đang tắt thì hiện dấu gạch chéo */
+.am-loa .am-gach { display: none; }
+.am-loa.tat .am-song { display: none; }
+.am-loa.tat .am-gach { display: block; }
+.am-loa.tat { color: #B4442F; }
+
 .streak {
   display: inline-flex;
   align-items: center;

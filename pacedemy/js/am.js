@@ -193,35 +193,102 @@ const Am = (function () {
 
   function co() { return bat; }
 
-  // ---------- nút trong thanh menu ----------
+  // ---------- hai chỗ bật tắt ----------
+  //
+  // Phải có nút Ở TRÊN MÀN HÌNH chứ không chỉ trong thanh menu bên
+  // trái. Mấy trang chạy toàn màn hình — Thỏ hỏi, thi thử, luyện đề —
+  // ẩn hẳn thanh menu đi, mà đó lại đúng là lúc tiếng kêu nhiều nhất.
+  // Nút nằm trong menu ở mấy trang đó là nút không với tới được.
+  //
+  // Nên: một nút loa nhỏ trên thanh đầu trang, chỗ nào cũng thấy; cộng
+  // dòng chữ trong menu cho ai đi tìm trong phần cài đặt.
+
+  const LOA =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M11 5 6.5 9H3v6h3.5L11 19z"/>' +
+      '<g class="am-song"><path d="M15.5 8.5a5 5 0 0 1 0 7"/>' +
+      '<path d="M18.5 6a9 9 0 0 1 0 12"/></g>' +
+      '<g class="am-gach"><path d="M16 9.5l5 5M21 9.5l-5 5"/></g>' +
+    '</svg>';
 
   function veNut() {
     const b = document.getElementById('nut-am');
-    if (!b) return;
-    b.textContent = bat ? 'Âm thanh: bật' : 'Âm thanh: tắt';
-    b.setAttribute('aria-pressed', bat ? 'true' : 'false');
-  }
-
-  // Thanh menu do nav.js dựng. Nếu am.js chạy trước thì chưa có chỗ
-  // để gắn nút — thử lại vài nhịp rồi thôi, chứ không chờ mãi.
-  let dem = 0;
-  function ganNut() {
-    if (document.getElementById('nut-am')) return;
-
-    const chan = document.querySelector('.side-foot');
-    if (!chan) {
-      if (++dem < 20) setTimeout(ganNut, 120);
-      return;
+    if (b) {
+      b.textContent = bat ? 'Âm thanh: bật' : 'Âm thanh: tắt';
+      b.setAttribute('aria-pressed', bat ? 'true' : 'false');
     }
 
-    const b = document.createElement('button');
-    b.className = 'side-back';
-    b.id = 'nut-am';
-    b.type = 'button';
-    b.addEventListener('click', function () { dat(!bat); });
+    // Có thể có nhiều hơn một nút loa trên cùng một trang, nên tìm
+    // theo lớp chứ không theo id.
+    document.querySelectorAll('.am-loa').forEach(function (l) {
+      l.classList.toggle('tat', !bat);
+      l.setAttribute('aria-pressed', bat ? 'true' : 'false');
+      l.title = bat ? 'Tắt âm thanh' : 'Bật âm thanh';
+      l.setAttribute('aria-label', l.title);
+    });
+  }
 
-    chan.insertBefore(b, document.getElementById('nut-nen') ||
-                         document.getElementById('btn-logout') || null);
+  function moiLoa() {
+    const b = document.createElement('button');
+    b.className = 'am-loa';
+    b.type = 'button';
+    b.innerHTML = LOA;
+    b.dataset.am = '1';
+    b.addEventListener('click', function () { dat(!bat); });
+    return b;
+  }
+
+  function ganLoa() {
+    // 1. Thanh đầu trang — chỗ mặc định cho mọi trang.
+    const thanh = document.querySelector('.app-bar .wrap');
+    if (thanh && !thanh.querySelector('.am-loa')) {
+      // Có ô tài khoản thì chen vào đầu ô đó, cho nằm cạnh mấy nút
+      // kia. Không có thì treo vào cuối thanh — thanh đang là flex
+      // nên nó tự dạt sang phải.
+      const o = thanh.querySelector('.app-user');
+      if (o) o.insertBefore(moiLoa(), o.firstChild);
+      else thanh.appendChild(moiLoa());
+    }
+
+    // 2. Hàng tim/điểm của trang Thỏ hỏi. Vào chơi là màn hình cuộn
+    //    xuống qua khỏi thanh đầu trang, nên nút ở trên đó khuất mất
+    //    — mà đúng lúc chơi mới là lúc kêu nhiều nhất. Hàng này thì
+    //    luôn nằm trong tầm nhìn.
+    const hud = document.querySelector('.g-hud');
+    if (hud && !hud.querySelector('.am-loa')) hud.appendChild(moiLoa());
+
+    // 3. Nút nào có sẵn trong HTML thì nối dây luôn.
+    document.querySelectorAll('.am-loa:not([data-am])').forEach(function (b) {
+      b.dataset.am = '1';
+      b.innerHTML = LOA;
+      b.addEventListener('click', function () { dat(!bat); });
+    });
+  }
+
+  // Dòng chữ trong thanh menu bên trái. Thanh này do nav.js dựng, nếu
+  // am.js chạy trước thì chưa có chỗ gắn — thử lại vài nhịp rồi thôi.
+  let dem = 0;
+  function ganNut() {
+    ganLoa();
+
+    if (!document.getElementById('nut-am')) {
+      const chan = document.querySelector('.side-foot');
+      if (!chan) {
+        if (++dem < 20) setTimeout(ganNut, 120);
+        return;
+      }
+
+      const b = document.createElement('button');
+      b.className = 'side-back';
+      b.id = 'nut-am';
+      b.type = 'button';
+      b.addEventListener('click', function () { dat(!bat); });
+
+      chan.insertBefore(b, document.getElementById('nut-nen') ||
+                           document.getElementById('btn-logout') || null);
+    }
+
     veNut();
   }
 
