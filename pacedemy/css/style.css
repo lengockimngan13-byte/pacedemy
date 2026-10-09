@@ -5137,6 +5137,152 @@ html { scroll-behavior: smooth; }
   max-width: 54vw;
   height: auto;
   margin: 0 auto 10px;
+  overflow: visible;        /* tai nhảy cao hơn khung một chút */
+}
+
+/* ---------- Thỏ ăn mừng nhảy múa ----------
+
+   Nhịp: ba cú nhảy hăng trong 2,4 giây rồi lắng xuống thành lắc lư
+   nhè nhẹ. Nhảy mãi không nghỉ thì sau mười giây là chóng mặt, mà
+   đứng im thì không ra ăn mừng.
+
+   Mỗi lớp lệch pha nhau một chút — đầu gật sau thân, tai vẫy sau đầu.
+   Chỗ đó mới làm ra cảm giác sống; cho tất cả nhúc nhích cùng lúc thì
+   nhìn ra một miếng hình bị kéo lên kéo xuống.
+
+   Mỗi lớp động đều đặt transform-box: fill-box và tâm xoay bằng phần
+   trăm — tức là tính theo khung của CHÍNH nó. Đặt tâm bằng số pixel
+   toạ độ SVG là sai chỗ ngay: lần đầu làm vậy, hai cái tai rời hẳn
+   khỏi đầu, bay lơ lửng hai bên.
+
+   Chỉ đặt fill-box cho đúng mấy lớp này, không đặt cho mọi thẻ <g>:
+   mấy nhóm bên trong đang xoay bằng rotate(góc tâm_x tâm_y) của SVG,
+   đụng vào là lệch hết.
+*/
+
+.tho-nhay, .tho-ep, .tho-lac, .tho-dau, .tho-bong,
+.tho-mung .tho-tai, .tho-mung .tho-tay {
+  transform-box: fill-box;
+}
+
+.tho-nhay {
+  transform-origin: 50% 100%;
+  animation: tho-nhay 0.8s cubic-bezier(.33, 0, .3, 1) 3 both;
+}
+@keyframes tho-nhay {
+  0%   { transform: translateY(0); }
+  28%  { transform: translateY(-11px); }
+  46%  { transform: translateY(-13px); }
+  72%  { transform: translateY(0); }
+  82%  { transform: translateY(-1.5px); }
+  100% { transform: translateY(0); }
+}
+
+/* Bẹt xuống lúc chạm đất, vươn ra lúc bật lên — không có cái này thì
+   cú nhảy nhìn ra một khối cứng bị nhấc lên. */
+.tho-ep {
+  transform-origin: 50% 100%;
+  animation: tho-ep 0.8s cubic-bezier(.33, 0, .3, 1) 3 both;
+}
+@keyframes tho-ep {
+  0%   { transform: scale(1.06, 0.94); }
+  26%  { transform: scale(0.95, 1.06); }
+  60%  { transform: scale(1, 1); }
+  74%  { transform: scale(1.07, 0.93); }
+  100% { transform: scale(1, 1); }
+}
+
+/* Lắc lư — chạy mãi, nhưng biên độ nhỏ nên nhìn lâu không mệt */
+.tho-lac {
+  transform-origin: 50% 92%;
+  animation: tho-lac 2.6s ease-in-out infinite;
+}
+@keyframes tho-lac {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50%      { transform: rotate(3.5deg); }
+}
+
+/* Đầu gật trễ hơn thân 0,12 giây */
+.tho-dau {
+  transform-origin: 50% 100%;
+  animation: tho-dau 1.3s ease-in-out 0.12s infinite;
+}
+@keyframes tho-dau {
+  0%, 100% { transform: rotate(2.6deg); }
+  50%      { transform: rotate(-2.6deg); }
+}
+
+/* Tai vẫy quanh GỐC tai — đáy khung của chính cái tai.
+   Hai bên lệch nhịp nhau cho khỏi đều như máy. */
+.tho-mung .tho-tai-t {
+  transform-origin: 70% 100%;
+  animation: tho-tai-t 1.15s ease-in-out 0.2s infinite;
+}
+.tho-mung .tho-tai-p {
+  transform-origin: 30% 100%;
+  animation: tho-tai-p 1.3s ease-in-out 0.32s infinite;
+}
+@keyframes tho-tai-t {
+  0%, 100% { transform: rotate(7deg); }
+  50%      { transform: rotate(-8deg); }
+}
+@keyframes tho-tai-p {
+  0%, 100% { transform: rotate(-7deg); }
+  50%      { transform: rotate(9deg); }
+}
+
+/* Hai tay vung so le nhau, xoay quanh khớp vai — góc dưới phía trong
+   khung của mỗi cánh tay. */
+.tho-mung .tho-tay-t {
+  transform-origin: 100% 100%;
+  animation: tho-tay-t 0.65s ease-in-out infinite;
+}
+.tho-mung .tho-tay-p {
+  transform-origin: 0% 100%;
+  animation: tho-tay-p 0.65s ease-in-out 0.32s infinite;
+}
+@keyframes tho-tay-t {
+  0%, 100% { transform: rotate(-13deg); }
+  50%      { transform: rotate(9deg); }
+}
+@keyframes tho-tay-p {
+  0%, 100% { transform: rotate(13deg); }
+  50%      { transform: rotate(-9deg); }
+}
+
+/* Bóng nhỏ lại khi thỏ bay lên — dấu hiệu duy nhất cho biết
+   nó rời mặt đất thật, chứ không phải cả hình trôi lên. */
+.tho-bong {
+  transform-origin: 50% 50%;
+  animation: tho-bong 0.8s cubic-bezier(.33, 0, .3, 1) 3 both;
+}
+@keyframes tho-bong {
+  0%   { transform: scale(1); opacity: 1; }
+  40%  { transform: scale(0.66); opacity: 0.55; }
+  72%  { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Giấy màu rơi vào đúng chỗ rồi nằm im */
+.xb-giay {
+  animation: xb-roi 0.9s cubic-bezier(.3, .7, .4, 1) both;
+}
+@keyframes xb-roi {
+  from { transform: translateY(-46px) rotate(-30deg); opacity: 0; }
+  60%  { opacity: 1; }
+  to   { transform: translateY(0) rotate(0); opacity: 1; }
+}
+
+/* Ai bật "giảm chuyển động" trong máy thì thấy hình tĩnh, đúng y như
+   lúc mọi hiệu ứng chạy xong. Chóng mặt vì chuyển động là chuyện thật,
+   không phải chuyện chiều người khó tính. */
+@media (prefers-reduced-motion: reduce) {
+  .tho-nhay, .tho-ep, .tho-lac, .tho-dau,
+  .tho-mung .tho-tai-t, .tho-mung .tho-tai-p,
+  .tho-mung .tho-tay-t, .tho-mung .tho-tay-p,
+  .tho-bong, .xb-giay {
+    animation: none;
+  }
 }
 
 .xb-ten {

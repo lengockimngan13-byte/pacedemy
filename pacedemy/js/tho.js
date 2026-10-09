@@ -95,7 +95,10 @@ const Tho = (function () {
       ' '  + (x + iw + 1.2) + ' ' + (igoc - dai * 0.38) +
       ' '  + (x + iw) + ' ' + igoc + ' Z';
 
-    return '<g transform="rotate(' + xoay + ' ' + x + ' ' + goc + ')">' +
+    // Lớp ngoài chỉ để CSS vẫy tai được, không đổi hình. Trang nào
+    // không có css cho nó thì nó nằm im, y như trước.
+    return '<g class="tho-tai tho-tai-' + (ben < 0 ? 't' : 'p') + '">' +
+      '<g transform="rotate(' + xoay + ' ' + x + ' ' + goc + ')">' +
         '<path d="' + ngoai + '" fill="url(#' + p + 'tai)" stroke="' + VIEN + '" stroke-width="0.9"/>' +
         '<path d="' + trong + '" fill="' + HONG + '" opacity=".5"/>' +
         // vệt sáng dọc mép ngoài, cho tai có bề dày
@@ -104,7 +107,8 @@ const Tho = (function () {
           ' '  + (x - w * 0.6) + ' ' + (chop + 12) +
           ' '  + (x - 0.6) + ' ' + (chop + 3.5) + '" ' +
           'stroke="#FBF1DE" stroke-width="1.6" fill="none" opacity=".55" stroke-linecap="round"/>' +
-      '</g>';
+      '</g>' +
+    '</g>';
   }
 
   // ---------- Thân ----------
@@ -274,21 +278,57 @@ const Tho = (function () {
     });
   }
 
+  // Chân trước giơ lên ăn mừng. ben = -1 trái, 1 phải.
+  function tayMung(p, ben) {
+    const x = 20 * ben, vai = -38;   // khớp vai, chỗ rotate lấy làm tâm
+    const d = ben < 0
+      ? 'M-20 -48 C-15 -47 -14.4 -39 -16 -34 C-17.6 -29.6 -23.4 -29.6 -24.8 -34 ' +
+        'C-26.2 -39 -25 -47 -20 -48 Z'
+      : 'M20 -48 C15 -47 14.4 -39 16 -34 C17.6 -29.6 23.4 -29.6 24.8 -34 ' +
+        'C26.2 -39 25 -47 20 -48 Z';
+
+    // Hai lớp: lớp trong giữ nguyên dáng giơ tay như cũ, lớp ngoài để
+    // CSS vung qua vung lại quanh khớp vai.
+    return '<g class="tho-tay tho-tay-' + (ben < 0 ? 't' : 'p') + '">' +
+        '<g transform="rotate(' + (46 * ben) + ' ' + x + ' ' + vai + ')">' +
+          '<path d="' + d + '" fill="url(#' + p + 'long)" ' +
+            'stroke="' + VIEN + '" stroke-width="0.9"/>' +
+        '</g>' +
+      '</g>';
+  }
+
+  // ---------- Thỏ ăn mừng ----------
+  //
+  // Chia lớp giống song(): mỗi lớp lo một việc, CSS vào được từng lớp
+  // mà hình vẽ không đổi một nét nào.
+  //
+  //   tho-nhay   nhún lên xuống — cú nhảy
+  //   tho-lac    nghiêng trái phải
+  //   tho-ep     bẹt xuống lúc chạm đất, vươn ra lúc bật lên
+  //   tho-dau    đầu gật trễ hơn thân một nhịp
+  //   tho-tai    tai vẫy theo, trễ hơn đầu
+  //   tho-bong   bóng dưới đất co lại khi thỏ bay lên
+  //
+  // Bóng nằm NGOÀI lớp nhảy: bóng phải ở yên dưới đất, chỉ nhỏ lại.
+  // Cho nó nhảy theo là mất hẳn cảm giác nhấc chân khỏi mặt đất.
+  //
+  // Chưa có css thì mọi lớp nằm im và ra đúng con thỏ giơ tay như cũ.
   function mung(x, y, co) {
-    return boc(x, y, co, function (p) {
-      return than(p) +
-        '<g transform="rotate(-46 -20 -38)">' +
-          '<path d="M-20 -48 C-15 -47 -14.4 -39 -16 -34 C-17.6 -29.6 -23.4 -29.6 -24.8 -34 ' +
-            'C-26.2 -39 -25 -47 -20 -48 Z" fill="url(#' + p + 'long)" ' +
-            'stroke="' + VIEN + '" stroke-width="0.9"/>' +
+    const p = 'th' + (++demId);
+
+    return '<g class="tho-mung" transform="translate(' + x + ' ' + y + ') scale(' + (co || 1) + ')">' +
+        defs(p) +
+        '<g class="tho-bong">' + bong(p) + '</g>' +
+        '<g class="tho-nhay">' +
+          '<g class="tho-lac">' +
+            '<g class="tho-ep">' +
+              than(p) +
+              tayMung(p, -1) + tayMung(p, 1) +
+              '<g class="tho-dau">' + dau(p) + '</g>' +
+            '</g>' +
+          '</g>' +
         '</g>' +
-        '<g transform="rotate(46 20 -38)">' +
-          '<path d="M20 -48 C15 -47 14.4 -39 16 -34 C17.6 -29.6 23.4 -29.6 24.8 -34 ' +
-            'C26.2 -39 25 -47 20 -48 Z" fill="url(#' + p + 'long)" ' +
-            'stroke="' + VIEN + '" stroke-width="0.9"/>' +
-        '</g>' +
-        dau(p);
-    });
+      '</g>';
   }
 
 

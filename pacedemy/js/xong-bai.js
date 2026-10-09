@@ -44,12 +44,17 @@ const XongBai = (function () {
       ? ['#F0A830', '#2A7F76', '#F0A830', '#C9D8D3', '#2A7F76', '#F0A830']
       : ['#C9D8D3', '#C9D8D3', '#E7EDE9'];
 
+    // Mỗi mảnh bọc thêm một lớp để CSS cho nó rơi xuống đúng chỗ rồi
+    // nằm im. Rơi vòng vòng mãi thì rối mắt, mà đứng sẵn từ đầu thì
+    // không ra không khí ăn mừng — nên cho rơi một lần.
     const giay = bay.map(function (mau, i) {
       const x = 18 + i * 28 + (i % 2 ? 8 : 0);
       const y = 10 + (i % 3) * 16;
       const xoay = (i * 47) % 90 - 45;
-      return '<rect x="' + x + '" y="' + y + '" width="7" height="11" rx="1.5" fill="' + mau +
-             '" transform="rotate(' + xoay + ' ' + (x + 3) + ' ' + (y + 5) + ')" opacity="0.9"/>';
+      return '<g class="xb-giay" style="animation-delay:' + (0.08 * i).toFixed(2) + 's">' +
+          '<rect x="' + x + '" y="' + y + '" width="7" height="11" rx="1.5" fill="' + mau +
+            '" transform="rotate(' + xoay + ' ' + (x + 3) + ' ' + (y + 5) + ')" opacity="0.9"/>' +
+        '</g>';
     }).join('');
 
     return '<svg class="xb-hinh" viewBox="0 0 200 172" role="img" ' +
