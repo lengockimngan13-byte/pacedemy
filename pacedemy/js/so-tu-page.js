@@ -298,6 +298,8 @@ async function answer(i) {
   const t = hang[at];
   const ok = t.chon[i] === t.tu;
 
+  if (typeof Am !== 'undefined') { ok ? Am.dung() : Am.sai(); }
+
   const dung = t.chon.indexOf(t.tu);
   const nut = $('opts').querySelectorAll('.opt');
   nut.forEach(function (b) { b.disabled = true; });

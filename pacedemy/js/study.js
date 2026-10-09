@@ -409,6 +409,8 @@ function answer(i) {
   if (ok) { right++; xp += XP_RIGHT; }
   else { xp += XP_WRONG; wrongWords.push(w); }
 
+  if (typeof Am !== 'undefined') { ok ? Am.dung() : Am.sai(); }
+
   if (kind === 'nghia') saveProgress(w, ok);
 
   // Tô đáp án: ô vừa bấm, và cả ô đúng nếu bấm sai

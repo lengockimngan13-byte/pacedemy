@@ -472,6 +472,8 @@ function doiO(o) {
   pha = 'ngung';
   soDaLam++;
 
+  if (typeof Am !== 'undefined') { ok ? Am.dung() : Am.sai(); }
+
   oList.forEach(function (x) {
     if (x === o) x.trangThai = ok ? 'dung' : 'sai';
     else if (!ok && x.key === q.correct_answer) x.trangThai = 'dung';

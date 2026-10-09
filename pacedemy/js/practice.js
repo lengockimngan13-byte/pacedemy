@@ -132,6 +132,8 @@ async function answer(k) {
   if (ok) { right++; xp += XP_RIGHT; }
   else { xp += XP_WRONG; wrongs.push({ q: q, chose: k }); }
 
+  if (typeof Am !== 'undefined') { ok ? Am.dung() : Am.sai(); }
+
   $('verdict').textContent = ok
     ? 'Chính xác.'
     : 'Chưa đúng — đáp án là ' + q.correct_answer + '.';

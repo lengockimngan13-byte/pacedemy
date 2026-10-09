@@ -115,6 +115,13 @@ const XongBai = (function () {
           : '') +
       '</div>';
 
+    // Tiếng chốt bài, đúng theo tỉ lệ đang hiện trên màn hình. Chậm
+    // một nhịp cho con thỏ bật lên trước rồi tiếng mới tới — cùng lúc
+    // thì nghe ra hai thứ rời nhau.
+    if (typeof Am !== 'undefined') {
+      setTimeout(function () { Am.xong(ty); }, 180);
+    }
+
     if (coXem) {
       khoiXem.classList.add('xb-an');
 
