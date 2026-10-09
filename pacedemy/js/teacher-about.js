@@ -73,6 +73,7 @@ async function load() {
   $('c-email').value = c.email || '';
   $('c-zalo').value = c.zalo || '';
   $('c-facebook').value = c.facebook || '';
+  $('c-dt').value = c.dien_thoai || '';
   $('c-form').checked = c.form !== false;
 }
 
@@ -242,6 +243,7 @@ $('btn-save').addEventListener('click', async function () {
       email: $('c-email').value.trim(),
       zalo: $('c-zalo').value.trim(),
       facebook: $('c-facebook').value.trim(),
+      dien_thoai: $('c-dt').value.trim(),
       form: $('c-form').checked
     }
   };

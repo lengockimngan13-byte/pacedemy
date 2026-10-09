@@ -55,6 +55,12 @@
     btns.push('<a class="btn ' + (btns.length ? 'btn-line' : 'btn-gold') + '" href="' + esc(c.facebook) +
               '" target="_blank" rel="noopener">Nhắn qua Facebook</a>');
   }
+  // Số điện thoại: trên điện thoại bấm vào là gọi luôn. Nhiều phụ
+  // huynh và người đi làm vẫn thích gọi hơn nhắn.
+  if (c.dien_thoai) {
+    btns.push('<a class="btn ' + (btns.length ? 'btn-line' : 'btn-gold') + '" href="tel:' +
+              esc(String(c.dien_thoai).replace(/[^0-9+]/g, '')) + '">Gọi ' + esc(c.dien_thoai) + '</a>');
+  }
   if (c.email) {
     btns.push('<a class="btn ' + (btns.length ? 'btn-line' : 'btn-gold') + '" href="mailto:' +
               esc(c.email) + '">Gửi email cho cô</a>');

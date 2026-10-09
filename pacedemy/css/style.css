@@ -3908,6 +3908,92 @@ html { scroll-behavior: smooth; }
   color: #3C544F;
 }
 
+/* ---- "Có phải bạn đang mắc kẹt ở đây?" ----
+   Để người đọc nhận ra mình trước khi mình kể web có gì. Nền mist để
+   tách khỏi hai mục trắng kề bên, không cần kẻ đường viền nào. */
+
+/* Nền trắng chứ không phải mist: mục kế bên (bốn bước) đã là mist rồi,
+   hai mục cùng nền liền nhau thì dính thành một khối dài. */
+.ket-sec { background: var(--paper); color: var(--ink); padding: 68px 0 74px; }
+
+.ket-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.ket { background: var(--paper); padding: 26px 26px 28px; }
+.ket h3 {
+  margin: 0 0 10px;
+  font-size: 1rem; font-weight: 700; line-height: 1.45;
+  color: var(--ink);
+}
+.ket p { margin: 0; font-size: 0.93rem; line-height: 1.68; color: #4A635E; }
+
+@media (max-width: 760px) {
+  .ket-sec { padding: 48px 0 52px; }
+  .ket-grid { grid-template-columns: 1fr; }
+  .ket { padding: 22px 20px 24px; }
+}
+
+/* ---- "Lớp của cô Ngân" ---- */
+
+.lop-sec { background: var(--paper); color: var(--ink); padding: 72px 0 80px; }
+
+.lop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.lop {
+  display: flex; flex-direction: column;
+  padding: 26px 24px 26px;
+  border: 1.5px solid var(--line); border-radius: 14px;
+  background: var(--paper);
+}
+.lop.noi-bat { border-color: var(--teal); background: #F6FAF9; }
+
+.lop-cho {
+  align-self: flex-start; margin-bottom: 12px;
+  padding: 3px 11px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+  background: var(--teal); color: #fff;
+}
+
+.lop h3 {
+  margin: 0 0 6px;
+  font-family: var(--disp); font-size: 1.18rem; font-weight: 700;
+  letter-spacing: -0.015em; color: var(--ink);
+}
+.lop-cho-ai { margin: 0 0 16px; font-size: 0.9rem; line-height: 1.6; color: #4A635E; }
+
+.lop ul { margin: 0 0 18px; padding-left: 18px; }
+.lop li { margin: 7px 0; font-size: 0.92rem; line-height: 1.6; color: #3C544F; }
+
+.lop-ghi {
+  margin: 0 0 18px; font-size: 0.86rem; line-height: 1.6; color: var(--ink-soft);
+}
+
+/* Nút dính đáy thẻ, để mấy thẻ dài ngắn khác nhau vẫn thẳng hàng nút */
+.lop .btn { margin-top: auto; align-self: flex-start; }
+
+/* .home .btn-line được tô sáng cho nền tối của hero. Mấy thẻ lớp lại
+   nằm trên nền trắng, nên phải kéo về màu chữ đậm — nếu không thì chữ
+   trắng trên nền trắng, nút gần như tàng hình. */
+.home .lop .btn-line { border-color: var(--line); color: var(--ink); }
+.home .lop .btn-line:hover { background: var(--mist); }
+.home .lop.noi-bat .btn-line { border-color: var(--teal-dim); }
+
+@media (max-width: 760px) {
+  .lop-sec { padding: 50px 0 56px; }
+}
+
+/* Mấy nút liên hệ xuống dòng gọn trên điện thoại */
+.contact-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
 /* Tính năng */
 .feat-sec { background: var(--paper); color: var(--ink); padding: 76px 0 84px; }
 

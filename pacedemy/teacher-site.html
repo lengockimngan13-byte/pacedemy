@@ -112,6 +112,46 @@
       </div>
     </div>
 
+    <div class="tbox">
+      <h3>Mục “Có phải bạn đang mắc kẹt ở đây?”</h3>
+      <p class="sub" style="margin:0 0 14px">
+        Bốn nỗi khổ của người luyện TOEIC, đặt ngay dưới phần đầu trang. Để người đọc
+        nhận ra mình trước khi mình kể web có gì. Bỏ trống hết thì mục này tự ẩn.
+      </p>
+      <label class="check-row">
+        <input type="checkbox" id="ket-show">
+        <span>Hiện mục này trên trang chủ</span>
+      </label>
+      <div class="field">
+        <label for="ket-head">Tiêu đề</label>
+        <input id="ket-head" type="text">
+      </div>
+      <div class="field">
+        <label for="ket-lead">Câu dẫn</label>
+        <textarea id="ket-lead" rows="2"></textarea>
+      </div>
+      <div id="ket-fields"></div>
+    </div>
+
+    <div class="tbox">
+      <h3>Mục “Lớp của cô”</h3>
+      <p class="sub" style="margin:0 0 14px">
+        Người lạ vào trang phải thấy được họ đăng ký cái gì. Chưa khai lớp nào thì cả
+        mục này không hiện — thà không có còn hơn có một khung trống.
+      </p>
+      <div class="field">
+        <label for="lop-head">Tiêu đề</label>
+        <input id="lop-head" type="text" placeholder="Lớp của cô Ngân">
+      </div>
+      <div class="field">
+        <label for="lop-lead">Câu dẫn</label>
+        <textarea id="lop-lead" rows="2"></textarea>
+      </div>
+      <div id="lop-list"></div>
+      <button class="btn btn-line btn-sm" id="lop-them" type="button"
+              style="flex:0 0 auto;margin-top:6px">+ Thêm một lớp</button>
+    </div>
+
     <button class="btn btn-gold" id="btn-save-content">Lưu trang giới thiệu</button>
     <a class="btn btn-line" href="index.html" target="_blank" style="margin-left:10px">Xem thử trang giới thiệu</a>
 
