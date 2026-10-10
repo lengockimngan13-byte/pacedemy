@@ -226,7 +226,8 @@ async function finish() {
     XongBai.ve($('view-done'), {
       dung: right, tong: queue.length, xp: xp, giay: seconds,
       ten: 'Part ' + part + (dang ? ' · ' + dang : ''),
-      xemLai: 'wrong-box'
+      xemLai: 'wrong-box',
+      luot: attemptId
     });
   }
 

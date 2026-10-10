@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo cáo kết quả — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar no-in">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user">
+      <a class="btn-quiet" href="app.html">Về trang học</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <p class="empty" id="bc-tai">Đang dựng báo cáo…</p>
+
+  <section class="tbox hidden" id="bc-hong">
+    <h3>Chưa mở được báo cáo</h3>
+    <p class="sub" id="bc-hong-chu"></p>
+    <a class="btn btn-ink" href="app.html" style="margin-top:12px">Về trang học</a>
+  </section>
+
+  <section class="hidden" id="bc-noi-dung">
+
+    <!-- Đầu báo cáo -->
+    <div class="bc-dau">
+      <div>
+        <span class="bc-nhan">Báo cáo bài luyện</span>
+        <h1 id="bc-ten">—</h1>
+        <p class="bc-meta">Mã lượt <b id="bc-ma">—</b> · <span id="bc-ngay">—</span></p>
+      </div>
+      <div class="bc-diem">
+        <span class="bc-so" id="bc-so">—</span>
+        <span class="bc-nho" id="bc-pct"></span>
+      </div>
+    </div>
+
+    <p class="bc-that">
+      Đây là kết quả một <b>bài luyện trên Pacedemy</b>, không phải điểm thi TOEIC.
+      Bài chưa đủ số câu và chưa đủ các phần như đề thật nên không quy ra thang 10–990 —
+      quy ra sẽ là con số không có thật.
+    </p>
+
+    <p class="bc-meta" id="bc-thoigian">—</p>
+
+    <!-- Tóm tắt bằng lời -->
+    <div class="tbox hidden" id="bc-tomtat">
+      <h3>Nên làm gì tiếp</h3>
+      <p id="bc-tomtat-chu" style="margin:8px 0 0;line-height:1.75"></p>
+    </div>
+
+    <!-- Ba nhóm lớn -->
+    <div class="tbox" id="bc-nhom-o">
+      <h3>Theo nhóm kỹ năng</h3>
+      <div id="bc-nhom" style="margin-top:14px"></div>
+    </div>
+
+    <!-- Từng dạng câu -->
+    <div class="tbox" id="bc-dang-o">
+      <div class="bc-dang-head">
+        <h3>Từng dạng câu</h3>
+        <span class="bc-chu-thich">
+          <i class="tot"></i> từ 80%
+          <i class="vua"></i> 30–79%
+          <i class="yeu"></i> dưới 30%
+        </span>
+      </div>
+      <p class="sub" style="margin:6px 0 16px">Dạng yếu nhất xếp lên đầu.</p>
+      <div id="bc-dang"></div>
+      <div class="hidden" id="bc-thieu" style="margin-top:14px"></div>
+    </div>
+
+    <div class="bc-nut">
+      <button class="btn btn-line" id="bc-in" type="button">Tải PDF / In</button>
+      <a class="btn btn-ink" href="part5.html">Luyện tiếp Part 5</a>
+    </div>
+
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/am.js"></script>
+<script src="js/bao-cao.js"></script>
+</body>
+</html>

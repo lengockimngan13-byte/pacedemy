@@ -7068,3 +7068,131 @@ body.nen-dang-mo { overflow: hidden; }
 .cp-tp-o i {
   font-style: normal; font-size: 0.8rem; line-height: 1.55; color: var(--ink-soft);
 }
+
+/* ============================================================
+   BÁO CÁO KẾT QUẢ THEO TỪNG DẠNG CÂU (bao-cao.html)
+   ============================================================ */
+
+.bc-dau {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+  margin: 26px 0 16px;
+}
+.bc-nhan {
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--teal);
+}
+.bc-dau h1 {
+  margin: 6px 0 4px;
+  font-family: var(--disp); font-size: clamp(1.5rem, 3vw, 1.95rem);
+  letter-spacing: -0.02em;
+}
+.bc-meta { margin: 0; font-size: 0.9rem; color: var(--ink-soft); }
+
+.bc-diem { text-align: right; }
+.bc-so {
+  display: block;
+  font-family: var(--disp); font-size: 2.6rem; font-weight: 700;
+  line-height: 1; letter-spacing: -0.03em;
+}
+.bc-so.tot { color: var(--teal); }
+.bc-so.vua { color: #B07A17; }
+.bc-so.yeu { color: #B4442F; }
+
+.bc-nho { font-size: 0.84rem; color: var(--ink-soft); }
+
+/* Câu nói rõ đây là bài luyện, không phải điểm thi. Để ngay dưới con
+   số, vì đó là chỗ người ta nhìn trước tiên. */
+.bc-that {
+  margin: 0 0 18px; padding: 12px 16px;
+  border-left: 3px solid var(--gold); border-radius: 0 9px 9px 0;
+  background: var(--gold-dim);
+  font-size: 0.89rem; line-height: 1.7;
+}
+
+/* Thanh phần trăm dùng chung cho cả nhóm lớn lẫn từng dạng */
+.bc-thanh {
+  height: 8px; border-radius: 999px; background: var(--mist);
+  overflow: hidden;
+}
+.bc-thanh > span { display: block; height: 100%; border-radius: 999px; }
+.bc-thanh > span.tot { background: var(--teal); }
+.bc-thanh > span.vua { background: var(--gold); }
+.bc-thanh > span.yeu { background: #C0392B; }
+
+b.tot { color: var(--teal); }
+b.vua { color: #B07A17; }
+b.yeu { color: #B4442F; }
+
+.bc-nhom-o + .bc-nhom-o { margin-top: 16px; }
+.bc-nhom-dau {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 7px;
+  font-size: 0.96rem; font-weight: 600;
+}
+.bc-nhom-o .bc-nho { display: block; margin-top: 6px; }
+
+.bc-dang-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap;
+}
+.bc-dang-head h3 { margin: 0; }
+
+.bc-chu-thich { font-size: 0.78rem; color: var(--ink-soft); }
+.bc-chu-thich i {
+  display: inline-block; width: 9px; height: 9px; border-radius: 999px;
+  margin: 0 4px 0 12px;
+}
+.bc-chu-thich i:first-child { margin-left: 0; }
+.bc-chu-thich i.tot { background: var(--teal); }
+.bc-chu-thich i.vua { background: var(--gold); }
+.bc-chu-thich i.yeu { background: #C0392B; }
+
+.bc-dang { padding: 13px 0; border-top: 1px solid var(--line); }
+.bc-dang:first-child { border-top: none; padding-top: 2px; }
+
+.bc-dang-dau {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 7px;
+}
+.bc-dang-ten { font-size: 0.95rem; font-weight: 600; }
+
+.bc-dang-chan {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-top: 7px;
+}
+.bc-luyen {
+  font-size: 0.85rem; font-weight: 600; color: var(--teal);
+  text-decoration: none; white-space: nowrap;
+}
+.bc-luyen:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.bc-nut { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0 10px; }
+.bc-nut .btn { flex: 0 0 auto; }
+
+@media (max-width: 560px) {
+  .bc-dau { gap: 14px; }
+  .bc-diem { text-align: left; }
+  .bc-so { font-size: 2.1rem; }
+}
+
+/* ---- In ra giấy hoặc xuất PDF ----
+   Bỏ hết thanh điều hướng và nút bấm, giữ lại nội dung. Nền và màu
+   thanh phải in ra được, nếu không thì mấy thanh phần trăm trắng
+   trơn, báo cáo in ra vô nghĩa. */
+@media print {
+  .app-bar, .side-nav, .side-toggle, .side-veil, .app-foot,
+  .bc-nut, .am-loa, #toast { display: none !important; }
+
+  body { background: #fff; }
+  .wrap { max-width: none; padding: 0; }
+
+  .tbox {
+    break-inside: avoid; page-break-inside: avoid;
+    border: 1px solid #CBD6D2; box-shadow: none;
+  }
+  .bc-dang { break-inside: avoid; page-break-inside: avoid; }
+  .bc-luyen { display: none; }
+
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

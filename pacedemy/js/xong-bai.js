@@ -113,6 +113,13 @@ const XongBai = (function () {
         (coXem
           ? '<button class="btn btn-line xb-xem" type="button" id="xb-xem">Xem lại bài học</button>'
           : '') +
+
+        // Báo cáo chia theo từng dạng câu. Chỉ hiện khi buổi này có
+        // lưu nhật ký, vì không có mã lượt thì không dựng được.
+        (opts.luot
+          ? '<a class="btn btn-line xb-xem" href="bao-cao.html?id=' + encodeURIComponent(opts.luot) +
+            '">Xem mình yếu dạng nào</a>'
+          : '') +
       '</div>';
 
     // Tiếng chốt bài, đúng theo tỉ lệ đang hiện trên màn hình. Chậm
