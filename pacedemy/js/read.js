@@ -174,18 +174,21 @@ function makeReadingPanel(part) {
 
   function drawPassage() {
     const raw = showVi && cur.passage_vi ? cur.passage_vi : cur.passage_text;
-    let text = showEvidence && !showVi ? highlightEvidence(raw) : esc(raw);
 
-    if (!showVi) {
-      text = text.replace(/---\s*(\d+)\s*---/g, function (m, n) {
-        return '<span class="blank">' + n + '</span>';
-      });
-    }
+    // Mọi chữ đi qua đây: chống chèn mã, tô sáng chứng cứ, rồi mới
+    // tới chỗ trống của Part 6. VanBan gọi hàm này cho từng ô bảng và
+    // từng đoạn, nên bảng không phá mất phần tô sáng.
+    const toChu = function (t) {
+      let h = (showEvidence && !showVi) ? highlightEvidence(t) : esc(t);
+      if (!showVi) {
+        h = h.replace(/---\s*(\d+)\s*---/g, function (m, n) {
+          return '<span class="blank">' + n + '</span>';
+        });
+      }
+      return h;
+    };
 
-    const parts = text.split(/\n?===+\n?/);
-    $('d-passage').innerHTML = parts.map(function (p) {
-      return '<div class="doc">' + p.replace(/\n/g, '<br>') + '</div>';
-    }).join('');
+    $('d-passage').innerHTML = VanBan.ve(raw, toChu);
     $('d-passage').style.fontSize = fontPct + '%';
   }
 

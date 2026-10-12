@@ -7217,3 +7217,36 @@ b.yeu { color: #B4442F; }
   padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 9px;
   font-family: var(--ui); font-size: 0.93rem; background: #fff;
 }
+
+/* ---- Bảng trong bài đọc Part 6, 7 ----
+   Lịch bay, bảng giá, lịch họp — câu hỏi hay nhắm thẳng vào mấy ô
+   này, nên cột phải thẳng hàng và đọc được trên điện thoại. */
+
+.vb-doan { margin: 0 0 14px; }
+.vb-doan:last-child { margin-bottom: 0; }
+
+/* Màn hẹp thì cho cuộn ngang riêng cái bảng, chứ không để nó đẩy
+   rộng cả trang rồi chữ bài đọc cũng phải kéo ngang theo. */
+.vb-bang-cuon { margin: 0 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.vb-bang {
+  border-collapse: collapse;
+  width: 100%; min-width: 320px;
+  font-size: 0.95em;
+}
+.vb-bang th, .vb-bang td {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  text-align: left; vertical-align: top;
+  line-height: 1.55;
+}
+.vb-bang th { background: var(--mist); font-weight: 700; white-space: nowrap; }
+.vb-bang tbody tr:nth-child(even) td { background: #FAFBFA; }
+
+/* Chữ tô sáng chứng cứ nằm trong ô bảng vẫn giữ nguyên kiểu */
+.vb-bang mark.ev { padding: 0 2px; }
+
+@media print {
+  .vb-bang-cuon { overflow: visible; }
+  .vb-bang { break-inside: avoid; page-break-inside: avoid; }
+}

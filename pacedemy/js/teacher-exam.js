@@ -63,7 +63,10 @@ const PROMPTS = {
   7:
     'Mình soạn đề Part 7 cho một BỘ ĐỀ THI THỬ. Trả về DUY NHẤT một khối JSON.\n\n' +
     'Mảng các bài đọc:\n{\n  "title": "tên ngắn gọn", "doc_type": "email, thông báo...",\n' +
-    '  "passage_text": "văn bản. Nếu nhiều văn bản thì ngăn bằng dòng chỉ có ===",\n' +
+    '  "passage_text": "văn bản. Nếu nhiều văn bản thì ngăn bằng dòng chỉ có ===. ' +
+    'Bảng (bảng giá, lịch bay, lịch họp) viết bằng dấu gạch đứng kiểu Markdown: ' +
+    'dòng tiêu đề | cột | cột |, rồi dòng ngăn |---|---|, rồi các dòng dữ liệu. ' +
+    'KHÔNG căn cột bằng dấu cách",\n' +
     '  "passage_vi": "bản dịch",\n' +
     '  "vocab": [{"term": "từ/cụm đáng chú ý", "meaning_vi": "nghĩa tiếng Việt"}],\n' +
     '  "questions": [{\n    "number": 147,\n' +

@@ -490,13 +490,13 @@ let readFontPct = 100;
 
 function drawReading(s) {
   const raw = readVi && s.passage_vi ? s.passage_vi : s.passage_text;
-  let text = (reviewMode && !readVi) ? highlightEvidence(raw, s.questions) : esc(raw);
-  text = text.replace(/---\s*(\d+)\s*---/g, function (m, n) {
-    return '<span class="blank">' + n + '</span>';
+
+  const docs = VanBan.ve(raw, function (t) {
+    const h = (reviewMode && !readVi) ? highlightEvidence(t, s.questions) : esc(t);
+    return h.replace(/---\s*(\d+)\s*---/g, function (m, n) {
+      return '<span class="blank">' + n + '</span>';
+    });
   });
-  const docs = text.split(/\n?===+\n?/).map(function (d) {
-    return '<div class="doc">' + d.replace(/\n/g, '<br>') + '</div>';
-  }).join('');
 
   let qHtml = '';
   if (s.questions.length > 1) {
@@ -797,12 +797,11 @@ function showReview() {
 
   wrongScreens.forEach(function (s) {
     if (s.kind === 'reading') {
-      const text = highlightEvidence(s.passage_text, s.questions).replace(/---\s*(\d+)\s*---/g, function (m, n) {
-        return '<span class="blank">' + n + '</span>';
+      const docs = VanBan.ve(s.passage_text, function (t) {
+        return highlightEvidence(t, s.questions).replace(/---\s*(\d+)\s*---/g, function (m, n) {
+          return '<span class="blank">' + n + '</span>';
+        });
       });
-      const docs = text.split(/\n?===+\n?/).map(function (d) {
-        return '<div class="doc">' + d.replace(/\n/g, '<br>') + '</div>';
-      }).join('');
 
       html +=
         '<div class="tbox" style="margin-bottom:20px">' +

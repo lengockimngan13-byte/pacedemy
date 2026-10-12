@@ -67,7 +67,8 @@ const P7 =
 '  "title": "tên ngắn gọn bằng tiếng Việt",\n' +
 '  "doc_type": "email, thông báo, bài báo, tin nhắn, lịch trình, hoá đơn...",\n' +
 '  "passage_text": "toàn bộ văn bản tiếng Anh. Nếu bài có nhiều văn bản thì ngăn nhau ' +
-'bằng một dòng chỉ có ba dấu === và đặt tiêu đề nhỏ cho từng văn bản",\n' +
+'bằng một dòng chỉ có ba dấu === và đặt tiêu đề nhỏ cho từng văn bản. ' +
+'Bảng thì viết bằng dấu gạch đứng kiểu Markdown, xem hướng dẫn cuối câu nhắc",\n' +
 '  "passage_vi": "bản dịch tiếng Việt",\n' +
 '  "vocab": [{"term": "từ hoặc cụm tiếng Anh đáng chú ý trong bài", "meaning_vi": "nghĩa tiếng Việt"}],\n' +
 '  "questions": [\n' +
@@ -106,6 +107,19 @@ const P7 =
 'Dạng bài: Article/ Review: Bài báo/ Bài đánh giá | Dạng bài: Advertisement - Quảng cáo | ' +
 'Dạng bài: Announcement/ Notice: Thông báo | Dạng bài: Text message chain - Chuỗi tin nhắn | ' +
 'Dạng bài: Instructions: Văn bản hướng dẫn | Dạng bài: List/ Menu: Danh sách/ Thực đơn\n\n' +
+
+'CÁCH VIẾT BẢNG trong passage_text:\n' +
+'Bài có bảng — bảng giá, lịch bay, lịch họp, bảng báo giá, thực đơn — thì viết bằng dấu ' +
+'gạch đứng, giống Markdown. Web sẽ dựng ra bảng thật, cột thẳng hàng:\n' +
+'| Option | Dates of Departure | Price |\n' +
+'|---|---|---|\n' +
+'| Tour A | January 1-8 | $1,675/person |\n' +
+'| Tour B | January 16-19 | $1,675/person |\n' +
+'Dòng thứ hai bắt buộc phải có, đó là dòng ngăn giữa tiêu đề và thân bảng.\n' +
+'Giữ nguyên chữ trong từng ô, không rút gọn. KHÔNG mô tả bảng bằng lời, ' +
+'KHÔNG căn cột bằng dấu cách hay tab — căn bằng dấu cách thì lên web lệch hết.\n' +
+'Câu hỏi nhắm vào ô nào thì evidence chép nguyên văn chữ trong ô đó.\n\n' +
+
 'Việc cần làm lần này:\n[ghi rõ ở đây, ví dụ: soạn 2 bài Part 7 một văn bản và 1 bài hai văn bản]';
 
 const SAMPLE_6 = JSON.stringify([
