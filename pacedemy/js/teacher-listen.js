@@ -831,3 +831,38 @@ async function uploadOne(inp) {
   toast('Đã gắn ' + (kind === 'audio' ? 'audio' : 'ảnh') + ' vào bài.', 'good');
   loadAssign();
 }
+
+
+// ============================================================
+// Tách ảnh thẳng từ file PDF đề
+//
+// Dùng chung công cụ PdfCrop đã viết cho trang Bộ đề thi thử. Ảnh
+// tách ra đi vào đúng thư mục listen/ như file tải tay, nên tên file
+// dùng được ngay trong dữ liệu ở bước 3 — không phải nhớ đường dẫn
+// nào khác.
+// ============================================================
+
+if (typeof PdfCrop !== 'undefined' && document.getElementById('pdf-crop')) {
+  PdfCrop.mount(document.getElementById('pdf-crop'), {
+    onUpload: async function (ten, blob) {
+      const key = slug(ten);
+      const { error } = await uploadMedia('listen/' + key, blob);
+      if (error) return error.message;
+
+      if (uploaded.indexOf(key) === -1) uploaded.push(key);
+
+      // Hiện vào đúng danh sách của bước 1, để cô thấy tên file cần
+      // ghi trong dữ liệu ở bước 3.
+      const o = document.getElementById('up-list');
+      if (o) {
+        const d = document.createElement('div');
+        d.className = 'wrong-q';
+        d.style.padding = '10px 14px';
+        d.innerHTML = '<code style="font-size:0.88rem">' + esc(key) + '</code>' +
+          '<span class="tag-warm" style="margin-left:10px;font-size:0.78rem">tách từ PDF</span>';
+        o.appendChild(d);
+      }
+      return null;
+    }
+  });
+}
