@@ -50,6 +50,14 @@ const PROMPT =
   const { data: t } = await db.from('question_tags').select('tag').eq('part', 5);
   tags = (t || []).map(function (x) { return x.tag; });
 
+  const chonDang = $('de-dang');
+  if (chonDang) {
+    chonDang.innerHTML = '<option value="">— không gắn —</option>' +
+      tags.map(function (x) {
+        return '<option value="' + esc(x) + '">' + esc(x) + '</option>';
+      }).join('');
+  }
+
   loadHave();
 })();
 
@@ -76,12 +84,29 @@ $('btn-parse').addEventListener('click', function () {
   if (!raw) return say('Bạn dán dữ liệu vào ô trên đã nhé.');
 
   try {
-    rows = raw.charAt(0) === '[' || raw.charAt(0) === '{' ? readJson(raw) : readLines(raw);
+    if (raw.charAt(0) === '[' || raw.charAt(0) === '{') {
+      rows = readJson(raw);
+    } else {
+      // Thử kiểu "mỗi dòng ngăn bằng dấu |" trước vì nó chắc chắn.
+      // Không ra câu nào thì coi như đây là đề copy thẳng từ PDF hay
+      // Word, đưa cho bộ bóc đề.
+      rows = readLines(raw);
+      if (!rows.length && typeof DocDe !== 'undefined') {
+        const r = DocDe.doc(raw, $('de-dang') ? $('de-dang').value : '');
+        rows = r.cau;
+        if (rows.length) {
+          nhacBoc(r);
+        }
+      }
+    }
   } catch (e) {
     return say('Không đọc được dữ liệu: ' + e.message);
   }
 
-  if (!rows.length) return say('Không tìm thấy câu hỏi nào trong dữ liệu.');
+  if (!rows.length) {
+    return say('Không tìm thấy câu hỏi nào. Đề phải có số câu đầu dòng và đủ bốn ' +
+               'phương án A B C D thì máy mới tách được.');
+  }
 
   const bad = check(rows);
   preview(bad);
@@ -131,10 +156,25 @@ function readLines(raw) {
   return out;
 }
 
+// Nói rõ bóc được bao nhiêu, thiếu đáp án bao nhiêu. Thiếu đáp án là
+// chuyện phải cho cô thấy ngay: máy KHÔNG đoán đáp án, nên câu thiếu
+// sẽ bị loại lúc lưu nếu cô không điền.
+function nhacBoc(r) {
+  const o = $('de-trang-thai');
+  if (!o) return;
+  o.textContent = 'Tách được ' + r.cau.length + ' câu' +
+    (r.so_dap_an ? ' · đọc được bảng đáp án ' + r.so_dap_an + ' câu' : ' · KHÔNG thấy bảng đáp án') +
+    (r.thieu_dap_an ? ' · ' + r.thieu_dap_an + ' câu chưa có đáp án, em điền tay giúp' : '');
+  o.style.color = r.thieu_dap_an ? '#B4442F' : 'var(--teal)';
+}
+
 // ---------- Kiểm lỗi trước khi lưu ----------
+
+let nhac = {};   // lời nhắc: vẫn lưu được, chỉ là chưa đầy đủ
 
 function check(list) {
   const problems = {};
+  nhac = {};
 
   list.forEach(function (r, i) {
     const p = [];
@@ -144,7 +184,11 @@ function check(list) {
     if (['A','B','C','D'].indexOf(r.correct_answer) === -1) p.push('đáp án phải là A, B, C hoặc D');
     if (r.question_text && r.question_text.indexOf('__') === -1 && r.part === 5) p.push('câu chưa có chỗ trống ____');
     if (r.topic_tag && tags.length && tags.indexOf(r.topic_tag) === -1) p.push('dạng bài chưa có trong danh mục');
-    if (!r.explanation) p.push('chưa có giải thích');
+    // Chưa có giải thích thì KHÔNG chặn lưu. Đề bóc thẳng từ PDF
+    // không bao giờ có sẵn giải thích tiếng Việt, mà phần giải thích
+    // bốn phương án ở dưới trang này điền được sau. Chặn ở đây thì
+    // nguyên bộ đề vừa bóc bị vứt hết.
+    if (!r.explanation) nhac[i] = (nhac[i] || []).concat('chưa có giải thích');
 
     const set = [r.A, r.B, r.C, r.D].map(function (x) { return x.toLowerCase(); });
     if (new Set(set).size < 4) p.push('có hai phương án trùng nhau');
@@ -170,7 +214,8 @@ function preview(bad) {
     html +=
       '<div class="wrong-q" style="' + (p ? 'border-color:var(--danger)' : '') + '">' +
         (r.topic_tag ? '<span class="q-tag">' + esc(r.topic_tag) + '</span> ' : '') +
-        (p ? '<span class="tag-cold" style="font-size:0.82rem">' + esc(p.join(' · ')) + '</span>' : '') +
+        (p ? '<span class="tag-cold" style="font-size:0.82rem">' + esc(p.join(' · ')) + '</span> ' : '') +
+        (nhac[i] ? '<span class="tag-warm" style="font-size:0.82rem">' + esc(nhac[i].join(' · ')) + '</span>' : '') +
         '<p class="wq" style="margin-top:8px">' + esc(r.question_text) + '</p>' +
         '<p class="wa">' +
           ['A','B','C','D'].map(function (k) {
@@ -189,7 +234,10 @@ function preview(bad) {
     say('Có ' + nBad + ' câu còn lỗi. Bạn sửa trong ô dữ liệu rồi bấm Xem trước lại. ' +
         'Vẫn lưu được nhưng những câu lỗi sẽ bị bỏ qua.');
   } else {
-    say('Dữ liệu hợp lệ. Bấm Lưu để đưa vào ngân hàng đề.', 'good');
+    const chuaGiai = Object.keys(nhac).length;
+    say('Dữ liệu hợp lệ. Bấm Lưu để đưa vào ngân hàng đề.' +
+        (chuaGiai ? ' (' + chuaGiai + ' câu chưa có giải thích — lưu vẫn được, điền sau ở mục ' +
+                    'Giải thích bốn phương án bên dưới.)' : ''), 'good');
   }
 
   $('btn-save').classList.remove('hidden');
@@ -371,3 +419,136 @@ function esc(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+
+// ============================================================
+// Thả file PDF vào, đọc chữ ngay trong máy
+//
+// Dùng pdf.js tải từ CDN. File KHÔNG rời khỏi máy cô: đọc bằng
+// FileReader rồi pdf.js bóc chữ tại chỗ, không có lệnh gửi lên đâu
+// cả. Nói rõ chỗ này trên màn hình, vì "kéo file vào web" nghe như
+// là đang tải file lên.
+//
+// PDF scan (ảnh chụp trang sách) thì pdf.js không đọc được chữ —
+// trong file chỉ có ảnh, không có chữ. Gặp trường hợp đó phải nói
+// thẳng, chứ không để cô ngồi đợi một bảng trống.
+// ============================================================
+
+const PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let pdfSan = null;
+
+function napPdfJs() {
+  if (pdfSan) return pdfSan;
+  pdfSan = new Promise(function (ok, hong) {
+    if (window.pdfjsLib) return ok(window.pdfjsLib);
+    const s = document.createElement('script');
+    s.src = PDFJS_URL;
+    s.onload = function () {
+      if (!window.pdfjsLib) return hong(new Error('Không nạp được bộ đọc PDF'));
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+      ok(window.pdfjsLib);
+    };
+    s.onerror = function () { hong(new Error('Không tải được bộ đọc PDF, kiểm tra lại mạng')); };
+    document.head.appendChild(s);
+  });
+  return pdfSan;
+}
+
+// Ghép chữ trong một trang lại. pdf.js trả về từng mẩu kèm toạ độ,
+// nên phải tự xuống dòng khi mẩu sau tụt xuống thấp hơn mẩu trước —
+// không làm vậy thì cả trang dính thành một dòng dài, mà bộ bóc đề
+// lại dựa vào số câu ĐẦU DÒNG để cắt.
+function chuTrang(noi_dung) {
+  let ra = '';
+  let yTruoc = null;
+
+  noi_dung.items.forEach(function (it) {
+    const y = it.transform ? Math.round(it.transform[5]) : null;
+    if (yTruoc !== null && y !== null && Math.abs(y - yTruoc) > 3) ra += '\n';
+    ra += it.str;
+    if (it.hasEOL) ra += '\n';
+    yTruoc = y;
+  });
+
+  return ra;
+}
+
+async function docPdf(file) {
+  const o = $('de-trang-thai');
+  o.style.color = 'var(--ink-soft)';
+  o.textContent = 'Đang mở bộ đọc PDF…';
+
+  const pdfjs = await napPdfJs();
+
+  o.textContent = 'Đang đọc file…';
+  const buf = await file.arrayBuffer();
+  const tap = await pdfjs.getDocument({ data: buf }).promise;
+
+  let chu = '';
+  for (let i = 1; i <= tap.numPages; i++) {
+    o.textContent = 'Đang đọc trang ' + i + '/' + tap.numPages + '…';
+    const trang = await tap.getPage(i);
+    chu += chuTrang(await trang.getTextContent()) + '\n';
+  }
+
+  return chu;
+}
+
+async function nhanFile(file) {
+  if (!file) return;
+
+  const o = $('de-trang-thai');
+
+  try {
+    const chu = file.type === 'application/pdf' || /\.pdf$/i.test(file.name)
+      ? await docPdf(file)
+      : await file.text();
+
+    if (chu.replace(/\s/g, '').length < 40) {
+      o.style.color = '#B4442F';
+      o.textContent = 'File này không có chữ để lấy — nhiều khả năng là PDF scan ' +
+                      '(ảnh chụp trang sách). Em copy chữ từ bản Word, hoặc gửi file ' +
+                      'cho Claude theo cách ở mục bên dưới.';
+      return;
+    }
+
+    $('raw').value = chu;
+    o.style.color = 'var(--teal)';
+    o.textContent = 'Đã lấy chữ từ "' + file.name + '". Bấm Xem trước để tách thành câu hỏi.';
+
+    $('btn-parse').click();
+    $('preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    o.style.color = '#B4442F';
+    o.textContent = 'Không đọc được file: ' + (e.message || e);
+  }
+}
+
+(function noiOThaFile() {
+  const o = $('de-tha');
+  if (!o) return;
+
+  const chon = $('de-file');
+
+  o.addEventListener('click', function () { chon.click(); });
+  chon.addEventListener('change', function () { nhanFile(chon.files && chon.files[0]); });
+
+  ['dragenter', 'dragover'].forEach(function (e) {
+    o.addEventListener(e, function (ev) {
+      ev.preventDefault();
+      o.classList.add('dang-keo');
+    });
+  });
+  ['dragleave', 'drop'].forEach(function (e) {
+    o.addEventListener(e, function (ev) {
+      ev.preventDefault();
+      o.classList.remove('dang-keo');
+    });
+  });
+
+  o.addEventListener('drop', function (ev) {
+    nhanFile(ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0]);
+  });
+})();

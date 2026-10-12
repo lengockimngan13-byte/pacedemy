@@ -29,19 +29,42 @@
     </div>
 
     <div class="tbox">
-      <h3>Cách dùng</h3>
-      <p style="margin:0 0 10px;font-size:0.94rem;line-height:1.65">
-        Gửi file PDF hoặc Word cho Claude trong khung chat, kèm câu nhắc ở nút bên dưới.
-        Claude trả về một khối dữ liệu, Ngân copy rồi dán vào ô này.
+      <h3>Thả thẳng file đề vào đây</h3>
+      <p style="margin:0 0 14px;font-size:0.94rem;line-height:1.7">
+        Kéo file <b>PDF</b> vào ô dưới, hoặc copy nguyên trang đề trong Word rồi dán xuống
+        ô Dữ liệu. Máy tự tách số câu, bốn phương án và bảng đáp án —
+        <b>không qua ChatGPT, không qua Claude, không tốn đồng nào.</b>
       </p>
-      <button class="btn btn-line" id="btn-prompt">Copy câu nhắc cho Claude</button>
-      <span id="prompt-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+
+      <div class="de-tha" id="de-tha">
+        <input type="file" id="de-file" accept="application/pdf,.pdf,.txt" hidden>
+        <p class="de-tha-chu">Kéo file PDF vào đây, hoặc <b>bấm để chọn file</b></p>
+        <p class="de-tha-phu" id="de-trang-thai">Đọc ngay trong máy em, file không gửi đi đâu cả.</p>
+      </div>
+
+      <label class="de-dang">
+        <span>Gắn sẵn dạng này cho cả lô (để trống cũng được, sửa sau)</span>
+        <select id="de-dang"><option value="">— không gắn —</option></select>
+      </label>
+
+      <details style="margin-top:16px">
+        <summary style="cursor:pointer;font-size:0.9rem;font-weight:600">
+          Đề quá lạ, máy tách không ra thì làm sao
+        </summary>
+        <p style="margin:10px 0 0;font-size:0.92rem;line-height:1.7">
+          Gửi file cho Claude trong khung chat kèm câu nhắc dưới đây, rồi dán khối dữ liệu
+          Claude trả về vào ô Dữ liệu. Đường này chậm hơn nhưng đọc được cả mấy kiểu
+          trình bày khác thường.
+        </p>
+        <button class="btn btn-line" id="btn-prompt" style="margin-top:12px">Copy câu nhắc cho Claude</button>
+        <span id="prompt-ok" style="margin-left:12px;font-size:0.88rem;color:var(--teal)"></span>
+      </details>
     </div>
 
     <div class="field">
       <label for="raw">Dữ liệu câu hỏi</label>
       <textarea id="raw" style="min-height:220px;font-family:ui-monospace,monospace;font-size:0.88rem"
-        placeholder='Dán khối JSON Claude trả về, hoặc mỗi câu một dòng ngăn bằng dấu |'></textarea>
+        placeholder='Dán nguyên trang đề copy từ PDF hoặc Word vào đây — máy tự tách.&#10;Hoặc dán khối JSON, hoặc mỗi câu một dòng ngăn bằng dấu |'></textarea>
     </div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
@@ -99,6 +122,7 @@
 <script src="js/layout-settings.js"></script>
 <script src="js/teacher-nav.js"></script>
 <script src="js/bulk-list.js"></script>
+<script src="js/doc-de-thi.js"></script>
 <script src="js/teacher-import.js"></script>
 <script src="js/giai-dap-an.js"></script>
 <script>document.addEventListener("DOMContentLoaded", function () { GiaiDapAn.moLai(); });</script>

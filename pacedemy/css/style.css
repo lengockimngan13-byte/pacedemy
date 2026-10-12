@@ -7196,3 +7196,24 @@ b.yeu { color: #B4442F; }
 
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* ---- Ô thả file đề vào (Nhập đề Part 5) ---- */
+
+.de-tha {
+  padding: 30px 22px; text-align: center; cursor: pointer;
+  border: 2px dashed var(--line); border-radius: 13px;
+  background: #FAFBFA;
+  transition: border-color 0.15s, background 0.15s;
+}
+.de-tha:hover, .de-tha.dang-keo { border-color: var(--teal); background: var(--mist); }
+.de-tha.dang-keo { border-style: solid; }
+
+.de-tha-chu { margin: 0; font-size: 0.98rem; }
+.de-tha-phu { margin: 8px 0 0; font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); }
+
+.de-dang { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; }
+.de-dang span { font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); }
+.de-dang select {
+  padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 9px;
+  font-family: var(--ui); font-size: 0.93rem; background: #fff;
+}
