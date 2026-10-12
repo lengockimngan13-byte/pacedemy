@@ -7250,3 +7250,150 @@ b.yeu { color: #B4442F; }
   .vb-bang-cuon { overflow: visible; }
   .vb-bang { break-inside: avoid; page-break-inside: avoid; }
 }
+
+/* ============================================================
+   Nhập bài nghe — ô "Đang nhập cho", danh sách bài đã có,
+   và bảng sửa một bài nghe (js/sua-bai-nghe.js)
+   ============================================================ */
+
+.dang-nhap { border-left: 3px solid var(--gold); }
+
+.dnh-hang {
+  display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;
+}
+/* .btn-sm mặc định là flex:1, trong hàng này sẽ giãn hết chiều ngang */
+.dnh-hang > .btn-sm, .dnh-form > .btn-sm, .dnh-form > .btn { flex: none; }
+.dnh-hang .test-tabs { flex: none; margin: 0; padding-bottom: 0; border-bottom: none; }
+.dnh-nhan { font-size: 0.92rem; font-weight: 600; padding-bottom: 9px; }
+
+.dnh-o { display: flex; flex-direction: column; gap: 5px; min-width: 190px; }
+.dnh-o > span { font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); }
+.dnh-o > input, .dnh-o > select {
+  padding: 9px 11px; border: 1.5px solid var(--line); border-radius: var(--r);
+  font-family: var(--ui); font-size: 0.92rem; background: #fff;
+}
+.dnh-o > input:focus, .dnh-o > select:focus { border-color: var(--teal); outline: none; }
+.dnh-o-rong { flex: 1; min-width: 240px; }
+
+.dnh-form {
+  display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;
+  margin-top: 14px; padding: 14px; border-radius: var(--r); background: var(--mist);
+}
+
+.dnh-cho {
+  margin: 14px 0 0; font-size: 0.88rem; line-height: 1.7; color: var(--ink-soft);
+}
+.dnh-cho code {
+  padding: 1px 6px; border-radius: 5px; background: var(--mist);
+  font-size: 0.86rem; color: var(--ink);
+}
+
+/* ---- danh sách bài nghe đã có ---- */
+
+.have-de {
+  font-family: var(--disp); font-size: 1.02rem;
+  margin: 26px 0 4px; padding-bottom: 6px; border-bottom: 1.5px solid var(--line);
+}
+.have-part {
+  font-size: 0.86rem; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--ink-soft); margin: 14px 0 8px;
+}
+
+.have-row {
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  margin-bottom: 8px; background: #fff;
+}
+.have-dong {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 11px 14px;
+}
+.have-dong input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--teal); flex: none; }
+.have-dong > .btn-sm { flex: none; }
+.have-ten { flex: 1; min-width: 170px; font-weight: 600; }
+.have-sua:not(:empty) { padding: 0 14px 14px; border-top: 1.5px solid var(--line); }
+
+#assign-list .wrong-q > .btn-sm { flex: none; }
+
+/* ---- bảng sửa một bài ---- */
+
+.sbn { padding-top: 14px; }
+.sbn-dau {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.sbn-tieu {
+  font-family: var(--disp); font-size: 0.98rem; margin: 22px 0 10px;
+  padding-bottom: 6px; border-bottom: 1.5px solid var(--line);
+}
+
+.sbn-o { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.sbn-o > span { font-size: 0.8rem; font-weight: 600; color: var(--ink-soft); }
+.sbn-o > input, .sbn-o > select, .sbn-o > textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 9px 11px; border: 1.5px solid var(--line); border-radius: var(--r);
+  font-family: var(--ui); font-size: 0.92rem; background: #fff; color: var(--ink);
+}
+.sbn-o > textarea { line-height: 1.7; resize: vertical; }
+.sbn-o > input:focus, .sbn-o > select:focus, .sbn-o > textarea:focus {
+  border-color: var(--teal); outline: none;
+}
+
+.sbn-hang2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.sbn-hang3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 0 14px; }
+
+.sbn-file {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px 14px; margin-bottom: 14px;
+  border-radius: var(--r); background: var(--mist);
+}
+.sbn-file-o { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sbn-file-nhan {
+  min-width: 72px; font-size: 0.82rem; font-weight: 600; color: var(--ink-soft);
+}
+.sbn-anh {
+  max-width: 180px; max-height: 110px; border-radius: 8px;
+  border: 1.5px solid var(--line); background: #fff;
+}
+
+.sbn-cau {
+  padding: 14px; margin-bottom: 12px;
+  border: 1.5px solid var(--line); border-radius: var(--r); background: var(--paper);
+}
+
+.sbn-pa { margin-bottom: 12px; }
+.sbn-pa-o {
+  display: flex; align-items: center; gap: 9px; margin-bottom: 6px;
+  padding: 5px 8px; border-radius: 8px; border: 1.5px solid transparent;
+}
+.sbn-pa-o > span {
+  width: 20px; flex: none; text-align: center;
+  font-weight: 700; font-size: 0.9rem; color: var(--ink-soft);
+}
+.sbn-pa-o > input {
+  flex: 1; min-width: 0;
+  padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px;
+  font-family: var(--ui); font-size: 0.9rem; background: #fff;
+}
+.sbn-pa-o > input:focus { border-color: var(--teal); outline: none; }
+.sbn-pa-o.sbn-dung { border-color: var(--teal); background: rgba(42,127,118,0.07); }
+.sbn-pa-o.sbn-dung > span { color: var(--teal); }
+
+.sbn-chon {
+  flex: none; padding: 5px 10px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: #fff;
+  font-family: var(--ui); font-size: 0.74rem; font-weight: 600;
+  color: var(--ink-soft); cursor: pointer;
+}
+.sbn-chon:hover { border-color: var(--teal); color: var(--teal); }
+.sbn-dung .sbn-chon {
+  border-color: var(--teal); background: var(--teal); color: #fff; cursor: default;
+}
+
+.sbn-cau-nut, .sbn-nut { display: flex; gap: 8px; flex-wrap: wrap; }
+.sbn-cau-nut > .btn-sm, .sbn-nut > .btn-sm, .sbn-file-o > .btn-sm { flex: none; }
+.sbn-nut { margin-top: 18px; padding-top: 14px; border-top: 1.5px solid var(--line); }
+
+@media (max-width: 760px) {
+  .sbn-hang2, .sbn-hang3 { grid-template-columns: 1fr; }
+  .dnh-o { min-width: 100%; }
+}

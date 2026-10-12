@@ -399,9 +399,16 @@ function slug(name) {
   return (clean || 'file') + '-' + Date.now().toString(36) + ext;
 }
 
+// Ngăn kho đi theo đề và Part đang soạn, giống trang Nhập bài nghe,
+// để kho không thành một đống phẳng hàng nghìn file không biết của đề nào
+function nganKho() {
+  const so = parseInt($('f-test').value, 10);
+  return 'listen/' + (isNaN(so) || so < 1 ? 'le' : 'de-' + so) + '/p' + part() + '/';
+}
+
 async function taiLen(file, xem, dat) {
   xem.innerHTML = '<p class="sn-dan">Đang tải lên…</p>';
-  const { error, url } = await uploadMedia('listen/' + slug(file.name), file);
+  const { error, url } = await uploadMedia(nganKho() + slug(file.name), file);
   if (error) {
     xem.innerHTML = '<p class="sn-loi">Không tải lên được: ' + esc(error.message) + '</p>';
     return;

@@ -1,14 +1,33 @@
 // ============================================================
 // Pacedemy — nhập bài nghe Part 1 đến 4
-// Bước 1 tải file lên kho, bước 3 dán dữ liệu câu hỏi.
-// Một phần tử JSON = một bài nghe (một file âm thanh) kèm các câu hỏi của bài đó.
+//
+// Trình tự: chọn đề và Part đang soạn → tải file âm thanh, ảnh lên kho
+// → dán dữ liệu câu hỏi → lưu. Một phần tử JSON = một bài nghe (một
+// file âm thanh) kèm các câu hỏi của bài đó.
+//
+// Chuyện ngăn kho, nói cho rõ vì đây từng là chỗ dễ mất dữ liệu:
+// trước đây mọi file đều đổ chung vào thư mục listen/ với tên đã bỏ
+// dấu. Nghĩa là file p1-01.jpg của Đề 1 và p1-01.jpg của Đề 2 là CÙNG
+// một đường dẫn — tải cái sau lên là đè mất cái trước, mà không báo
+// gì. Giờ mỗi đề mỗi Part có ngăn riêng:
+//
+//     listen/de-3/p1/p1-01.jpg
+//     listen/le/p2/cau-07.mp3      ← bài chưa xếp đề
+//
+// Lúc lưu, tên file cô ghi trong dữ liệu được dò lần lượt: file vừa
+// tải trong phiên này → ngăn của đề và Part đang chọn → các Part khác
+// cùng đề → thư mục phẳng kiểu cũ. Dò bằng cách hỏi thẳng kho xem có
+// file đó không, nên tên gõ sai là biết ngay ở bước Xem trước, chứ
+// không phải đợi học viên mở bài rồi mới phát hiện không có tiếng.
 // ============================================================
-
-// File nghe và ảnh lưu trên Cloudflare R2 (js/media.js), thư mục listen/
 
 let me = null;
 let sets = [];          // dữ liệu đã đọc từ ô dán
-let uploaded = [];      // tên file vừa tải lên trong phiên này
+let khoPhien = {};      // tên file cô ghi → key thật trong kho, nhớ trong phiên
+let daDo = {};          // key → có trong kho hay không, nhớ cho khỏi hỏi lại
+
+let curPart = 1;
+let curDe = null;       // số đề đang nhập, null là chưa xếp đề
 
 const $ = function (id) { return document.getElementById(id); };
 
@@ -231,8 +250,108 @@ const SAMPLE_BY_PART = {
   }
 
   $('view-main').classList.remove('hidden');
+
+  await BoDe.tai();
+  veOChonDe();
+  moTaNgan();
   loadHave();
 })();
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ---------- Đề và Part đang nhập ----------
+
+function veOChonDe() {
+  const locCu = $('f-de').value;
+
+  BoDe.doOSelect($('de-chon'), curDe);
+  BoDe.doOSelect($('f-de'), null);
+
+  // Thanh lọc cần thêm một mục cho bài chưa xếp đề nào
+  const le = document.createElement('option');
+  le.value = 'none';
+  le.textContent = 'Bài lẻ chưa xếp đề';
+  $('f-de').appendChild(le);
+  $('f-de').value = locCu;
+}
+
+function nganKho() {
+  return 'listen/' + (curDe == null ? 'le' : 'de-' + curDe) + '/p' + curPart + '/';
+}
+
+function moTaNgan() {
+  $('dnh-cho').innerHTML = curDe == null
+    ? 'Chưa chọn đề. File vẫn tải lên được, vào ngăn <code>' + esc(nganKho()) +
+      '</code> và bài lưu xong xếp vào mục “Bài lẻ chưa xếp đề”. Chọn đề trước thì gọn hơn.'
+    : 'File tải lên nằm ở <code>' + esc(nganKho()) + '</code> · bài lưu xong thuộc <b>' +
+      esc(BoDe.nhan(curDe)) + '</b>';
+}
+
+$('de-chon').addEventListener('change', function () {
+  curDe = this.value === '' ? null : parseInt(this.value, 10);
+  daDo = {};                      // đổi đề là đổi ngăn, kết quả dò cũ không dùng lại
+  moTaNgan();
+  $('assign-list').innerHTML = '';
+  $('assign-n').textContent = '';
+});
+
+document.querySelectorAll('#part-tabs .test-tab').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('#part-tabs .test-tab').forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    curPart = parseInt(b.dataset.part, 10);
+    moTaNgan();
+  });
+});
+
+$('de-moi-nut').addEventListener('click', function () {
+  // Gợi ý số kế tiếp để cô không phải tự nhớ đã dùng tới số mấy
+  const da = BoDe.danhSach().map(function (d) { return d.so; });
+  $('de-so').value = da.length ? Math.max.apply(null, da) + 1 : 1;
+  $('de-ten').value = '';
+  $('de-form').classList.remove('hidden');
+  $('de-ten').focus();
+});
+
+$('de-sua-nut').addEventListener('click', function () {
+  if (curDe == null) { toast('Chọn một đề trước đã nhé.', 'bad'); return; }
+  const d = BoDe.danhSach().filter(function (x) { return x.so === curDe; })[0];
+  $('de-so').value = curDe;
+  $('de-ten').value = d ? d.ten : '';
+  $('de-form').classList.remove('hidden');
+  $('de-ten').focus();
+});
+
+$('de-huy').addEventListener('click', function () {
+  $('de-form').classList.add('hidden');
+});
+
+$('de-luu').addEventListener('click', async function () {
+  const so = parseInt($('de-so').value, 10);
+  const ten = $('de-ten').value;
+
+  this.disabled = true;
+  const { error } = await BoDe.datTen(so, ten);
+  this.disabled = false;
+
+  if (error) { toast(error.message, 'bad'); return; }
+
+  curDe = so;
+  veOChonDe();
+  $('de-chon').value = String(so);
+  moTaNgan();
+  $('de-form').classList.add('hidden');
+  toast('Đã lưu đề.', 'good');
+  loadHave();
+});
+
+$('de-ten').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); $('de-luu').click(); }
+});
 
 // ---------- Bước 1 · Tải file lên kho ----------
 
@@ -251,6 +370,13 @@ function slug(name) {
   return (clean || 'file') + ext;
 }
 
+// Nhớ lại file vừa tải, để lúc lưu khỏi phải dò kho
+function nhoFile(tenGoc, key) {
+  khoPhien[tenGoc] = key;
+  khoPhien[slug(tenGoc)] = key;
+  daDo[key] = true;
+}
+
 $('btn-upload').addEventListener('click', async function () {
   const input = $('files');
   const list = input.files ? Array.from(input.files) : [];
@@ -263,14 +389,15 @@ $('btn-upload').addEventListener('click', async function () {
   this.disabled = true;
   $('up-note').textContent = 'Đang tải ' + list.length + ' file…';
 
+  const ngan = nganKho();
   const rows = [];
 
   for (const f of list) {
-    const key = slug(f.name);
-    const { error } = await uploadMedia('listen/' + key, f);
+    const ten = slug(f.name);
+    const { error } = await uploadMedia(ngan + ten, f);
 
-    rows.push({ key: key, ok: !error, msg: error ? error.message : '' });
-    if (!error && uploaded.indexOf(key) === -1) uploaded.push(key);
+    rows.push({ ten: ten, ngan: ngan, ok: !error, msg: error ? error.message : '' });
+    if (!error) nhoFile(f.name, ngan + ten);
   }
 
   this.disabled = false;
@@ -283,15 +410,16 @@ $('btn-upload').addEventListener('click', async function () {
 
 function showUploaded(rows) {
   let html = '<p style="font-size:0.9rem;margin:0 0 10px">' +
-             'Tên file dùng trong dữ liệu ở bước 3 chính là tên bên dưới. ' +
-             'Dấu tiếng Việt và khoảng trắng đã được tự động bỏ đi.</p>';
+             'Tên file dùng trong dữ liệu ở bước 3 chính là tên bên dưới — chỉ cần tên, ' +
+             'không cần ghi đường dẫn. Dấu tiếng Việt và khoảng trắng đã được tự động bỏ đi.</p>';
 
   for (const r of rows) {
     html +=
       '<div class="wrong-q" style="padding:10px 14px;' +
         (r.ok ? '' : 'border-color:var(--danger);') + '">' +
-        '<code style="font-size:0.88rem">' + esc(r.key) + '</code>' +
-        (r.ok ? '<span class="tag-warm" style="margin-left:10px;font-size:0.78rem">đã lên kho</span>'
+        '<code style="font-size:0.88rem">' + esc(r.ten) + '</code>' +
+        (r.ok ? '<span class="tag-warm" style="margin-left:10px;font-size:0.78rem">đã lên kho</span>' +
+                '<span class="stat-lab" style="margin-left:10px">' + esc(r.ngan) + '</span>'
               : '<span class="tag-cold" style="margin-left:10px;font-size:0.78rem">' +
                 esc(r.msg) + '</span>') +
       '</div>';
@@ -300,17 +428,7 @@ function showUploaded(rows) {
   $('up-list').innerHTML = html;
 }
 
-// ---------- Bước 2 · Chọn Part, lấy câu nhắc ----------
-
-let curPart = 1;
-
-document.querySelectorAll('#part-tabs .test-tab').forEach(function (b) {
-  b.addEventListener('click', function () {
-    document.querySelectorAll('#part-tabs .test-tab').forEach(function (x) { x.classList.remove('on'); });
-    b.classList.add('on');
-    curPart = parseInt(b.dataset.part, 10);
-  });
-});
+// ---------- Bước 2 · Lấy câu nhắc ----------
 
 $('btn-prompt').addEventListener('click', function () {
   navigator.clipboard.writeText(PROMPT_BY_PART[curPart]).then(function () {
@@ -334,7 +452,7 @@ function say(msg, kind) {
   n.textContent = msg;
 }
 
-$('btn-parse').addEventListener('click', function () {
+$('btn-parse').addEventListener('click', async function () {
   const raw = $('raw').value.trim();
   if (!raw) return say('Bạn dán dữ liệu vào ô trên đã nhé.');
 
@@ -346,7 +464,16 @@ $('btn-parse').addEventListener('click', function () {
 
   if (!sets.length) return say('Không tìm thấy bài nghe nào trong dữ liệu.');
 
-  preview(check(sets));
+  this.disabled = true;
+  const chuCu = this.textContent;
+  this.textContent = 'Đang dò file trong kho…';
+
+  await giaiFile(sets);
+
+  this.disabled = false;
+  this.textContent = chuCu;
+
+  preview(check(sets), nhacFile(sets));
 });
 
 function readJson(raw) {
@@ -387,6 +514,71 @@ function readJson(raw) {
   });
 }
 
+// ---------- Dò file trong kho ----------
+
+// Hỏi thẳng kho xem có file này không. Hỏi một lần rồi nhớ, vì một
+// tên file hay dùng lại ở nhiều bài.
+async function coTrongKho(key) {
+  if (daDo[key] != null) return daDo[key];
+  try {
+    const res = await fetch(mediaUrl(key), { method: 'HEAD' });
+    daDo[key] = res.ok;
+  } catch (e) {
+    daDo[key] = false;
+  }
+  return daDo[key];
+}
+
+// Tìm đường dẫn thật cho một tên file cô ghi trong dữ liệu.
+// Thứ tự dò, từ chắc nhất xuống: file vừa tải trong phiên này → ngăn
+// của đề và Part này → các Part khác cùng đề → thư mục phẳng kiểu cũ.
+async function timFile(ten, part) {
+  if (!ten) return { url: null, co: true };
+  if (/^https?:\/\//i.test(ten)) return { url: ten, co: true };
+
+  const s = slug(ten);
+  const ngan = curDe == null ? 'le' : 'de-' + curDe;
+  const thu = [];
+
+  if (khoPhien[ten]) thu.push(khoPhien[ten]);
+  if (khoPhien[s] && thu.indexOf(khoPhien[s]) === -1) thu.push(khoPhien[s]);
+
+  thu.push('listen/' + ngan + '/p' + part + '/' + s);
+  [1, 2, 3, 4].forEach(function (p) {
+    if (p !== part) thu.push('listen/' + ngan + '/p' + p + '/' + s);
+  });
+  thu.push('listen/' + s);                       // kho cũ, hồi còn để phẳng
+
+  for (const k of thu) {
+    if (await coTrongKho(k)) return { url: mediaUrl(k), co: true };
+  }
+
+  // Không thấy đâu cả. Vẫn trả về đường dẫn đúng ngăn, để cô tải file
+  // lên sau là bài chạy ngay, không phải sửa lại dữ liệu.
+  return { url: mediaUrl('listen/' + ngan + '/p' + part + '/' + s), co: false };
+}
+
+async function giaiFile(list) {
+  for (const s of list) {
+    const a = await timFile(s.audio_file, s.part);
+    const i = await timFile(s.image_file, s.part);
+    s._audio_url = a.url;
+    s._image_url = i.url;
+    s._thieu = [];
+    if (s.audio_file && !a.co) s._thieu.push('chưa thấy file âm thanh ' + s.audio_file + ' trong kho');
+    if (s.image_file && !i.co) s._thieu.push('chưa thấy file ảnh ' + s.image_file + ' trong kho');
+  }
+}
+
+// Nhắc, không phải lỗi: bài vẫn lưu được, tải file lên sau là chạy
+function nhacFile(list) {
+  const n = {};
+  list.forEach(function (s, i) {
+    if (s._thieu && s._thieu.length) n[i] = s._thieu.slice();
+  });
+  return n;
+}
+
 // ---------- Kiểm lỗi ----------
 
 function check(list) {
@@ -415,7 +607,6 @@ function check(list) {
       if (keys.length < 3) p.push(no + 'phải có ít nhất ba phương án');
       if (s.part !== 2 && keys.length < 4) p.push(no + 'part này cần đủ bốn phương án');
       if (keys.indexOf(q.correct_answer) === -1) p.push(no + 'đáp án không nằm trong các phương án');
-      if (!q.explanation) p.push(no + 'chưa có giải thích');
       if ((s.part === 3 || s.part === 4) && !q.question_text) p.push(no + 'thiếu câu hỏi in trên đề');
 
       const vals = keys.map(function (k) { return q.options[k].toLowerCase(); });
@@ -430,8 +621,9 @@ function check(list) {
 
 // ---------- Xem trước ----------
 
-function preview(bad) {
+function preview(bad, nhac) {
   const nBad = Object.keys(bad).length;
+  const nNhac = Object.keys(nhac || {}).length;
   const nq = sets.reduce(function (a, s) { return a + s.questions.length; }, 0);
 
   let html = '<div class="section-head" style="margin-top:26px">' +
@@ -439,13 +631,18 @@ function preview(bad) {
              (nBad ? '<span class="tag-cold">' + nBad + ' bài cần sửa</span>'
                    : '<span class="tag-warm">Không có lỗi</span>') + '</div>';
 
+  html += '<p class="level-note" style="margin:0 0 12px">Lưu vào <b>' +
+          esc(BoDe.nhan(curDe)) + '</b></p>';
+
   sets.forEach(function (s, i) {
     const p = bad[i];
+    const n = (nhac || {})[i];
 
     html +=
       '<div class="wrong-q" style="' + (p ? 'border-color:var(--danger)' : '') + '">' +
         '<span class="q-tag">' + esc(PART_NAME[s.part] || 'Part ?') + '</span> ' +
         (p ? '<span class="tag-cold" style="font-size:0.82rem">' + esc(p.join(' · ')) + '</span>' : '') +
+        (n ? ' <span class="tag-warm" style="font-size:0.82rem">' + esc(n.join(' · ')) + '</span>' : '') +
         '<p class="wq" style="margin-top:8px;font-weight:600">' + esc(s.title) + '</p>' +
         '<p class="ww">Âm thanh: ' + esc(s.audio_file) +
           (s.image_file ? ' · Ảnh: ' + esc(s.image_file) : '') +
@@ -465,7 +662,8 @@ function preview(bad) {
             }).join(' &nbsp; ') +
           '</p>' +
           (q.key_point ? '<p class="key-point" style="margin:6px 0">' + esc(q.key_point) + '</p>' : '') +
-          (q.explanation ? '<p class="ww">' + esc(q.explanation) + '</p>' : '') +
+          (q.explanation ? '<p class="ww">' + esc(q.explanation) + '</p>'
+                         : '<p class="ww" style="color:var(--ink-soft)">chưa có giải thích — lưu được, bổ sung sau ở phần Sửa</p>') +
         '</div>';
     });
 
@@ -482,8 +680,11 @@ function preview(bad) {
   if (nBad) {
     say('Có ' + nBad + ' bài còn lỗi. Bạn sửa trong ô dữ liệu rồi bấm Xem trước lại. ' +
         'Vẫn lưu được nhưng những bài lỗi sẽ bị bỏ qua.');
+  } else if (nNhac) {
+    say('Dữ liệu hợp lệ, nhưng ' + nNhac + ' bài có tên file chưa thấy trong kho. ' +
+        'Lưu vẫn được — tải file lên đúng ngăn, hoặc gắn tay ở phần Gán audio & ảnh.', 'good');
   } else {
-    say('Dữ liệu hợp lệ. Bấm Lưu để đưa vào ngân hàng đề.', 'good');
+    say('Dữ liệu hợp lệ, file đã có đủ trong kho. Bấm Lưu để đưa vào ngân hàng đề.', 'good');
   }
 
   $('btn-save').classList.remove('hidden');
@@ -491,18 +692,6 @@ function preview(bad) {
 }
 
 // ---------- Lưu ----------
-
-// Số Test giáo viên nhập ở Bước 3 — áp cho mọi bài lưu trong lượt này
-function testNo() {
-  const v = parseInt(($('test-no') || {}).value, 10);
-  return isNaN(v) ? null : v;
-}
-
-function urlOf(name) {
-  if (!name) return null;
-  if (/^https?:\/\//i.test(name)) return name;
-  return mediaUrl('listen/' + slug(name));
-}
 
 $('btn-save').addEventListener('click', async function () {
   const bad = new Set(JSON.parse(this.dataset.bad || '[]').map(Number));
@@ -519,13 +708,13 @@ $('btn-save').addEventListener('click', async function () {
     const { data: row, error } = await db.from('listening_sets').insert({
       part: s.part,
       title: s.title,
-      audio_url: urlOf(s.audio_file),
-      image_url: urlOf(s.image_file),
+      audio_url: s._audio_url,
+      image_url: s._image_url,
       transcript: s.transcript || null,
       transcript_vi: s.transcript_vi || null,
       difficulty: s.difficulty || 2,
       vocab: s.vocab || [],
-      test_no: testNo(),
+      test_no: curDe,
       is_active: true
     }).select('id').single();
 
@@ -549,6 +738,7 @@ $('btn-save').addEventListener('click', async function () {
         topic_tag: q.topic_tag || null,
         question_vi: q.question_vi || {},
         difficulty: s.difficulty || 2,
+        test_no: curDe,
         is_active: true
       };
     });
@@ -569,7 +759,7 @@ $('btn-save').addEventListener('click', async function () {
   this.disabled = false;
   this.textContent = 'Lưu vào ngân hàng đề';
 
-  say('Đã lưu ' + nSet + ' bài nghe với ' + nQ + ' câu hỏi.', 'good');
+  say('Đã lưu ' + nSet + ' bài nghe với ' + nQ + ' câu hỏi vào ' + BoDe.nhan(curDe) + '.', 'good');
   $('raw').value = '';
   $('preview').innerHTML = '';
   $('btn-save').classList.add('hidden');
@@ -578,53 +768,126 @@ $('btn-save').addEventListener('click', async function () {
 
 // ---------- Bài nghe đã có ----------
 
+let have = [];                  // toàn bộ bài, tải một lần rồi lọc tại chỗ
+let haveCount = {};             // id bài → số câu
 let haveSelected = new Set();
 
 async function loadHave() {
+  $('have').innerHTML = '<p class="empty">Đang tải…</p>';
+
+  const { data: rows, error } = await db
+    .from('listening_sets')
+    .select('id, part, title, test_no, is_active, audio_url, image_url, transcript')
+    .order('test_no', { nullsFirst: false }).order('part').order('id');
+
+  if (error) {
+    $('have').innerHTML = '<p class="empty">Không tải được danh sách: ' + esc(error.message) + '</p>';
+    return;
+  }
+
+  have = rows || [];
   haveSelected = new Set();
 
-  const { data: rows } = await db
-    .from('listening_sets')
-    .select('id, part, title, is_active, audio_url')
-    .order('part').order('id');
-
-  if (!rows || !rows.length) {
-    $('have').innerHTML = '<p class="empty">Chưa có bài nghe nào.</p>';
-    $('have-n').textContent = '';
-    $('have-select-all').checked = false;
-    updateBulkBar();
+  if (!have.length) {
+    haveCount = {};
+    veHave();
     return;
   }
 
   const { data: qs } = await db
     .from('questions')
     .select('set_id')
-    .in('set_id', rows.map(function (r) { return r.id; }));
+    .in('set_id', have.map(function (r) { return r.id; }));
 
-  const count = {};
-  for (const q of (qs || [])) count[q.set_id] = (count[q.set_id] || 0) + 1;
+  haveCount = {};
+  for (const q of (qs || [])) haveCount[q.set_id] = (haveCount[q.set_id] || 0) + 1;
 
-  $('have-n').textContent = rows.length + ' bài · ' + (qs ? qs.length : 0) + ' câu';
+  veHave();
+}
+
+function locHave() {
+  const de = $('f-de').value;
+  const part = $('f-part').value;
+  const state = $('f-state').value;
+  const tim = $('f-text').value.trim().toLowerCase();
+
+  return have.filter(function (r) {
+    if (de === 'none' && r.test_no != null) return false;
+    if (de && de !== 'none' && String(r.test_no) !== de) return false;
+    if (part && String(r.part) !== part) return false;
+    if (state === 'on' && r.is_active === false) return false;
+    if (state === 'off' && r.is_active !== false) return false;
+    if (tim) {
+      const kho = ((r.title || '') + ' ' + (r.transcript || '')).toLowerCase();
+      if (kho.indexOf(tim) === -1) return false;
+    }
+    return true;
+  });
+}
+
+function veHave() {
+  // Sắp lại tại chỗ: theo đề, trong đề thì theo Part. Bài chưa xếp đề
+  // xuống cuối. Không trông chờ vào thứ tự máy chủ trả về, vì danh sách
+  // này chia thành từng cụm có tiêu đề — lệch một dòng là tiêu đề lặp
+  // lại giữa chừng, nhìn như hỏng.
+  const rows = locHave().sort(function (a, b) {
+    const da = a.test_no == null ? Infinity : a.test_no;
+    const dbb = b.test_no == null ? Infinity : b.test_no;
+    if (da !== dbb) return da - dbb;
+    if (a.part !== b.part) return a.part - b.part;
+    return a.id - b.id;
+  });
+
+  $('have-n').textContent = have.length
+    ? (rows.length === have.length
+        ? have.length + ' bài'
+        : rows.length + ' / ' + have.length + ' bài')
+    : '';
+
+  if (!rows.length) {
+    $('have').innerHTML = '<p class="empty">' +
+      (have.length ? 'Không có bài nào khớp với bộ lọc đang chọn.' : 'Chưa có bài nghe nào.') +
+      '</p>';
+    $('have-select-all').checked = false;
+    updateBulkBar();
+    return;
+  }
 
   let html = '';
-  let lastPart = null;
+  let dauDe = '\u0000';
+  let dauPart = null;
 
   for (const r of rows) {
-    if (r.part !== lastPart) {
-      lastPart = r.part;
-      html += '<h3 style="font-family:var(--disp);font-size:1rem;margin:20px 0 10px">' +
-              esc(PART_NAME[r.part] || 'Part ' + r.part) + '</h3>';
+    const khoaDe = r.test_no == null ? 'x' : String(r.test_no);
+    if (khoaDe !== dauDe) {
+      dauDe = khoaDe;
+      dauPart = null;
+      html += '<h3 class="have-de">' +
+              esc(r.test_no == null ? 'Bài lẻ chưa xếp đề' : BoDe.nhan(r.test_no)) + '</h3>';
+    }
+    if (r.part !== dauPart) {
+      dauPart = r.part;
+      html += '<h4 class="have-part">' + esc(PART_NAME[r.part] || 'Part ' + r.part) + '</h4>';
     }
 
+    const thieu = [];
+    if (!r.audio_url) thieu.push('chưa có audio');
+    if (r.part === 1 && !r.image_url) thieu.push('chưa có ảnh');
+
     html +=
-      '<div class="wrong-q" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
-        '<input type="checkbox" class="have-check" data-id="' + r.id + '" style="width:18px;height:18px;accent-color:var(--teal)">' +
-        '<span style="flex:1;min-width:180px;font-weight:600">' + esc(r.title) + '</span>' +
-        '<span class="stat-lab">' + (count[r.id] || 0) + ' câu</span>' +
-        (r.is_active ? '' : '<span class="tag-cold" style="font-size:0.78rem">đang ẩn</span>') +
-        '<button class="btn-sm" data-act="toggle" data-id="' + r.id + '">' +
-          (r.is_active ? 'Ẩn bài' : 'Hiện lại') + '</button>' +
-        '<button class="btn-sm" data-act="del" data-id="' + r.id + '">Xoá</button>' +
+      '<div class="have-row" data-row="' + r.id + '">' +
+        '<div class="have-dong">' +
+          '<input type="checkbox" class="have-check" data-id="' + r.id + '">' +
+          '<span class="have-ten">' + esc(r.title) + '</span>' +
+          '<span class="stat-lab">' + (haveCount[r.id] || 0) + ' câu</span>' +
+          (r.is_active === false ? '<span class="tag-cold" style="font-size:0.78rem">đang ẩn</span>' : '') +
+          (thieu.length ? '<span class="tag-cold" style="font-size:0.78rem">' + esc(thieu.join(', ')) + '</span>' : '') +
+          '<button class="btn-sm" data-act="sua" data-id="' + r.id + '">Sửa</button>' +
+          '<button class="btn-sm" data-act="toggle" data-id="' + r.id + '">' +
+            (r.is_active === false ? 'Hiện lại' : 'Ẩn bài') + '</button>' +
+          '<button class="btn-sm" data-act="del" data-id="' + r.id + '">Xoá</button>' +
+        '</div>' +
+        '<div class="have-sua" data-sua="' + r.id + '"></div>' +
       '</div>';
   }
 
@@ -635,6 +898,7 @@ async function loadHave() {
   });
 
   $('have').querySelectorAll('.have-check').forEach(function (c) {
+    c.checked = haveSelected.has(c.dataset.id);
     c.addEventListener('change', function () {
       if (c.checked) haveSelected.add(c.dataset.id);
       else haveSelected.delete(c.dataset.id);
@@ -646,6 +910,12 @@ async function loadHave() {
   $('have-select-all').checked = false;
   updateBulkBar();
 }
+
+['f-de', 'f-part', 'f-state'].forEach(function (id) {
+  $(id).addEventListener('change', function () { haveSelected = new Set(); veHave(); });
+});
+$('f-text').addEventListener('input', function () { veHave(); });
+$('f-reload').addEventListener('click', loadHave);
 
 $('have-select-all').addEventListener('change', function () {
   const on = this.checked;
@@ -667,23 +937,54 @@ function updateBulkBar() {
   }
 }
 
-$('have-bulk-hide').addEventListener('click', async function () {
-  const ids = Array.from(haveSelected);
-  if (!ids.length) return;
-  this.disabled = true;
-  const { error } = await db.from('listening_sets').update({ is_active: false }).in('id', ids);
-  this.disabled = false;
-  toast(error ? 'Không ẩn được: ' + error.message : 'Đã ẩn ' + ids.length + ' bài.', error ? 'bad' : 'good');
+async function datHien(ids, hien, btn) {
+  btn.disabled = true;
+  const { error } = await db.from('listening_sets').update({ is_active: hien }).in('id', ids);
+  btn.disabled = false;
+  toast(error ? 'Không đổi được: ' + error.message
+              : (hien ? 'Đã hiện lại ' : 'Đã ẩn ') + ids.length + ' bài.',
+        error ? 'bad' : 'good');
   loadHave();
+}
+
+$('have-bulk-hide').addEventListener('click', function () {
+  const ids = Array.from(haveSelected);
+  if (ids.length) datHien(ids, false, this);
 });
 
-$('have-bulk-show').addEventListener('click', async function () {
+$('have-bulk-show').addEventListener('click', function () {
+  const ids = Array.from(haveSelected);
+  if (ids.length) datHien(ids, true, this);
+});
+
+$('have-bulk-de').addEventListener('click', async function () {
   const ids = Array.from(haveSelected);
   if (!ids.length) return;
+
+  const ten = BoDe.danhSach().map(function (d) { return d.so + ' = ' + d.ten; }).join('\n');
+  const tra = prompt('Chuyển ' + ids.length + ' bài sang đề số nào?\n' +
+    (ten ? '\nCác đề đang có:\n' + ten + '\n' : '') +
+    '\nĐể trống rồi bấm OK là bỏ ra khỏi mọi đề.');
+
+  if (tra === null) return;
+
+  const t = tra.trim();
+  let so = null;
+  if (t !== '') {
+    so = parseInt(t, 10);
+    if (isNaN(so) || so < 1) { toast('Số đề phải là số nguyên từ 1 trở lên.', 'bad'); return; }
+  }
+
   this.disabled = true;
-  const { error } = await db.from('listening_sets').update({ is_active: true }).in('id', ids);
+  const { error } = await db.from('listening_sets').update({ test_no: so }).in('id', ids);
   this.disabled = false;
-  toast(error ? 'Không hiện được: ' + error.message : 'Đã hiện lại ' + ids.length + ' bài.', error ? 'bad' : 'good');
+
+  if (error) { toast('Không chuyển được: ' + error.message, 'bad'); return; }
+
+  // Câu hỏi của bài cũng ghi số đề riêng, phải đi theo
+  await db.from('questions').update({ test_no: so }).in('set_id', ids);
+
+  toast('Đã chuyển ' + ids.length + ' bài sang ' + BoDe.nhan(so) + '.', 'good');
   loadHave();
 });
 
@@ -702,9 +1003,33 @@ $('have-bulk-del').addEventListener('click', async function () {
 });
 
 async function act(what, id, btn) {
+  if (what === 'sua') {
+    const o = $('have').querySelector('[data-sua="' + id + '"]');
+    if (!o) return;
+
+    // Bấm lại lần nữa là đóng
+    if (o.innerHTML.trim()) { o.innerHTML = ''; btn.textContent = 'Sửa'; return; }
+
+    btn.textContent = 'Đóng';
+    SuaBaiNghe.mo(o, id, {
+      onDoiTen: function (ten) {
+        const d = $('have').querySelector('[data-row="' + id + '"] .have-ten');
+        if (d) d.textContent = ten;
+        const r = have.filter(function (x) { return String(x.id) === String(id); })[0];
+        if (r) r.title = ten;
+      },
+      onDoiDe: loadHave,
+      onDoiPart: loadHave,
+      onDoiHien: loadHave,
+      onXoa: loadHave,
+      onDong: function () { btn.textContent = 'Sửa'; }
+    });
+    return;
+  }
+
   if (what === 'toggle') {
-    const on = btn.textContent.indexOf('Ẩn') === 0;
-    await db.from('listening_sets').update({ is_active: !on }).eq('id', id);
+    const dangHien = btn.textContent.indexOf('Ẩn') === 0;
+    await db.from('listening_sets').update({ is_active: !dangHien }).eq('id', id);
     loadHave();
     return;
   }
@@ -717,12 +1042,6 @@ async function act(what, id, btn) {
   }
 }
 
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
 // ============================================================
 // Gán audio & ảnh cho từng bài — không cần đặt tên file khớp,
 // chọn file nào là tải lên và gắn thẳng vào đúng bài đó.
@@ -731,34 +1050,30 @@ function esc(s) {
 $('btn-assign-load').addEventListener('click', loadAssign);
 
 async function loadAssign() {
-  const no = parseInt($('assign-test').value, 10);
-  if (isNaN(no)) { toast('Nhập số Test trước đã.', 'bad'); return; }
-
   $('assign-list').innerHTML = '<p class="empty">Đang tải…</p>';
 
-  const { data: rows } = await db
-    .from('listening_sets')
-    .select('id, part, title, audio_url, image_url')
-    .eq('test_no', no)
-    .order('part').order('id');
+  let q = db.from('listening_sets').select('id, part, title, audio_url, image_url');
+  q = curDe == null ? q.is('test_no', null) : q.eq('test_no', curDe);
+
+  const { data: rows } = await q.order('part').order('id');
 
   if (!rows || !rows.length) {
     $('assign-list').innerHTML =
-      '<p class="empty">Test ' + no + ' chưa có bài nào. Nhập dữ liệu câu hỏi trước, rồi quay lại gán file.</p>';
+      '<p class="empty">' + esc(BoDe.nhan(curDe)) + ' chưa có bài nào. ' +
+      'Nhập dữ liệu câu hỏi trước, rồi quay lại gán file.</p>';
     $('assign-n').textContent = '';
     return;
   }
 
-  $('assign-n').textContent = rows.length + ' bài trong Test ' + no;
+  $('assign-n').textContent = rows.length + ' bài trong ' + BoDe.nhan(curDe);
 
   let html = '';
   let lastPart = null;
 
-  rows.forEach(function (r, i) {
+  rows.forEach(function (r) {
     if (r.part !== lastPart) {
       lastPart = r.part;
-      html += '<h3 style="font-family:var(--disp);font-size:1rem;margin:18px 0 10px">' +
-              esc(PART_NAME[r.part] || 'Part ' + r.part) + '</h3>';
+      html += '<h4 class="have-part">' + esc(PART_NAME[r.part] || 'Part ' + r.part) + '</h4>';
     }
 
     const needImg = r.part === 1;
@@ -772,7 +1087,7 @@ async function loadAssign() {
         '</span>' +
         '<label class="btn-sm" style="cursor:pointer;margin:0">' +
           (r.audio_url ? 'Đổi audio' : 'Chọn audio') +
-          '<input type="file" accept="audio/*" data-set="' + r.id + '" data-kind="audio" style="display:none">' +
+          '<input type="file" accept="audio/*" data-set="' + r.id + '" data-part="' + r.part + '" data-kind="audio" style="display:none">' +
         '</label>' +
 
         (needImg ?
@@ -781,7 +1096,7 @@ async function loadAssign() {
           '</span>' +
           '<label class="btn-sm" style="cursor:pointer;margin:0">' +
             (r.image_url ? 'Đổi ảnh' : 'Chọn ảnh') +
-            '<input type="file" accept="image/*" data-set="' + r.id + '" data-kind="image" style="display:none">' +
+            '<input type="file" accept="image/*" data-set="' + r.id + '" data-part="' + r.part + '" data-kind="image" style="display:none">' +
           '</label>'
         : '') +
       '</div>';
@@ -800,6 +1115,7 @@ async function uploadOne(inp) {
 
   const setId = inp.dataset.set;
   const kind = inp.dataset.kind;
+  const part = inp.dataset.part;
   const label = inp.parentElement;
   const oldText = label.childNodes[0].nodeValue;
 
@@ -807,7 +1123,8 @@ async function uploadOne(inp) {
 
   // Tên file tự sinh theo id bài, không phụ thuộc tên gốc nên không sợ trùng
   const ext = (f.name.split('.').pop() || '').toLowerCase();
-  const key = 'listen/set-' + setId + '-' + kind + '-' + Date.now() + '.' + ext;
+  const ngan = 'listen/' + (curDe == null ? 'le' : 'de-' + curDe) + '/p' + part + '/';
+  const key = ngan + 'set-' + setId + '-' + kind + '-' + Date.now() + '.' + ext;
 
   const { error: upErr } = await uploadMedia(key, f);
 
@@ -830,6 +1147,7 @@ async function uploadOne(inp) {
 
   toast('Đã gắn ' + (kind === 'audio' ? 'audio' : 'ảnh') + ' vào bài.', 'good');
   loadAssign();
+  loadHave();
 }
 
 
@@ -837,19 +1155,19 @@ async function uploadOne(inp) {
 // Tách ảnh thẳng từ file PDF đề
 //
 // Dùng chung công cụ PdfCrop đã viết cho trang Bộ đề thi thử. Ảnh
-// tách ra đi vào đúng thư mục listen/ như file tải tay, nên tên file
-// dùng được ngay trong dữ liệu ở bước 3 — không phải nhớ đường dẫn
-// nào khác.
+// tách ra đi vào đúng ngăn của đề và Part đang chọn, giống hệt file
+// tải tay — nên tên file dùng được ngay trong dữ liệu ở bước 3.
 // ============================================================
 
 if (typeof PdfCrop !== 'undefined' && document.getElementById('pdf-crop')) {
   PdfCrop.mount(document.getElementById('pdf-crop'), {
     onUpload: async function (ten, blob) {
+      const ngan = nganKho();
       const key = slug(ten);
-      const { error } = await uploadMedia('listen/' + key, blob);
+      const { error } = await uploadMedia(ngan + key, blob);
       if (error) return error.message;
 
-      if (uploaded.indexOf(key) === -1) uploaded.push(key);
+      nhoFile(ten, ngan + key);
 
       // Hiện vào đúng danh sách của bước 1, để cô thấy tên file cần
       // ghi trong dữ liệu ở bước 3.
@@ -859,7 +1177,8 @@ if (typeof PdfCrop !== 'undefined' && document.getElementById('pdf-crop')) {
         d.className = 'wrong-q';
         d.style.padding = '10px 14px';
         d.innerHTML = '<code style="font-size:0.88rem">' + esc(key) + '</code>' +
-          '<span class="tag-warm" style="margin-left:10px;font-size:0.78rem">tách từ PDF</span>';
+          '<span class="tag-warm" style="margin-left:10px;font-size:0.78rem">tách từ PDF</span>' +
+          '<span class="stat-lab" style="margin-left:10px">' + esc(ngan) + '</span>';
         o.appendChild(d);
       }
       return null;

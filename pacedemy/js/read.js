@@ -31,6 +31,9 @@ function makeReadingPanel(part) {
   async function loadList() {
     $('list').innerHTML = '<p class="empty">Đang tải…</p>';
 
+    // Tên đề cô đặt, để nhóm bài hiện "Đề 3 · ETS 2024" chứ không phải "Test 3"
+    if (typeof BoDe !== 'undefined') await BoDe.tai();
+
     const { data: rs } = await db
       .from('reading_sets').select('id, part, title, doc_type, difficulty, test_no')
       .eq('part', part).eq('is_active', true).order('created_at');
@@ -71,7 +74,9 @@ function makeReadingPanel(part) {
 
       html += '<div class="test-group">' +
         '<div class="test-group-head">' +
-          '<h3>' + (key === 'x' ? 'Bài lẻ chưa xếp test' : 'Test ' + key) + '</h3>' +
+          '<h3>' + esc(key === 'x'
+            ? 'Bài lẻ chưa xếp đề'
+            : (typeof BoDe !== 'undefined' ? BoDe.nhan(key) : 'Test ' + key)) + '</h3>' +
           '<span class="stat-lab">' + list.length + ' bài · ' + totalQ + ' câu</span>' +
         '</div>' +
         '<div class="set-grid">';

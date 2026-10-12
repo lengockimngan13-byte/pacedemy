@@ -31,6 +31,9 @@ async function showStreak() {
 }
 
 async function build() {
+  // Tên đề cô đặt, để nhóm bài hiện "Đề 3 · ETS 2024" chứ không phải "Test 3"
+  if (typeof BoDe !== 'undefined') await BoDe.tai();
+
   const { data: tags } = await db
     .from('question_tags')
     .select('part, skill_group, tag, order_index')
@@ -157,7 +160,9 @@ async function build() {
 
       html += '<div class="test-group">' +
         '<div class="test-group-head">' +
-          '<h3>' + (key === 'x' ? 'Bài lẻ chưa xếp test' : 'Test ' + key) + '</h3>' +
+          '<h3>' + esc(key === 'x'
+            ? 'Bài lẻ chưa xếp đề'
+            : (typeof BoDe !== 'undefined' ? BoDe.nhan(key) : 'Test ' + key)) + '</h3>' +
           '<span class="stat-lab">' + g.length + ' bài · ' + totalQ + ' câu</span>' +
         '</div>' +
         '<div class="set-grid">';
