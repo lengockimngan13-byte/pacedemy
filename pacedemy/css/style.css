@@ -7397,3 +7397,167 @@ b.yeu { color: #B4442F; }
   .sbn-hang2, .sbn-hang3 { grid-template-columns: 1fr; }
   .dnh-o { min-width: 100%; }
 }
+
+/* ============================================================
+   HỌ NHÀ TỪ — bản mẫu (ho-tu.html)
+
+   Xếp dọc chứ không vẽ cây toả nhánh: một gốc từ có khi mười hai
+   thành viên, toả ra trên điện thoại thì thành bản đồ phải kéo qua
+   kéo lại. Dọc thì đọc một mạch từ trên xuống, màn hình nào cũng được.
+   ============================================================ */
+
+.ht-mau {
+  margin: 16px 0 0; padding: 9px 14px;
+  border-left: 3px solid var(--gold); border-radius: 0 9px 9px 0;
+  background: var(--gold-dim);
+  font-size: 0.85rem; line-height: 1.6; color: #7A4B00;
+}
+
+.ht-goc { margin: 26px 0 18px; }
+.ht-goc-nhan {
+  display: inline-block; margin-bottom: 8px;
+  padding: 2px 10px; border-radius: 999px;
+  background: var(--mist);
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-soft);
+}
+.ht-goc h1 { margin: 0; font-family: var(--disp); font-size: 2rem; }
+.ht-goc p { margin: 4px 0 0; color: var(--ink-soft); font-size: 0.95rem; }
+
+/* ---- một thành viên trong họ ---- */
+
+.ht-ds { display: flex; flex-direction: column; gap: 8px; }
+
+.ht-tu {
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  background: var(--paper); overflow: hidden;
+}
+.ht-tu.ht-mo { border-color: var(--teal); }
+
+.ht-dau {
+  display: grid;
+  grid-template-columns: 62px 1fr auto 18px;
+  align-items: center; gap: 12px;
+  width: 100%; padding: 13px 14px;
+  border: 0; background: none; cursor: pointer;
+  font-family: var(--ui); text-align: left; color: var(--ink);
+}
+.ht-dau:hover { background: var(--mist); }
+
+/* Cái đuôi là thứ đáng nhớ nhất, nên cho nó đứng riêng một cột */
+.ht-duoi {
+  display: inline-block; padding: 3px 7px; border-radius: 6px;
+  background: var(--teal); color: #fff;
+  font-size: 0.74rem; font-weight: 700; text-align: center;
+}
+.ht-duoi-goc { background: var(--ink); }
+
+.ht-chu { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ht-chu b { font-size: 1.02rem; word-break: break-word; }
+.ht-loai { font-size: 0.76rem; font-weight: 600; color: var(--teal); }
+
+.ht-nghia { font-size: 0.88rem; color: var(--ink-soft); text-align: right; }
+
+.ht-mui {
+  width: 8px; height: 8px; justify-self: end;
+  border-right: 2px solid var(--teal-dim); border-bottom: 2px solid var(--teal-dim);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.18s;
+}
+.ht-mo .ht-mui { transform: rotate(-135deg) translate(-3px, -3px); }
+
+.ht-chi-tiet {
+  padding: 2px 14px 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem; line-height: 1.65;
+}
+.ht-chi-tiet > p { margin: 10px 0 0; }
+
+.ht-am { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.ht-am code { font-size: 0.88rem; color: var(--ink-soft); }
+.ht-loa {
+  padding: 2px 7px; border: 1.5px solid var(--line); border-radius: 7px;
+  background: #fff; cursor: pointer; font-size: 0.82rem; line-height: 1.4;
+}
+.ht-loa:hover { border-color: var(--teal); }
+.ht-cap {
+  padding: 1px 7px; border-radius: 999px; background: var(--mist);
+  font-size: 0.7rem; font-weight: 700; color: var(--ink-soft);
+}
+
+.ht-dn { color: var(--ink-soft); }
+
+.ht-cum { display: flex; flex-wrap: wrap; gap: 6px; }
+.ht-cum span {
+  padding: 3px 9px; border-radius: 999px; background: var(--mist);
+  font-size: 0.82rem; font-weight: 600;
+}
+
+.ht-vd { padding-left: 11px; border-left: 2px solid var(--line); }
+.ht-vd i { color: var(--ink-soft); font-style: normal; font-size: 0.86rem; }
+
+/* Hai từ cùng gốc mà khác nghĩa hẳn — chỗ ETS hay gài bẫy */
+.ht-bay {
+  padding: 9px 12px; border-radius: var(--r);
+  background: var(--gold-dim); color: #7A4B00; font-size: 0.86rem;
+}
+
+.ht-nut { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+
+/* ---- màn luyện ---- */
+
+.ht-cau {
+  margin: 26px 0 20px;
+  font-size: 1.12rem; line-height: 1.85; font-weight: 500;
+}
+.ht-trong {
+  display: inline-block; min-width: 88px;
+  border-bottom: 2.5px solid var(--gold);
+  text-align: center; color: transparent; user-select: none;
+}
+
+.ht-pa { display: flex; flex-direction: column; gap: 9px; }
+.ht-chon {
+  padding: 13px 16px;
+  border: 1.5px solid var(--line); border-radius: var(--r);
+  background: #fff; cursor: pointer;
+  font-family: var(--ui); font-size: 1rem; font-weight: 600;
+  text-align: left; color: var(--ink);
+}
+.ht-chon:hover:not(:disabled) { border-color: var(--teal); background: var(--mist); }
+.ht-chon:disabled { cursor: default; }
+.ht-chon-dung { border-color: var(--teal); background: rgba(42,127,118,0.1); }
+.ht-chon-sai  { border-color: var(--danger); background: rgba(180,67,46,0.08); }
+
+.ht-ket:empty { display: none; }
+.ht-ket {
+  margin-top: 18px; padding: 14px 16px;
+  border-radius: var(--r); border-left: 3px solid var(--line);
+  background: var(--mist); font-size: 0.93rem; line-height: 1.7;
+}
+.ht-ket-dung { border-left-color: var(--teal); }
+.ht-ket-sai  { border-left-color: var(--danger); }
+.ht-ket > p { margin: 0; }
+.ht-ket-dau { font-weight: 600; }
+.ht-ket-giai { margin-top: 8px !important; color: var(--ink-soft); }
+.ht-ket-vi {
+  margin-top: 8px !important; padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 0.88rem; color: var(--ink-soft); font-style: italic;
+}
+
+@media (max-width: 560px) {
+  .ht-goc h1 { font-size: 1.6rem; }
+  /* Trên điện thoại nghĩa tiếng Việt xuống dòng dưới, khỏi chen ngang */
+  .ht-dau {
+    grid-template-columns: 56px 1fr 18px;
+    row-gap: 6px;
+  }
+  .ht-nghia {
+    grid-column: 2 / 4; grid-row: 2; text-align: left;
+    font-size: 0.85rem;
+  }
+  /* Giữ mũi tên ở góc trên bên phải, đừng để nó rớt xuống dưới huy hiệu */
+  .ht-mui { grid-column: 3; grid-row: 1; }
+  .ht-cau { font-size: 1.04rem; }
+}

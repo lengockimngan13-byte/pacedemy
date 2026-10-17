@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Họ nhà từ — Pacedemy</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0C2422">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="wrap">
+    <a class="brand" href="app.html" style="text-decoration:none">Pac<span class="brand-e">e</span>demy</a>
+    <div class="app-user"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <p class="ht-mau">Bản mẫu một họ từ. Dữ liệu viết sẵn, chưa nối vào ngân hàng từ vựng.</p>
+
+  <!-- Màn 1 · danh sách họ từ -->
+  <section id="view-ho"><p class="empty">Đang tải…</p></section>
+
+  <!-- Màn 2 · luyện -->
+  <section class="hidden" id="view-luyen">
+    <div class="study-top">
+      <span>Luyện họ từ</span>
+      <span id="ht-dem"></span>
+    </div>
+    <div class="study-bar"><span id="ht-thanh" style="width:0"></span></div>
+
+    <p class="ht-cau" id="ht-cau"></p>
+    <div class="ht-pa" id="ht-pa"></div>
+    <div class="ht-ket" id="ht-ket"></div>
+
+    <div class="ht-nut">
+      <button class="btn btn-ink hidden" type="button" id="ht-tiep">Câu tiếp theo</button>
+    </div>
+  </section>
+
+  <!-- Màn 3 · xong -->
+  <section class="done hidden" id="view-done">
+    <h1 id="done-title"></h1>
+    <p class="sub" id="done-sub"></p>
+    <div id="ht-sai"></div>
+    <div class="done-actions">
+      <button class="btn btn-gold" type="button" id="ht-lai">Làm lại</button>
+      <button class="btn btn-line" type="button" id="ht-ve">Về họ từ</button>
+    </div>
+  </section>
+
+  <footer class="app-foot">Learn. Practice. Review. Repeat.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/layout-settings.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/am.js"></script>
+<script src="js/speak.js"></script>
+<script src="js/tho.js"></script>
+<script src="js/xong-bai.js"></script>
+<script src="js/ho-tu.js"></script>
+</body>
+</html>
