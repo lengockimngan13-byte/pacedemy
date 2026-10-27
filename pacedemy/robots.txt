@@ -1,0 +1,72 @@
+# Pacedemy — pacedemy.com
+#
+# Trang giới thiệu thì mời máy tìm kiếm vào, vì học viên tìm thấy cô
+# từ đó. Khu vực học và Teacher Studio thì không — nội dung cô soạn
+# không có lý do gì nằm trong kết quả tìm kiếm.
+#
+# Lưu ý: file này là LỜI ĐỀ NGHỊ, không phải khoá. Máy tìm kiếm đàng
+# hoàng thì nghe, kẻ cố tình lấy dữ liệu thì bỏ qua. Thứ thật sự chặn
+# là phân quyền trong cơ sở dữ liệu.
+
+User-agent: *
+Allow: /$
+Allow: /index.html
+Allow: /about.html
+Allow: /privacy.html
+Disallow: /app
+Disallow: /vocab
+Disallow: /topic
+Disallow: /flashcard
+Disallow: /study
+Disallow: /part5
+Disallow: /practice
+Disallow: /read
+Disallow: /listen
+Disallow: /shadow
+Disallow: /noi
+Disallow: /fulltest
+Disallow: /extra
+Disallow: /game
+Disallow: /so-tu
+Disallow: /ho-tu
+Disallow: /tu-dien
+Disallow: /progress
+Disallow: /bao-cao
+Disallow: /class
+Disallow: /leaderboard
+Disallow: /account
+Disallow: /login
+Disallow: /teacher
+
+# Không dùng nội dung của trang này để huấn luyện mô hình AI
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+Sitemap: https://www.pacedemy.com/index.html
