@@ -52,6 +52,7 @@ let urlNghe = null;
 let dongHo = null;
 let nghedDuocTam = '';     // chữ Web Speech bắt được, dùng khi Azure chưa bật
 let recTam = null;
+let choPhatAm = true;      // cô có mở phần chấm phát âm hay không
 
 function esc(s) {
   return String(s == null ? '' : s)
@@ -70,10 +71,23 @@ function esc(s) {
     return;
   }
 
+  await hoiPhatAm();
   await hoiGoi();
   noi();
   await napKho();
 })();
+
+// Phần chấm phát âm bật hay tắt — cô chỉnh trong Teacher Studio →
+// Chỉnh trang web. Tắt thì không gọi Azure (khỏi tốn tiền) và không
+// nhắc tới nó ở đâu cả, để học viên không mong một thứ chưa có.
+async function hoiPhatAm() {
+  try {
+    const { data } = await db.from('site_settings')
+      .select('value').eq('key', 'features').maybeSingle();
+    const f = (data && data.value) || {};
+    choPhatAm = f.phat_am !== false;
+  } catch (e) { choPhatAm = true; }
+}
 
 // ---------- bản nào ----------
 
@@ -94,8 +108,8 @@ async function hoiGoi() {
     'Em đọc to câu mẫu, máy đối chiếu rồi cho biết nó nghe ra những từ nào. ' +
     'Phần này không giới hạn lượt.';
   $('noi-dan').innerHTML =
-    'Em đang dùng <b>bản miễn phí</b>. Bản đầy đủ chấm ngữ pháp, từ vựng, mạch lạc ' +
-    'và phát âm tới từng âm — nhắn cô để mở.';
+    'Em đang dùng <b>bản miễn phí</b>. Bản đầy đủ chấm ngữ pháp, từ vựng, mạch lạc' +
+    (choPhatAm ? ' và phát âm tới từng âm' : '') + ' — nhắn cô để mở.';
   $('noi-cum-truoc').textContent = 'Cụm từ nên học trong câu này:';
   $('noi-cum-sau').textContent = '';
 
@@ -352,8 +366,8 @@ function docMau(cauTruyen) {
         : ' Trọn câu.') + '</p>' +
 
     '<p class="noi-thatthe">Máy không nghe ra một từ <b>không chắc</b> là em đọc sai từ đó — ' +
-      'micro rè hay nói nhanh cũng làm nó bỏ từ. Đây là phần tập đọc, không phải điểm phát âm. ' +
-      'Điểm phát âm thật, tới từng âm, nằm ở bản đầy đủ.</p>' +
+      'micro rè hay nói nhanh cũng làm nó bỏ từ. Đây là phần tập đọc, không phải điểm giọng đọc.' +
+      (choPhatAm ? ' Điểm phát âm thật, tới từng âm, nằm ở bản đầy đủ.' : '') + '</p>' +
 
     '<div class="noi-diem mo">' +
       ['Ngữ pháp', 'Từ vựng', 'Mạch lạc'].map(function (t) {
@@ -366,7 +380,7 @@ function docMau(cauTruyen) {
       '<ul>' +
         '<li>Em tự nghĩ câu trả lời theo tình huống, không đọc theo mẫu nữa.</li>' +
         '<li>Chấm ngữ pháp, từ vựng, mạch lạc — kèm chỗ sai và cách sửa.</li>' +
-        '<li>Điểm phát âm tới từng âm, chỉ đúng âm nào đọc hụt.</li>' +
+        (choPhatAm ? '<li>Điểm phát âm tới từng âm, chỉ đúng âm nào đọc hụt.</li>' : '') +
         '<li>Một câu mẫu hay hơn cho đúng tình huống đó.</li>' +
       '</ul>' +
       '<p>Em nhắn cô để mở bản đầy đủ. Học viên đang trong lớp của cô thì có sẵn rồi.</p>' +
@@ -404,8 +418,11 @@ async function chamHet(wav) {
   if (!tk) { xongCham(); return toast('Phiên đăng nhập đã hết, đăng nhập lại nhé.', 'bad'); }
 
   // Bước 1: phát âm + nghe ra chữ
+  // Tắt phần chấm phát âm thì bỏ hẳn bước này: vừa không tốn tiền,
+  // vừa không có số liệu thừa nằm lại trong kết quả. Chữ vẫn lấy được
+  // từ bộ nhận diện của trình duyệt, hoặc em gõ lại.
   let am = null;
-  try {
+  if (choPhatAm) try {
     const r = await fetch('/api/cham-phat-am?text=', {
       method: 'POST',
       headers: { 'content-type': 'audio/wav', authorization: 'Bearer ' + tk },
@@ -474,14 +491,14 @@ function veKetQua(cau, kq, am) {
     { ten: 'Từ vựng', so: kq.tu_vung },
     { ten: 'Mạch lạc', so: kq.mach_lac }
   ];
-  if (am && am.phat_am) phan.push({ ten: 'Phát âm', so: am.phat_am });
+  if (choPhatAm && am && am.phat_am) phan.push({ ten: 'Phát âm', so: am.phat_am });
 
   const tong = Math.round(phan.reduce(function (s, p) { return s + p.so; }, 0) / phan.length);
 
   let html =
     '<div class="noi-cau"><span class="noi-cau-nhan">Câu em nói</span>' +
       '<p>' + danhDau(cau, deHienTai.cum_tu, kq.dung_cum_tu) + '</p>' +
-      (am && am.tu_yeu && am.tu_yeu.length
+      (choPhatAm && am && am.tu_yeu && am.tu_yeu.length
         ? '<p class="noi-tuyeu">Đọc chưa rõ: ' +
             am.tu_yeu.map(function (w) {
               return '<b>' + esc(w.tu) + '</b> <small>' + w.diem + '</small>';
@@ -496,7 +513,12 @@ function veKetQua(cau, kq, am) {
       }).join('') +
     '</div>';
 
-  if (!am) {
+  if (!choPhatAm) {
+    // Không nhắc tới chuyện chấm phát âm nữa, chỉ nói rõ ba điểm này
+    // chấm theo chữ — để em không tưởng đây là điểm giọng đọc.
+    html += '<p class="noi-chuacham">Ba điểm trên chấm theo nội dung câu em nói, ' +
+      'không chấm giọng đọc.</p>';
+  } else if (!am) {
     html += '<p class="noi-chuacham">Chưa chấm phát âm — phần này cần khoá Azure. ' +
       'Ba điểm trên chấm theo chữ, không liên quan tới giọng đọc.</p>';
   } else if (am.ngu_dieu != null) {

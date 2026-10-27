@@ -12,6 +12,7 @@ const FEATURES = [
   { key: 'vocab',       label: 'Từ vựng' },
   { key: 'listen',      label: 'Luyện nghe' },
   { key: 'shadow',      label: 'Luyện nói theo (Shadowing)' },
+  { key: 'phat_am',     label: 'Chấm phát âm trong Luyện nói (cần khoá Azure)' },
   { key: 'read',        label: 'Luyện đọc' },
   { key: 'extra',       label: 'Ôn tổng hợp (trộn Nghe/Đọc/Từ vựng)' },
   { key: 'mock',        label: 'Thi thử' },
