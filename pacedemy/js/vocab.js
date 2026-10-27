@@ -53,8 +53,16 @@ async function loadTopics() {
     return;
   }
 
-  // Tổng số từ mỗi chủ đề
+  // Tổng số từ mỗi chủ đề. RLS đã lọc sẵn: người chưa vào lớp không
+  // thấy từ nâng cao, nên con số này là số từ HỌ đọc được.
   const { data: words } = await db.from('vocabulary').select('id, topic_id');
+
+  // Còn bao nhiêu từ đang khoá. Hỏi riêng vì RLS giấu luôn cả dòng,
+  // đếm ở phía trình duyệt không ra. Im lặng hiện thiếu thì người ta
+  // tưởng chủ đề mỏng, nên phải nói thẳng là có phần dành cho học viên.
+  const { data: khoa } = await db.rpc('dem_tu_khoa');
+  const khoaBy = {};
+  for (const k of (khoa || [])) khoaBy[k.topic_id] = k.so_khoa;
 
   // Tiến độ của học viên
   const { data: prog } = await db
@@ -81,6 +89,7 @@ async function loadTopics() {
     const total = totalBy[t.id] || 0;
     const done  = doneBy[t.id] || 0;
     const pct   = total ? Math.round(done / total * 100) : 0;
+    const nKhoa = Number(khoaBy[t.id] || 0);
 
     if (total === 0) {
       html +=
@@ -100,6 +109,9 @@ async function loadTopics() {
         '<span class="en">' + esc(t.name_en) + '</span>' +
         '<div class="bar"><span class="' + (pct === 100 ? 'full' : '') + '" style="width:' + pct + '%"></span></div>' +
         '<span class="count">' + done + '/' + total + ' từ đã thuộc</span>' +
+        (nKhoa
+          ? '<span class="tv-khoa">+' + nKhoa + ' từ nâng cao · dành cho học viên của lớp</span>'
+          : '') +
         '<div class="topic-actions">' +
           '<a class="btn-sm test" href="topic.html?chu-de=' + slug + '" style="flex:1">Mở chủ đề</a>' +
         '</div>' +

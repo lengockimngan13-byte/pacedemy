@@ -7561,3 +7561,33 @@ b.yeu { color: #B4442F; }
   .ht-mui { grid-column: 3; grid-row: 1; }
   .ht-cau { font-size: 1.04rem; }
 }
+
+/* ============================================================
+   Từ vựng nâng cao — chỉ học viên trong lớp mới thấy
+   ============================================================ */
+
+/* Nhãn nhỏ trên thẻ chủ đề ở trang Từ vựng */
+.tv-khoa {
+  display: block; margin-top: 6px;
+  font-size: 0.78rem; font-weight: 600; color: var(--ink-soft);
+}
+
+/* Khối nói rõ còn bao nhiêu từ đang khoá, ở đầu trang một chủ đề */
+.tv-khoa-box {
+  margin: 0 0 20px; padding: 14px 16px;
+  border-left: 3px solid var(--gold); border-radius: 0 var(--r) var(--r) 0;
+  background: var(--gold-dim); color: #7A4B00;
+}
+.tv-khoa-box b { display: block; font-size: 0.98rem; }
+.tv-khoa-box p { margin: 6px 0 12px; font-size: 0.9rem; line-height: 1.65; }
+.tv-khoa-box .btn-sm { flex: none; display: inline-block; background: #fff; }
+
+/* Nút bật/tắt nâng cao trong Teacher Studio */
+.sv-nc {
+  flex: none; padding: 4px 10px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: #fff;
+  font-family: var(--ui); font-size: 0.72rem; font-weight: 700;
+  color: var(--ink-soft); cursor: pointer; white-space: nowrap;
+}
+.sv-nc:hover { border-color: var(--gold); }
+.sv-nc-bat { border-color: var(--gold); background: var(--gold-dim); color: #7A4B00; }

@@ -86,6 +86,7 @@ const TRANG_HOC = [
   { t: 'topic.html',           n: 'Chủ đề từ vựng', g: '' },
   { t: 'part5.html',           n: 'Luyện Part 5', g: 'Mở là công khai kho câu hỏi.' },
   { t: 'practice.html',        n: 'Luyện đề', g: 'Mở là công khai kho câu hỏi.' },
+  { t: 'read.html',            n: 'Bài đọc Part 6, 7', g: 'Mở là công khai kho bài đọc.' },
   { t: 'listen.html',          n: 'Bài nghe', g: '' },
   { t: 'listen-practice.html', n: 'Luyện nghe', g: '' },
   { t: 'shadow.html',          n: 'Nói nhại theo', g: '' },

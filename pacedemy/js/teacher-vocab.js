@@ -449,7 +449,7 @@ async function loadWordsForTopic(topicId) {
 
   const { data: ws, error } = await db.from('vocabulary')
     .select('id, word, phonetic, pos, meaning_vi, example_en, example_vi, synonyms, ' +
-            'collocations, level, order_index, image_url, dinh_nghia_vi, vi_du, ghi_chu')
+            'collocations, level, order_index, image_url, dinh_nghia_vi, vi_du, ghi_chu, nang_cao')
     .eq('topic_id', topicId)
     .order('level').order('order_index').order('id');
 
@@ -498,6 +498,13 @@ function svRow(w, index) {
     '<div class="qz-card-head">' +
       '<span class="qz-num">' + index + '</span>' +
       '<div class="qz-card-actions">' +
+        // Từ nâng cao chỉ học viên trong lớp mới thấy. Để nút ngay đầu
+        // thẻ vì đây là quyết định hay phải đổi, không nên giấu trong
+        // phần chi tiết.
+        '<button class="sv-nc' + (w.nang_cao ? ' sv-nc-bat' : '') + '" type="button" data-nc ' +
+          'title="Từ nâng cao — chỉ học viên trong lớp mới thấy">' +
+          (w.nang_cao ? 'nâng cao' : 'mở cho mọi người') +
+        '</button>' +
         '<button class="qz-icon-btn" type="button" data-toggle title="Chi tiết">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>' +
         '</button>' +
@@ -567,6 +574,14 @@ function svRow(w, index) {
   });
 
   bindImageBox(row.querySelector('.qz-image-box'), id);
+
+  row.querySelector('[data-nc]').addEventListener('click', async function () {
+    const bat = !this.classList.contains('sv-nc-bat');
+    const ok = await saveField(id, 'nang_cao', bat, this);
+    if (ok === false) return;
+    this.classList.toggle('sv-nc-bat', bat);
+    this.textContent = bat ? 'nâng cao' : 'mở cho mọi người';
+  });
 
   row.querySelector('[data-toggle]').addEventListener('click', function () {
     row.querySelector('.sv-detail').classList.toggle('hidden');
@@ -759,7 +774,7 @@ async function saveField(id, field, value, el) {
     if (el) el.dataset.cu = '\u0000';
     bao(the, 'hong', 'Chưa lưu được');
     toast('Không lưu được: ' + error.message, 'bad');
-    return;
+    return false;
   }
 
   bao(the, 'xong', 'Đã lưu ' + gio());
@@ -767,6 +782,9 @@ async function saveField(id, field, value, el) {
   // Giữ dòng "Đã lưu" một lát rồi mờ đi, để màn hình không đầy chữ
   clearTimeout(the && the.__hen);
   if (the) the.__hen = setTimeout(function () { bao(the, 'im', ''); }, 4000);
+
+  // Chỗ gọi cần biết đã ghi được hay chưa thì mới đổi giao diện theo
+  return true;
 }
 
 function gio() {

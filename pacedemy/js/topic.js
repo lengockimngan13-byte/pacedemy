@@ -63,6 +63,13 @@ async function build() {
 
   $('t-sub').textContent = t.name_en + ' · ' + words.length + ' từ';
 
+  // Từ nâng cao của chủ đề này bị RLS giấu với người chưa vào lớp.
+  // Nói rõ còn bao nhiêu, đừng để họ tưởng chủ đề chỉ có bấy nhiêu.
+  const { data: khoa } = await db.rpc('dem_tu_khoa');
+  const nKhoa = Number(((khoa || []).find(function (k) {
+    return k.topic_id === t.id;
+  }) || {}).so_khoa || 0);
+
   // Tiến độ của học viên
   const { data: prog } = await db
     .from('vocab_progress')
@@ -81,6 +88,16 @@ async function build() {
   }
 
   let html = '';
+
+  if (nKhoa) {
+    html +=
+      '<div class="tv-khoa-box">' +
+        '<b>Còn ' + nKhoa + ' từ nâng cao trong chủ đề này.</b>' +
+        '<p>Phần này dành cho học viên trong lớp của cô Ngân. ' +
+          'Bạn đã có mã lớp thì vào mục Lớp của tôi để tham gia.</p>' +
+        '<a class="btn-sm learn" href="class.html">Vào lớp bằng mã</a>' +
+      '</div>';
+  }
 
   for (const lv of Object.keys(byLevel).sort()) {
     const list = byLevel[lv];
