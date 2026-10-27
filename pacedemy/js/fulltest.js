@@ -18,7 +18,18 @@ let tick = null;
 let startAt = 0;
 let luyenTap = false;   // đang ở chế độ Luyện tập: không bấm giờ, không tính vào lịch sử thi
 
+let moiMan = [];        // toàn bộ màn của bộ đề, trước khi lọc theo Part
+let partChon = [];      // các Part đang chọn; rỗng nghĩa là cả bài
+let luyenNgay = false;  // Luyện tập: hiện đáp án ngay sau mỗi câu
+let chot = {};          // id câu -> đã chốt đáp án, không đổi được nữa
+let tienDo = {};        // id câu -> lần gần nhất làm đúng hay sai
+let chiConLai = false;  // chỉ luyện những câu chưa làm đúng bao giờ
+
 const SECONDS_TOTAL = 1 * 3600 + 59 * 60; // 01:59:00, đúng nhịp thi thật
+
+// Nhịp thi thật: Nghe 45 phút cho 100 câu, Đọc 75 phút cho 100 câu.
+// Thi theo Part thì cộng theo số câu đã chọn, giữ đúng tỉ lệ đó.
+const GIAY_MOI_CAU = { 1: 27, 2: 27, 3: 27, 4: 27, 5: 45, 6: 45, 7: 45 };
 
 const $ = function (id) { return document.getElementById(id); };
 
@@ -109,22 +120,72 @@ async function prepare(setId) {
     });
   });
 
+  moiMan = screens;
+  await napTienDo();
   showStart();
 }
 
-function countByPart() {
+// Lần trước học viên làm câu nào đúng, câu nào sai
+async function napTienDo() {
+  tienDo = {};
+  const ids = [];
+  moiMan.forEach(function (m) { m.questions.forEach(function (q) { ids.push(q.id); }); });
+  if (!ids.length) return;
+
+  const { data } = await db.from('luyen_de')
+    .select('exam_question_id, dung')
+    .eq('user_id', me.id)
+    .in('exam_question_id', ids);
+
+  for (const r of (data || [])) tienDo[r.exam_question_id] = r.dung;
+}
+
+function countByPart(ds) {
   const n = {};
-  for (const s of screens) n[s.part] = (n[s.part] || 0) + s.questions.length;
+  for (const s of (ds || screens)) n[s.part] = (n[s.part] || 0) + s.questions.length;
   return n;
 }
 
-function showStart() {
-  const n = countByPart();
-  const nNghe = (n[1] || 0) + (n[2] || 0) + (n[3] || 0) + (n[4] || 0);
-  const nDoc  = (n[5] || 0) + (n[6] || 0) + (n[7] || 0);
-  const total = nNghe + nDoc;
+// Số câu CHƯA từng làm đúng, tính theo từng Part
+function conLaiByPart() {
+  const n = {};
+  for (const s of moiMan) {
+    for (const q of s.questions) {
+      if (tienDo[q.id] === true) continue;
+      n[s.part] = (n[s.part] || 0) + 1;
+    }
+  }
+  return n;
+}
 
-  const phut = Math.round(SECONDS_TOTAL / 60);
+// Lọc ra các màn thuộc những Part đã chọn. Với Luyện tập mà bật "chỉ
+// câu còn lại" thì bỏ luôn những câu đã làm đúng — màn nào sạch câu
+// thì bỏ cả màn.
+function locMan(parts, bocCauDaDung) {
+  // Chưa tích Part nào thì ra rỗng, không phải ra cả bài. Full Test đi
+  // đường riêng, không qua hàm này.
+  if (!parts || !parts.length) return [];
+
+  const ds = moiMan.filter(function (m) { return parts.indexOf(m.part) >= 0; });
+
+  if (!bocCauDaDung) return ds;
+
+  return ds.map(function (m) {
+    const qs = m.questions.filter(function (q) { return tienDo[q.id] !== true; });
+    return qs.length ? Object.assign({}, m, { questions: qs }) : null;
+  }).filter(Boolean);
+}
+
+function tinhGiay(ds) {
+  let g = 0;
+  for (const m of ds) g += m.questions.length * (GIAY_MOI_CAU[m.part] || 45);
+  return Math.max(60, Math.round(g));
+}
+
+function showStart() {
+  const n = countByPart(moiMan);
+  const conLai = conLaiByPart();
+  const total = [1,2,3,4,5,6,7].reduce(function (a, p) { return a + (n[p] || 0); }, 0);
 
   $('view-pick').classList.add('hidden');
   $('view-start').classList.remove('hidden');
@@ -132,44 +193,35 @@ function showStart() {
   $('start-info').innerHTML =
     '<div class="ex-head">' +
       '<h1>' + esc(examSet.name) + '</h1>' +
-      '<div class="ex-acts">' +
-        '<button class="btn btn-gold" id="btn-go">Bắt đầu thi</button>' +
-        '<button class="btn btn-line" data-tab="luyen">Luyện tập</button>' +
-        '<button class="btn btn-line" data-tab="lichsu">Lịch sử thi</button>' +
-        '<button class="btn btn-line" data-tab="causai">Câu sai</button>' +
-        '<button class="btn btn-line" data-tab="ghichu">Sổ ghi chú</button>' +
-      '</div>' +
       '<button class="btn-quiet ex-back" id="btn-other">← Chọn bộ đề khác</button>' +
     '</div>' +
 
-    '<div class="ex-tiles">' +
-      '<div class="ex-tile"><span>Số câu</span><b>' + total + ' câu</b></div>' +
-      '<div class="ex-tile gold"><span>Thời gian</span><b>' + phut + ' phút</b></div>' +
+    // Hai chế độ, hai cách học khác hẳn nhau nên tách hẳn ra hai tab
+    '<div class="ch-tabs">' +
+      '<button class="ch-tab on" data-che="thi">Luyện thi</button>' +
+      '<button class="ch-tab" data-che="tap">Luyện tập</button>' +
     '</div>' +
 
-    '<div class="ex-secs">' +
-      secCard('Phần Nghe', 'Part 1 đến 4', nNghe, [1, 2, 3, 4], n) +
-      secCard('Phần Đọc', 'Part 5 đến 7', nDoc, [5, 6, 7], n) +
-    '</div>' +
+    '<div id="ch-than"></div>' +
 
-    '<div class="tbox ex-guide">' +
-      '<h3>Trước khi bắt đầu</h3>' +
-      '<ul>' +
-        '<li>Bài có ' + total + ' câu, chia 7 Part: 4 Part Nghe và 3 Part Đọc.</li>' +
-        '<li>Đồng hồ chạy ' + phut + ' phút cho cả bài, hết giờ tự nộp.</li>' +
-        '<li>Câu nào phân vân thì bấm cờ đánh dấu, cuối giờ quay lại xem.</li>' +
-        '<li>Phần Nghe mỗi bài nghe được một lượt, nghe xong là chuyển.</li>' +
-        '<li>Nộp xong có điểm TOEIC ước lượng và giải thích từng câu.</li>' +
-        '<li>Muốn làm thong thả không bấm giờ thì chọn Luyện tập.</li>' +
-      '</ul>' +
+    '<div class="ex-acts" style="margin-top:26px">' +
+      '<button class="btn btn-line" data-tab="lichsu">Lịch sử thi</button>' +
+      '<button class="btn btn-line" data-tab="causai">Câu sai</button>' +
+      '<button class="btn btn-line" data-tab="ghichu">Sổ ghi chú</button>' +
     '</div>' +
-
     '<div id="ex-panel"></div>';
 
-  $('btn-go').addEventListener('click', function () { begin(false); });
   $('btn-other').addEventListener('click', function () {
     $('view-start').classList.add('hidden');
     $('view-pick').classList.remove('hidden');
+  });
+
+  $('start-info').querySelectorAll('.ch-tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      $('start-info').querySelectorAll('.ch-tab').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      b.dataset.che === 'thi' ? veTabThi(n, total) : veTabTap(n, conLai);
+    });
   });
 
   $('start-info').querySelectorAll('button[data-tab]').forEach(function (b) {
@@ -178,11 +230,180 @@ function showStart() {
       $('start-info').querySelectorAll('button[data-tab]').forEach(function (x) { x.classList.remove('on'); });
       if (dang) { $('ex-panel').innerHTML = ''; return; }
       b.classList.add('on');
-      if (b.dataset.tab === 'luyen')  return panelLuyen();
       if (b.dataset.tab === 'lichsu') return panelLichSu();
       if (b.dataset.tab === 'causai') return panelCauSai();
       if (b.dataset.tab === 'ghichu') return panelGhiChu();
     });
+  });
+
+  veTabThi(n, total);
+}
+
+// Khối chọn Part dùng chung cho cả hai tab. `phu` là dòng chữ nhỏ bên
+// phải mỗi Part — tab Luyện thi hiện số câu, tab Luyện tập hiện số câu
+// còn lại chưa làm đúng.
+function khoiChonPart(n, phu) {
+  const tong = [1,2,3,4,5,6,7].reduce(function (a, p) { return a + (n[p] || 0); }, 0);
+
+  function o(p) {
+    const so = n[p] || 0;
+    return '<label class="pk-o' + (so ? '' : ' pk-trong') + '">' +
+      '<input type="checkbox" data-part="' + p + '"' + (so ? '' : ' disabled') + '>' +
+      '<span class="pk-ten">Part ' + p + '</span>' +
+      '<span class="pk-so">' + (so ? phu(p, so) : 'chưa có câu') + '</span>' +
+    '</label>';
+  }
+
+  return '<label class="pk-o pk-all">' +
+      '<input type="checkbox" data-all>' +
+      '<span class="pk-ten">Chọn tất cả 7 Part</span>' +
+      '<span class="pk-so">' + tong + ' câu</span>' +
+    '</label>' +
+    '<p class="pk-nhom">LISTENING</p>' +
+    '<div class="pk-luoi">' + o(1) + o(2) + o(3) + o(4) + '</div>' +
+    '<p class="pk-nhom">READING</p>' +
+    '<div class="pk-luoi">' + o(5) + o(6) + o(7) + '</div>';
+}
+
+// Nối các ô đánh dấu lại: bấm "tất cả" thì tích hết, bấm lẻ thì cập
+// nhật lại ô "tất cả", và luôn báo cho chỗ gọi biết đang chọn gì.
+function noiChonPart(root, khiDoi) {
+  const oAll = root.querySelector('[data-all]');
+  const oLe  = Array.from(root.querySelectorAll('[data-part]:not(:disabled)'));
+
+  function dangChon() {
+    return oLe.filter(function (x) { return x.checked; })
+              .map(function (x) { return parseInt(x.dataset.part, 10); });
+  }
+
+  oAll.addEventListener('change', function () {
+    oLe.forEach(function (x) { x.checked = oAll.checked; });
+    khiDoi(dangChon());
+  });
+
+  oLe.forEach(function (x) {
+    x.addEventListener('change', function () {
+      oAll.checked = oLe.length > 0 && oLe.every(function (y) { return y.checked; });
+      khiDoi(dangChon());
+    });
+  });
+
+  khiDoi([]);
+}
+
+function phutChu(giay) {
+  return Math.max(1, Math.round(giay / 60)) + ' phút';
+}
+
+// ---------- Tab Luyện thi ----------
+
+function veTabThi(n, total) {
+  $('ch-than').innerHTML =
+    '<div class="ch-the">' +
+      '<div class="ch-the-dau">' +
+        '<div>' +
+          '<h3>Full Test (' + total + ' câu)</h3>' +
+          '<p>Làm đầy đủ cả bài như thi thật, có bấm giờ.</p>' +
+          '<p class="ch-meta"><span>' + Math.round(SECONDS_TOTAL / 60) + ' phút</span>' +
+            '<span>' + total + ' câu</span></p>' +
+        '</div>' +
+        '<button class="btn btn-gold" id="ch-full">Bắt đầu</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="ch-the">' +
+      '<div class="ch-the-dau">' +
+        '<div><h3>Thi theo Part</h3>' +
+          '<p>Chọn Part cụ thể để thi thử, vẫn bấm giờ theo nhịp thi thật.</p></div>' +
+        '<button class="btn btn-gold" id="ch-part" disabled>Bắt đầu</button>' +
+      '</div>' +
+      '<div class="pk" id="pk-thi">' +
+        khoiChonPart(n, function (p, so) { return so + ' câu'; }) +
+      '</div>' +
+      '<p class="ch-tom" id="tom-thi">Chưa chọn Part nào.</p>' +
+    '</div>';
+
+  $('ch-full').addEventListener('click', function () {
+    screens = moiMan.slice();
+    begin({ gio: SECONDS_TOTAL, ngay: false, ghiLichSu: true });
+  });
+
+  noiChonPart($('pk-thi'), function (parts) {
+    partChon = parts;
+    const ds = locMan(parts, false);
+    const soCau = ds.reduce(function (a, m) { return a + m.questions.length; }, 0);
+    $('ch-part').disabled = !soCau;
+    $('tom-thi').textContent = soCau
+      ? 'Đã chọn ' + soCau + ' câu · ' + phutChu(tinhGiay(ds))
+      : 'Chưa chọn Part nào.';
+  });
+
+  $('ch-part').addEventListener('click', function () {
+    const ds = locMan(partChon, false);
+    if (!ds.length) return;
+    screens = ds;
+    // Thi lẻ vài Part thì không quy ra điểm TOEIC được, cũng không
+    // nên nằm chung Lịch sử thi với các lần thi đủ bài
+    begin({ gio: tinhGiay(ds), ngay: false, ghiLichSu: false });
+  });
+}
+
+// ---------- Tab Luyện tập ----------
+
+function veTabTap(n, conLai) {
+  const tongConLai = [1,2,3,4,5,6,7].reduce(function (a, p) { return a + (conLai[p] || 0); }, 0);
+  const tong = [1,2,3,4,5,6,7].reduce(function (a, p) { return a + (n[p] || 0); }, 0);
+
+  $('ch-than').innerHTML =
+    '<div class="ch-nhac">' +
+      '<b>Chế độ Luyện tập:</b> xem đáp án và giải thích ngay sau mỗi câu, không bấm giờ. ' +
+      'Kết quả được lưu lại — lần sau chỉ cần luyện các câu còn lại.' +
+    '</div>' +
+
+    '<div class="ch-the">' +
+      '<div class="ch-the-dau">' +
+        '<div><h3>Chọn Part để luyện tập</h3>' +
+          '<p>' + (tongConLai
+            ? 'Còn ' + tongConLai + '/' + tong + ' câu bạn chưa làm đúng lần nào.'
+            : (tong ? 'Bạn đã làm đúng hết cả ' + tong + ' câu của bộ đề này.' : '')) +
+          '</p></div>' +
+        '<button class="btn btn-gold" id="ch-tap" disabled>Bắt đầu</button>' +
+      '</div>' +
+      '<div class="pk" id="pk-tap">' +
+        khoiChonPart(n, function (p, so) {
+          const c = conLai[p] || 0;
+          return c === so ? so + ' câu' : 'còn ' + c + '/' + so + ' câu';
+        }) +
+      '</div>' +
+      (tongConLai && tongConLai < tong
+        ? '<label class="ch-loc"><input type="checkbox" id="ch-conlai" checked>' +
+          '<span>Chỉ luyện những câu mình chưa làm đúng</span></label>'
+        : '') +
+      '<p class="ch-tom" id="tom-tap">Chưa chọn Part nào.</p>' +
+    '</div>';
+
+  const oConLai = $('ch-conlai');
+
+  function tinhLai(parts) {
+    partChon = parts;
+    chiConLai = !!(oConLai && oConLai.checked);
+    const ds = locMan(parts, chiConLai);
+    const soCau = ds.reduce(function (a, m) { return a + m.questions.length; }, 0);
+    $('ch-tap').disabled = !soCau;
+    $('tom-tap').textContent = soCau
+      ? 'Sẽ luyện ' + soCau + ' câu, không bấm giờ.'
+      : (parts.length ? 'Mấy Part này bạn làm đúng hết rồi. Bỏ tích ở trên để luyện lại.'
+                      : 'Chưa chọn Part nào.');
+  }
+
+  noiChonPart($('pk-tap'), tinhLai);
+  if (oConLai) oConLai.addEventListener('change', function () { tinhLai(partChon); });
+
+  $('ch-tap').addEventListener('click', function () {
+    const ds = locMan(partChon, chiConLai);
+    if (!ds.length) return;
+    screens = ds;
+    begin({ gio: 0, ngay: true, ghiLichSu: false });
   });
 }
 
@@ -203,15 +424,6 @@ function panelBox(tieuDe, than) {
 }
 
 // ---------- Luyện tập ----------
-
-function panelLuyen() {
-  panelBox('Luyện tập',
-    '<p class="ex-p">Làm y hệt đề thi nhưng không bấm giờ, rời trang giữa chừng cũng không sao. ' +
-    'Nộp xong xem được đáp án và giải thích từng câu. Lần làm này không tính vào Lịch sử thi.</p>' +
-    '<button class="btn btn-ink" id="btn-luyen">Vào luyện tập</button>');
-
-  $('btn-luyen').addEventListener('click', function () { begin(true); });
-}
 
 // ---------- Lịch sử thi ----------
 
@@ -359,30 +571,38 @@ async function panelGhiChu() {
 
 // ---------- Vào bài ----------
 
-function begin(lt) {
-  luyenTap = !!lt;
+// o = { gio: số giây (0 là không bấm giờ),
+//       ngay: hiện đáp án ngay sau mỗi câu,
+//       ghiLichSu: có tính vào Lịch sử thi hay không }
+function begin(o) {
+  o = o || {};
+  luyenNgay = !!o.ngay;
+  luyenTap = !o.ghiLichSu;     // không ghi Lịch sử thì coi như buổi luyện
   cur = 0;
   picked = {};
   marked = {};
+  chot = {};
   reviewMode = false;
   startAt = Date.now();
-  deadline = startAt + SECONDS_TOTAL * 1000;
+
+  const giay = o.gio || 0;
+  deadline = startAt + giay * 1000;
 
   $('view-start').classList.add('hidden');
   $('view-test').classList.remove('hidden');
   $('link-out').classList.add('hidden');
 
-  // Luyện tập thì bỏ đồng hồ và bỏ luôn lời cảnh báo rời trang
-  $('timer').classList.toggle('hidden', luyenTap);
+  // Không bấm giờ thì giấu đồng hồ và bỏ luôn lời cảnh báo rời trang
+  $('timer').classList.toggle('hidden', !giay);
 
-  if (!luyenTap) {
+  if (giay) {
     window.onbeforeunload = function () { return 'Bài thi đang làm dở. Rời trang là mất bài.'; };
   }
 
   drawTabs();
   openScreen(0);
 
-  if (luyenTap) return;
+  if (!giay) return;
 
   tick = setInterval(function () {
     const left = Math.max(0, deadline - Date.now());
@@ -452,6 +672,7 @@ function openScreen(i) {
       ' · đúng ' + rightN + '/' + s.questions.length + ' câu ở màn này';
   } else {
     $('pos-label').textContent =
+      (luyenNgay ? 'Luyện tập · ' : '') +
       'Part ' + s.part + ' · màn ' + (cur + 1) + '/' + screens.length +
       ' · đã làm ' + done + '/' + allQuestions().length + ' câu' +
       (nMarked ? ' · đã đánh dấu ' + nMarked + ' câu' : '');
@@ -460,6 +681,7 @@ function openScreen(i) {
   $('btn-prev').disabled = cur === 0;
   $('btn-next').classList.toggle('hidden', cur === screens.length - 1);
   $('btn-submit').classList.toggle('hidden', reviewMode || cur !== screens.length - 1);
+  $('btn-submit').textContent = luyenNgay ? 'Xong buổi luyện' : 'Nộp bài';
 
   if (s.kind === 'p5') drawP5(s);
   else if (s.kind === 'audio') drawAudio(s);
@@ -546,15 +768,23 @@ function drawReading(s) {
   });
 }
 
+// Có hiện đáp án và giải thích cho câu này chưa?
+// Xem lại sau khi nộp thì hiện hết; Luyện tập thì hiện từng câu một,
+// ngay khi học viên vừa chọn xong.
+function hienDapAn(q) {
+  return reviewMode || (luyenNgay && !!chot[q.id]);
+}
+
 function qBlock(q, no) {
   const o = q.options || {};
   const isMarked = !!marked[q.id];
   const my = picked[q.id];
+  const hien = hienDapAn(q);
 
   let html = '<div class="rq" data-q="' + q.id + '">' +
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">' +
       '<p class="rq-head">' + (no ? no + '. ' : '') + esc(q.question_text || '') + '</p>' +
-      (reviewMode ? '' :
+      (hien ? '' :
         '<button class="mark-btn' + (isMarked ? ' on' : '') + '" data-mark="' + q.id + '" title="Đánh dấu xem lại">🚩</button>') +
     '</div>' +
     '<div class="opts-radio">' +
@@ -563,7 +793,7 @@ function qBlock(q, no) {
       const on = my === L;
       let cls = on ? ' on' : '';
       let mark = '';
-      if (reviewMode) {
+      if (hien) {
         cls += ' disabled';
         if (L === q.correct_answer) { cls += ' right'; mark = '<span class="verdict-mark">✓</span>'; }
         else if (on) { cls += ' wrong'; mark = '<span class="verdict-mark">✗</span>'; }
@@ -573,7 +803,7 @@ function qBlock(q, no) {
         mark + '</label>';
     }).join('') + '</div>';
 
-  if (reviewMode) {
+  if (hien) {
     const ok = my === q.correct_answer;
     const qvi = q.question_vi || {};
     const hasVi = qvi.q || qvi.A;
@@ -621,7 +851,23 @@ function bindPick() {
   $('screen').querySelectorAll('label[data-pick]').forEach(function (b) {
     b.addEventListener('click', function () {
       const id = b.dataset.pick;
+
+      // Luyện tập: câu đã chốt thì khoá luôn, không cho đổi đáp án rồi
+      // tự chấm lại — chọn xong là biết đúng sai ngay.
+      if (luyenNgay && chot[id]) return;
+
       picked[id] = b.dataset.l;
+
+      if (luyenNgay) {
+        chot[id] = true;
+        const q = allQuestions().filter(function (x) { return String(x.id) === String(id); })[0];
+        if (q) {
+          const dung = picked[id] === q.correct_answer;
+          if (typeof Am !== 'undefined') { dung ? Am.dung() : Am.sai(); }
+          ghiTienDo(q.id, dung);
+        }
+      }
+
       openScreen(cur);
     });
   });
@@ -639,6 +885,19 @@ function bindPick() {
 $('btn-prev').addEventListener('click', function () { if (cur > 0) openScreen(cur - 1); });
 $('btn-next').addEventListener('click', function () { if (cur < screens.length - 1) openScreen(cur + 1); });
 
+// Ghi lại học viên đã làm câu này đúng hay sai, để lần sau lọc ra
+// những câu còn lại. Ghi hỏng thì thôi, không chặn việc học.
+async function ghiTienDo(id, dung) {
+  tienDo[id] = dung;
+
+  const { error } = await db.from('luyen_de').upsert({
+    user_id: me.id, exam_question_id: id, dung: dung,
+    lan_cuoi: new Date().toISOString()
+  }, { onConflict: 'user_id,exam_question_id' });
+
+  if (error) console.warn('Không lưu được tiến độ luyện tập:', error.message);
+}
+
 function allQuestions() {
   let out = [];
   for (const s of screens) out = out.concat(s.questions);
@@ -653,7 +912,9 @@ async function submit(auto) {
   const all = allQuestions();
   const left = all.length - all.filter(function (q) { return picked[q.id]; }).length;
 
-  if (!auto && left && !confirm('Còn ' + left + ' câu chưa làm. Nộp bài luôn?')) return;
+  const hoi = luyenNgay ? 'Còn ' + left + ' câu chưa làm. Kết thúc buổi luyện?'
+                        : 'Còn ' + left + ' câu chưa làm. Nộp bài luôn?';
+  if (!auto && left && !confirm(hoi)) return;
 
   if (tick) clearInterval(tick);
   window.onbeforeunload = null;
@@ -685,8 +946,17 @@ async function submit(auto) {
   statCards.push(stat(all.length ? Math.round((lOk + rOk) / all.length * 100) + '%' : '—', 'Độ chính xác'));
 
   // Điểm TOEIC ước lượng — quy đổi qua bảng tham khảo, không phải điểm ETS thật
-  let scoreNote = '<p class="review-note">Đề này chưa đủ 200 câu như đề thật nên chưa quy ra điểm TOEIC được.</p>';
-  if (lN && rN) {
+  // Chỉ quy ra điểm khi làm đủ cả bài. Thi lẻ vài Part mà vẫn hiện một
+  // con số TOEIC thì con số đó không có thật, dễ làm học viên hiểu sai
+  // sức mình.
+  const duCaBai = screens.length === moiMan.length;
+
+  let scoreNote = duCaBai
+    ? '<p class="review-note">Đề này chưa đủ 200 câu như đề thật nên chưa quy ra điểm TOEIC được.</p>'
+    : '<p class="review-note">Buổi này bạn chỉ làm một phần của đề, nên không quy ra điểm TOEIC. ' +
+      'Muốn biết điểm ước lượng thì làm Full Test.</p>';
+
+  if (duCaBai && lN && rN) {
     const [lRes, rRes] = await Promise.all([
       db.rpc('toeic_estimate', { p_section: 'listening', p_correct: lOk, p_total: lN }),
       db.rpc('toeic_estimate', { p_section: 'reading', p_correct: rOk, p_total: rN })
@@ -703,7 +973,8 @@ async function submit(auto) {
 
   $('result').innerHTML =
     '<div class="greet"><h1>' + (auto ? 'Hết giờ, bài đã tự nộp'
-                                      : (luyenTap ? 'Xong buổi luyện tập' : 'Đã nộp bài')) + '</h1>' +
+                                      : (luyenNgay ? 'Xong buổi luyện tập'
+                                                   : (luyenTap ? 'Xong phần thi' : 'Đã nộp bài'))) + '</h1>' +
     '<p>' + esc(examSet.name) + ' · làm hết ' + Math.floor(secs / 60) + ' phút ' + (secs % 60) + ' giây' +
     (left ? ', bỏ trống ' + left + ' câu' : '') + '.</p></div>' +
     '<section class="stats">' + statCards.join('') + '</section>' +
