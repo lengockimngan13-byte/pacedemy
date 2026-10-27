@@ -27,11 +27,12 @@ async function build() {
     .eq('part', 5)
     .order('order_index');
 
+  // cau_mo là khung nhìn chỉ có cột an toàn — không đáp án, không
+  // giải thích. Chỗ này chỉ cần đếm câu theo dạng bài.
   const { data: qs } = await db
-    .from('questions')
+    .from('cau_mo')
     .select('id, topic_tag')
-    .eq('part', 5)
-    .eq('is_active', true);
+    .eq('part', 5);
 
   if (!tags || !tags.length) {
     $('groups').innerHTML = '<p class="empty">Chưa có danh mục dạng bài.</p>';

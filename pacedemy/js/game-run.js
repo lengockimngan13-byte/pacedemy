@@ -42,7 +42,8 @@ const MAU = {
 
 let me = null;
 let nhom = 'vocab';
-let kho = [];           // toàn bộ câu lấy được
+let kho = [];           // câu của lượt chơi này, xin lúc bắt đầu
+let soCauCo = 0;        // tổng số câu trong kho, chỉ để hiện cho biết
 let hang = [];          // mười câu của lượt này
 let qi = 0;
 let tim = TIM;
@@ -205,21 +206,26 @@ function xepO() {
 async function napKho() {
   const tags = nhom === 'all' ? VOCAB_TAGS.concat(WORD_TAGS) : VOCAB_TAGS;
 
-  const { data } = await db
-    .from('questions')
-    .select('id, question_text, options, options_vi, correct_answer, explanation, topic_tag, translation_vi, key_point')
-    .eq('part', 5).eq('is_active', true).in('topic_tag', tags);
+  // Trước đây chỗ này kéo cả ngân hàng đề về máy kèm đáp án và giải
+  // thích, chỉ để chơi mười mấy câu. Giờ chỉ đếm xem có bao nhiêu câu,
+  // còn bài thì tới lúc bấm Chơi mới xin, và xin đúng số cần.
+  //
+  // Game vẫn nhận kèm đáp án, vì con thỏ đang rơi mà chờ máy chủ chấm
+  // thì hỏng nhịp chơi. Nhưng mười mấy câu thì khác hẳn sáu trăm câu.
+  const { count } = await db
+    .from('cau_mo')
+    .select('id', { count: 'exact', head: true })
+    .eq('part', 5).in('topic_tag', tags);
 
-  kho = (data || []).filter(function (q) {
-    return q.options && q.correct_answer && q.options[q.correct_answer];
-  });
+  soCauCo = count || 0;
+  kho = [];
 
-  $('g-dem').textContent = kho.length
-    ? 'Có ' + kho.length + ' câu trong ngân hàng đề. Mỗi lượt chơi bốc ngẫu nhiên ' +
-      Math.min(SO_CAU, kho.length) + ' câu.'
+  $('g-dem').textContent = soCauCo
+    ? 'Có ' + soCauCo + ' câu trong ngân hàng đề. Mỗi lượt chơi bốc ngẫu nhiên ' +
+      Math.min(SO_CAU, soCauCo) + ' câu.'
     : 'Chưa có câu nào ở dạng này.';
 
-  $('g-start').disabled = !kho.length;
+  $('g-start').disabled = !soCauCo;
 }
 
 function tron(a) {
@@ -233,7 +239,23 @@ function tron(a) {
 
 // ---------- Vào một lượt chơi ----------
 
-function vaoChoi() {
+async function vaoChoi() {
+  const nut = $('g-start');
+  const chuNut = nut.textContent;
+  nut.disabled = true; nut.textContent = 'Đang bốc bài…';
+
+  // Xin đúng số câu cho lượt này, không kéo cả kho về nữa
+  const tags = nhom === 'all' ? VOCAB_TAGS.concat(WORD_TAGS) : VOCAB_TAGS;
+  const { data, error } = await db.rpc('cau_tho', { p_tags: tags, p_so: SO_CAU });
+
+  nut.disabled = false; nut.textContent = chuNut;
+
+  if (error || !data || !data.length) {
+    toast(error ? error.message : 'Chưa bốc được bài, bạn thử lại nhé.', 'bad');
+    return;
+  }
+
+  kho = data;
   hang = tron(kho).slice(0, SO_CAU);
   qi = 0; tim = TIM; diem = 0; chuoi = 0; dung = 0;
   saiList = []; attemptId = null; soDaLam = 0;
@@ -1005,7 +1027,7 @@ window.addEventListener('resize', function () {
   $('g-start').disabled = true;
   await napKho();
 
-  if (!kho.length) {
+  if (!soCauCo) {
     $('view-start').classList.add('hidden');
     $('view-empty').classList.remove('hidden');
   }

@@ -125,7 +125,7 @@ async function loadTagTable() {
 
   const [{ data: pq }, { data: mq }] = await Promise.all([
     practiceQ.length
-      ? db.from('questions').select('id, part, topic_tag').in('id', practiceQ)
+      ? db.from('cau_mo').select('id, part, topic_tag').in('id', practiceQ)
       : Promise.resolve({ data: [] }),
     mockQ.length
       ? db.from('exam_questions').select('id, part, topic_tag').in('id', mockQ)

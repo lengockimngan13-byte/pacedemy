@@ -18,6 +18,7 @@ let xp = 0;
 let wrongs = [];
 let started = null;
 let attemptId = null;
+let loiTai = '';     // lý do không lấy được đề, để nói cho học viên biết
 
 const $ = function (id) { return document.getElementById(id); };
 
@@ -43,6 +44,10 @@ const $ = function (id) { return document.getElementById(id); };
   if (!queue.length) {
     $('view-q').classList.add('hidden');
     $('view-empty').classList.remove('hidden');
+    if (loiTai) {
+      const o = $('empty-note');
+      if (o) o.textContent = loiTai;
+    }
     return;
   }
 
@@ -51,29 +56,30 @@ const $ = function (id) { return document.getElementById(id); };
 
 // ---------- Lấy câu hỏi ----------
 
+// Xin đề từ máy chủ. Câu gửi về CHỈ có đề và bốn phương án — không
+// có đáp án, không có giải thích. Hai lý do:
+//
+//  1. Trước đây trang này tải về cả 670 câu kèm đáp án rồi mới bốc 10
+//     câu ra hiện. Một lần gọi là lấy sạch phần cô soạn công nhất.
+//  2. Đáp án nằm sẵn trong máy thì học viên mở tab Network là thấy
+//     trước khi chọn.
+//
+// Máy chủ cũng tự bốc ngẫu nhiên và chỉ trả đúng số câu cần, nên
+// không còn chỗ nào nhận cả kho về nữa.
 async function loadQuestions() {
-  let qy = db
-    .from('questions')
-    .select('id, question_text, options, correct_answer, explanation, topic_tag, difficulty, translation_vi, key_point')
-    .eq('part', part)
-    .eq('is_active', true);
+  const { data, error } = await db.rpc('cau_luyen', {
+    p_part: part,
+    p_tag: dang || null,
+    p_so: SIZE
+  });
 
-  if (dang) qy = qy.eq('topic_tag', dang);
-
-  const { data, error } = await qy;
-
-  if (error || !data || !data.length) return;
-
-  queue = shuffle(data).slice(0, SIZE);
-}
-
-function shuffle(a) {
-  const r = a.slice();
-  for (let i = r.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const t = r[i]; r[i] = r[j]; r[j] = t;
+  if (error) {
+    loiTai = error.message || 'Không lấy được đề.';
+    return;
   }
-  return r;
+  if (!data || !data.length) return;
+
+  queue = data;
 }
 
 // ---------- Hiển thị câu hỏi ----------
@@ -119,12 +125,36 @@ function fillBlank(text, word) {
 
 async function answer(k) {
   const q = queue[at];
-  const ok = (k === q.correct_answer);
+
+  // Khoá các ô lại ngay, đừng để bấm hai lần trong lúc chờ máy chủ
+  $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
+    b.classList.add('disabled');
+  });
+
+  // Máy chủ chấm và trả về đáp án kèm giải thích của ĐÚNG CÂU NÀY
+  const { data: kq, error } = await db.rpc('cham_cau', { p_id: q.id, p_chon: k });
+  const r = Array.isArray(kq) ? kq[0] : kq;
+
+  if (error || !r) {
+    // Mạng rớt thì mở lại các ô cho học viên chọn lại, đừng kẹt bài
+    $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
+      b.classList.remove('disabled');
+    });
+    toast(error ? error.message : 'Không chấm được câu này, bạn thử lại nhé.', 'bad');
+    return;
+  }
+
+  // Giữ lại để màn chữa bài cuối giờ dùng, khỏi hỏi máy chủ lần nữa
+  q.correct_answer = r.dap_an;
+  q.explanation    = r.explanation;
+  q.translation_vi = r.translation_vi;
+  q.key_point      = r.key_point;
+
+  const ok = !!r.dung;
   marks[at] = ok ? 'ok' : 'no';
   QuizProgress.draw({ at: at, total: queue.length, marks: marks });
 
   $('opts').querySelectorAll('.opt-radio').forEach(function (b) {
-    b.classList.add('disabled');
     if (b.dataset.k === q.correct_answer) b.classList.add('right');
     else if (b.dataset.k === k) b.classList.add('wrong');
   });

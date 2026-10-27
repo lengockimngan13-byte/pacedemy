@@ -84,7 +84,7 @@ async function countProgress(assignment, userIds) {
       const qInfo = {};
       if (qids.length) {
         const { data: qs } = await db
-          .from('questions').select('id, part, topic_tag').in('id', qids);
+          .from('cau_mo').select('id, part, topic_tag').in('id', qids);
         for (const q of (qs || [])) qInfo[q.id] = q;
       }
 
